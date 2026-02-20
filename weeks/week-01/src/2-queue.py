@@ -1,11 +1,9 @@
-from collections import deque
-
 
 class Queue:
     """Array-based Queue implementation using deque"""
     
     def __init__(self):
-        self.items = deque()
+        self.items = []
     
     def enqueue(self, item):
         """Add an item to the rear of the queue"""
@@ -15,7 +13,15 @@ class Queue:
         """Remove and return the front item"""
         if self.is_empty():
             raise IndexError("Queue is empty")
-        return self.items.popleft()
+        first_item = self.items[0]
+        if len(self.items)>1:
+            self.items = self.items[1:]
+        else:
+            self.items = []
+        
+        return first_item
+        
+        #self.items =  self.items[1:] if len(self.items)>1 else []
     
     def front(self):
         """Return the front item without removing it"""
