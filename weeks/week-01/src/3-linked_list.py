@@ -155,3 +155,25 @@ class SinglyLinkedList:
 
 
 
+# Example usage of SinglyLinkedList
+def manage_todo_list():
+    """Manage a to-do list using a linked list"""
+    todo_list = SinglyLinkedList()
+    
+    # Adding tasks to the to-do list
+    todo_list.insert_at_end("Buy groceries")
+    todo_list.insert_at_end("Clean the house")
+    todo_list.insert_at_end("Pay bills")
+    
+    print(todo_list)
+    
+    todo_list.delete_at_beginning()
+    
+    print(todo_list)
+
+    todo_list.insert_at_beginning("Go for a run")
+    
+    print(todo_list)
+
+if __name__ == "__main__":
+    manage_todo_list()

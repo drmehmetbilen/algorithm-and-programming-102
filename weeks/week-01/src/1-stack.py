@@ -32,6 +32,8 @@ class Stack:
         return f"Stack({self.items})"
 
 
+# Example usage of Stack
+
 def is_balanced_parentheses(expression):
     """
     Check if parentheses in an expression are balanced
@@ -65,3 +67,11 @@ def reverse_string(text):
         reversed_text += stack.pop()
     
     return reversed_text
+
+if __name__ == "__main__":
+    # Test balanced parentheses
+    print(is_balanced_parentheses("(()())"))  # True
+    print(is_balanced_parentheses("(()"))     # False
+    
+    # Test string reversal
+    print(reverse_string("Hello, World!"))  # !dlroW ,olleH

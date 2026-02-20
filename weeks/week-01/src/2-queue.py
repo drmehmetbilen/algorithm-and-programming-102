@@ -33,3 +33,25 @@ class Queue:
     
     def __str__(self):
         return f"Queue({list(self.items)})"
+    
+# Example usage of Queue 
+def simulate_day_at_bank():
+    """Simulate a day at the bank with a queue of customers"""
+    bank_queue = Queue()
+    
+    # Customers arrive at the bank
+    bank_queue.enqueue("Customer 1")
+    bank_queue.enqueue("Customer 2")
+    bank_queue.enqueue("Customer 3")
+    
+    print(bank_queue)  # Queue(['Customer 1', 'Customer 2', 'Customer 3'])
+    
+    # Serve customers
+    while not bank_queue.is_empty():
+        current_customer = bank_queue.dequeue()
+        print(f"Serving {current_customer}")
+    
+    print(bank_queue)  # Queue([])
+
+if __name__ == "__main__":
+    simulate_day_at_bank()
