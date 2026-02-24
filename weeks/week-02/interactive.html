@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 02 Interactive: Trees and BST</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6efe3;
+      --panel: #fff9f0;
+      --ink: #1d2d35;
+      --muted: #5f7078;
+      --line: #d9cbb4;
+      --accent: #1f7a66;
+      --accent-soft: #d9f2ea;
+      --accent-2: #e7772d;
+      --accent-2-soft: #ffe8d8;
+      --shadow: 0 12px 28px rgba(29, 45, 53, 0.12);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at -10% -20%, #fff8d6 0%, transparent 55%),
+        radial-gradient(900px 500px at 110% 10%, #daf4e7 0%, transparent 58%),
+        linear-gradient(160deg, #f8f1e7 0%, #f3efe8 60%, #f7f3ec 100%);
+      min-height: 100vh;
+      padding: 28px 16px 40px;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      background: linear-gradient(120deg, #fff5e2 0%, #f4fffa 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      animation: rise 0.6s ease both;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .chips {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: rise 0.7s ease both;
+    }
+
+    .panel-top {
+      animation-delay: 0.05s;
+    }
+
+    .panel:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .panel-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffdf8 0%, #fff8eb 100%);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .panel-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .panel-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    select,
+    input[type="number"] {
+      border: 1px solid #c8b79c;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-family: inherit;
+      min-width: 110px;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent);
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 7px 14px rgba(31, 122, 102, 0.25);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: #c8b79c;
+    }
+
+    .btn-accent {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 7px 14px rgba(231, 119, 45, 0.22);
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fffcf7;
+      padding: 10px;
+    }
+
+    .surface h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+
+    .mono {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.88rem;
+      color: #243840;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .status {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      min-height: 1.3rem;
+    }
+
+    .tree-wrap {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, #fffef9 0%, #fff8ef 100%);
+      overflow-x: auto;
+      padding: 6px;
+    }
+
+    svg {
+      width: 100%;
+      min-height: 300px;
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px 10px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .stat span {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .note {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .term-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .term-btn {
+      border-color: #c8b79c;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: none;
+    }
+
+    .term-btn.is-active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 7px 14px rgba(31, 122, 102, 0.25);
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      svg {
+        min-height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Week 02 Interactive Lab: Trees and BST</h1>
+      <p class="subtitle">Use this page in class to demonstrate traversal logic, BST ordering, and operation workflows.</p>
+      <div class="chips">
+        <span class="chip">Traversal animation</span>
+        <span class="chip">BST insert/search/delete</span>
+        <span class="chip">Live tree rendering</span>
+      </div>
+    </section>
+
+    <section class="panel panel-top">
+      <header class="panel-head">
+        <h2>0) Tree Terminology Explorer</h2>
+        <p>Click a tree term and see that concept highlighted directly on the diagram.</p>
+      </header>
+      <div class="panel-body">
+        <div class="term-buttons">
+          <button type="button" class="term-btn is-active" data-term="root">Root</button>
+          <button type="button" class="term-btn" data-term="parent">Parent</button>
+          <button type="button" class="term-btn" data-term="child">Child</button>
+          <button type="button" class="term-btn" data-term="leaf">Leaf</button>
+          <button type="button" class="term-btn" data-term="subtree">Subtree</button>
+          <button type="button" class="term-btn" data-term="depth">Depth</button>
+          <button type="button" class="term-btn" data-term="height">Height</button>
+        </div>
+
+        <div class="tree-wrap">
+          <svg id="termSvg" viewBox="0 0 900 320" role="img" aria-label="Tree terminology visualization"></svg>
+        </div>
+
+        <div class="legend">
+          <span><i class="dot" style="background:#f4dfbe"></i>Unselected</span>
+          <span><i class="dot" style="background:#f7a65f"></i>Context path/group</span>
+          <span><i class="dot" style="background:#1f7a66"></i>Selected concept</span>
+        </div>
+
+        <div class="surface">
+          <h3 id="termTitle">Root</h3>
+          <p id="termDefinition" class="mono">The root is the top-most node. In this tree, A is the root.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <header class="panel-head">
+          <h2>1) Traversal Studio (Fixed Binary Tree)</h2>
+          <p>Choose a traversal and step through the exact visit order.</p>
+        </header>
+        <div class="panel-body">
+          <div class="controls">
+            <label class="field" for="traversalType">Traversal
+              <select id="traversalType">
+                <option value="preorder">Preorder (Root, Left, Right)</option>
+                <option value="inorder">Inorder (Left, Root, Right)</option>
+                <option value="postorder">Postorder (Left, Right, Root)</option>
+                <option value="levelorder">Level-order (BFS)</option>
+              </select>
+            </label>
+            <button id="prepareTraversal" class="btn-secondary">Build Order</button>
+            <button id="stepTraversal" class="btn-accent">Step</button>
+            <button id="autoTraversal" class="btn-primary">Auto Play</button>
+            <button id="resetTraversal" class="btn-secondary">Reset</button>
+          </div>
+          <div class="controls">
+            <label class="field" for="speedRange">Speed
+              <input id="speedRange" type="range" min="250" max="1500" step="50" value="700">
+            </label>
+            <p class="status" id="traversalStatus">Ready.</p>
+          </div>
+          <div class="tree-wrap">
+            <svg id="traversalSvg" viewBox="0 0 900 320" role="img" aria-label="Traversal tree visualization"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot" style="background:#f4dfbe"></i>Not visited</span>
+            <span><i class="dot" style="background:#f7a65f"></i>Current node</span>
+            <span><i class="dot" style="background:#1f7a66"></i>Visited node</span>
+          </div>
+          <div class="surface">
+            <h3>Visit Output</h3>
+            <p id="traversalOutput" class="mono">[]</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <header class="panel-head">
+          <h2>2) BST Operation Lab</h2>
+          <p>Insert, search, and delete values while watching the tree shape update.</p>
+        </header>
+        <div class="panel-body">
+          <div class="controls">
+            <label class="field" for="bstValue">Value
+              <input id="bstValue" type="number" placeholder="e.g. 42">
+            </label>
+            <button id="bstInsert" class="btn-primary">Insert</button>
+            <button id="bstSearch" class="btn-secondary">Search</button>
+            <button id="bstDelete" class="btn-accent">Delete</button>
+            <button id="bstRandom" class="btn-secondary">Random 7</button>
+            <button id="bstReset" class="btn-secondary">Reset</button>
+          </div>
+          <p class="status" id="bstStatus">Start by inserting values.</p>
+
+          <div class="tree-wrap">
+            <svg id="bstSvg" viewBox="0 0 900 320" role="img" aria-label="BST visualization"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot" style="background:#f4dfbe"></i>Normal node</span>
+            <span><i class="dot" style="background:#f7a65f"></i>Search/operation path</span>
+            <span><i class="dot" style="background:#1f7a66"></i>Found or changed node</span>
+          </div>
+
+          <div class="stats">
+            <div class="stat"><strong>Size</strong><span id="statSize">0</span></div>
+            <div class="stat"><strong>Height</strong><span id="statHeight">0</span></div>
+            <div class="stat"><strong>Min</strong><span id="statMin">-</span></div>
+            <div class="stat"><strong>Max</strong><span id="statMax">-</span></div>
+          </div>
+
+          <div class="surface">
+            <h3>Traversals</h3>
+            <p class="mono" id="bstInorder">Inorder: []</p>
+            <p class="mono" id="bstPreorder">Preorder: []</p>
+            <p class="mono" id="bstPostorder">Postorder: []</p>
+            <p class="mono" id="bstLevelorder">Level-order: []</p>
+          </div>
+          <p class="note">Tip: Inorder traversal of a BST should always be sorted.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    let globalNodeId = 0;
+
+    function makeNode(value) {
+      return { value, left: null, right: null, id: `node-${++globalNodeId}` };
+    }
+
+    function drawTree(svg, root, options = {}) {
+      const visited = options.visited || new Set();
+      const path = options.path || new Set();
+      const current = options.current || null;
+      const strong = options.strong || null;
+
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      if (!root) {
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", "20");
+        text.setAttribute("y", "34");
+        text.setAttribute("fill", "#6a7c84");
+        text.setAttribute("font-size", "16");
+        text.textContent = "Tree is empty.";
+        svg.appendChild(text);
+        return;
+      }
+
+      let maxDepth = 0;
+      let xIndex = 0;
+      const pos = new Map();
+      const xGap = 86;
+      const yGap = 88;
+      const padX = 44;
+      const padY = 36;
+
+      function inorderLayout(node, depth) {
+        if (!node) return;
+        maxDepth = Math.max(maxDepth, depth);
+        inorderLayout(node.left, depth + 1);
+        pos.set(node.id, { x: padX + xIndex * xGap, y: padY + depth * yGap });
+        xIndex += 1;
+        inorderLayout(node.right, depth + 1);
+      }
+
+      inorderLayout(root, 0);
+      const width = Math.max(900, padX * 2 + (xIndex - 1) * xGap + 40);
+      const height = Math.max(320, padY * 2 + maxDepth * yGap + 48);
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+      function drawEdges(node) {
+        if (!node) return;
+        const from = pos.get(node.id);
+        if (node.left) {
+          const to = pos.get(node.left.id);
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", from.x);
+          line.setAttribute("y1", from.y);
+          line.setAttribute("x2", to.x);
+          line.setAttribute("y2", to.y);
+          line.setAttribute("stroke", "#c2b39d");
+          line.setAttribute("stroke-width", "2");
+          svg.appendChild(line);
+        }
+        if (node.right) {
+          const to = pos.get(node.right.id);
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", from.x);
+          line.setAttribute("y1", from.y);
+          line.setAttribute("x2", to.x);
+          line.setAttribute("y2", to.y);
+          line.setAttribute("stroke", "#c2b39d");
+          line.setAttribute("stroke-width", "2");
+          svg.appendChild(line);
+        }
+        drawEdges(node.left);
+        drawEdges(node.right);
+      }
+
+      function drawNodes(node) {
+        if (!node) return;
+        const point = pos.get(node.id);
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", point.x);
+        circle.setAttribute("cy", point.y);
+        circle.setAttribute("r", 22);
+        circle.setAttribute("stroke", "#7a705d");
+        circle.setAttribute("stroke-width", "1.6");
+
+        let fill = "#f4dfbe";
+        if (visited.has(node.id)) fill = "#1f7a66";
+        if (path.has(node.id)) fill = "#f7a65f";
+        if (node.id === current) fill = "#f7a65f";
+        if (node.id === strong) fill = "#1f7a66";
+        circle.setAttribute("fill", fill);
+        group.appendChild(circle);
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", point.x);
+        text.setAttribute("y", point.y + 5);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("font-size", "14");
+        text.setAttribute("font-family", "'IBM Plex Mono', monospace");
+        text.setAttribute("font-weight", "600");
+        text.setAttribute("fill", fill === "#1f7a66" ? "#f8fffd" : "#1c2b34");
+        text.textContent = node.value;
+        group.appendChild(text);
+
+        svg.appendChild(group);
+        drawNodes(node.left);
+        drawNodes(node.right);
+      }
+
+      drawEdges(root);
+      drawNodes(root);
+    }
+
+    const sampleRoot = (() => {
+      const a = makeNode("A");
+      const b = makeNode("B");
+      const c = makeNode("C");
+      const d = makeNode("D");
+      const e = makeNode("E");
+      const f = makeNode("F");
+      a.left = b;
+      a.right = c;
+      b.left = d;
+      b.right = e;
+      c.right = f;
+      return a;
+    })();
+
+    function collectAllNodes(root) {
+      const out = [];
+      (function walk(node) {
+        if (!node) return;
+        out.push(node);
+        walk(node.left);
+        walk(node.right);
+      })(root);
+      return out;
+    }
+
+    function collectSubtreeNodes(root) {
+      const out = [];
+      (function walk(node) {
+        if (!node) return;
+        out.push(node);
+        walk(node.left);
+        walk(node.right);
+      })(root);
+      return out;
+    }
+
+    function toIdSet(nodes) {
+      return new Set(nodes.filter(Boolean).map((node) => node.id));
+    }
+
+    function preorder(root) {
+      const out = [];
+      (function walk(node) {
+        if (!node) return;
+        out.push(node);
+        walk(node.left);
+        walk(node.right);
+      })(root);
+      return out;
+    }
+
+    function inorder(root) {
+      const out = [];
+      (function walk(node) {
+        if (!node) return;
+        walk(node.left);
+        out.push(node);
+        walk(node.right);
+      })(root);
+      return out;
+    }
+
+    function postorder(root) {
+      const out = [];
+      (function walk(node) {
+        if (!node) return;
+        walk(node.left);
+        walk(node.right);
+        out.push(node);
+      })(root);
+      return out;
+    }
+
+    function levelorder(root) {
+      if (!root) return [];
+      const out = [];
+      const queue = [root];
+      while (queue.length) {
+        const node = queue.shift();
+        out.push(node);
+        if (node.left) queue.push(node.left);
+        if (node.right) queue.push(node.right);
+      }
+      return out;
+    }
+
+    const termSvg = document.getElementById("termSvg");
+    const termButtons = Array.from(document.querySelectorAll(".term-btn"));
+    const termTitle = document.getElementById("termTitle");
+    const termDefinition = document.getElementById("termDefinition");
+
+    const nodeA = sampleRoot;
+    const nodeB = sampleRoot.left;
+    const nodeC = sampleRoot.right;
+    const nodeD = nodeB ? nodeB.left : null;
+    const nodeE = nodeB ? nodeB.right : null;
+    const nodeF = nodeC ? nodeC.right : null;
+    const allTermNodes = collectAllNodes(sampleRoot);
+
+    function renderTerminology(term) {
+      const parentNodes = allTermNodes.filter((node) => node.left || node.right);
+      const childNodes = allTermNodes.filter((node) => node !== nodeA);
+      const leafNodes = allTermNodes.filter((node) => !node.left && !node.right);
+      const leftSubtreeNodes = collectSubtreeNodes(nodeB);
+
+      const state = {
+        title: "Root",
+        definition: "The root is the top-most node. In this tree, A is the root.",
+        visited: toIdSet([nodeA]),
+        path: new Set(),
+        strong: nodeA ? nodeA.id : null
+      };
+
+      if (term === "parent") {
+        state.title = "Parent";
+        state.definition = "A parent is a node with at least one child. In this tree, A, B, and C are parent nodes.";
+        state.visited = toIdSet(parentNodes);
+        state.strong = nodeA ? nodeA.id : null;
+      } else if (term === "child") {
+        state.title = "Child";
+        state.definition = "A child is any node that has a parent above it. Here B, C, D, E, and F are child nodes.";
+        state.visited = toIdSet(childNodes);
+        state.strong = nodeB ? nodeB.id : null;
+      } else if (term === "leaf") {
+        state.title = "Leaf";
+        state.definition = "A leaf has no children. In this tree, D, E, and F are leaf nodes.";
+        state.visited = toIdSet(leafNodes);
+        state.strong = nodeD ? nodeD.id : null;
+      } else if (term === "subtree") {
+        state.title = "Subtree";
+        state.definition = "A subtree is a node and all of its descendants. Highlighted: subtree rooted at B = {B, D, E}.";
+        state.visited = toIdSet(leftSubtreeNodes);
+        state.path = toIdSet([nodeA, nodeB]);
+        state.strong = nodeB ? nodeB.id : null;
+      } else if (term === "depth") {
+        state.title = "Depth";
+        state.definition = "Depth is distance from root. Example: node E has depth 2 via A -> B -> E.";
+        state.visited = toIdSet([nodeE]);
+        state.path = toIdSet([nodeA, nodeB, nodeE]);
+        state.strong = nodeE ? nodeE.id : null;
+      } else if (term === "height") {
+        state.title = "Height";
+        state.definition = "Height is the longest path from root to a leaf. Here height is 3 nodes on A -> B -> D.";
+        state.visited = toIdSet([nodeA, nodeD]);
+        state.path = toIdSet([nodeA, nodeB, nodeD]);
+        state.strong = nodeA ? nodeA.id : null;
+      }
+
+      termButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.term === term);
+      });
+
+      drawTree(termSvg, sampleRoot, {
+        visited: state.visited,
+        path: state.path,
+        strong: state.strong
+      });
+      termTitle.textContent = state.title;
+      termDefinition.textContent = state.definition;
+    }
+
+    termButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        renderTerminology(button.dataset.term);
+      });
+    });
+
+    const traversalSvg = document.getElementById("traversalSvg");
+    const traversalType = document.getElementById("traversalType");
+    const traversalOutput = document.getElementById("traversalOutput");
+    const traversalStatus = document.getElementById("traversalStatus");
+    const speedRange = document.getElementById("speedRange");
+    const prepareTraversalBtn = document.getElementById("prepareTraversal");
+    const stepTraversalBtn = document.getElementById("stepTraversal");
+    const autoTraversalBtn = document.getElementById("autoTraversal");
+    const resetTraversalBtn = document.getElementById("resetTraversal");
+
+    let order = [];
+    let orderIndex = 0;
+    let traversalVisited = new Set();
+    let traversalCurrent = null;
+    let traversalTimer = null;
+    let autoRunning = false;
+
+    function selectedOrder() {
+      const t = traversalType.value;
+      if (t === "preorder") return preorder(sampleRoot);
+      if (t === "inorder") return inorder(sampleRoot);
+      if (t === "postorder") return postorder(sampleRoot);
+      return levelorder(sampleRoot);
+    }
+
+    function paintTraversal() {
+      drawTree(traversalSvg, sampleRoot, {
+        visited: traversalVisited,
+        current: traversalCurrent
+      });
+      const names = order.map((node) => node.value);
+      const shown = names.map((name, idx) => (idx < orderIndex ? `[${name}]` : name));
+      traversalOutput.textContent = shown.length ? shown.join(" -> ") : "[]";
+    }
+
+    function buildOrder() {
+      stopAuto();
+      order = selectedOrder();
+      orderIndex = 0;
+      traversalVisited = new Set();
+      traversalCurrent = null;
+      traversalStatus.textContent = `Order built: ${order.map((n) => n.value).join(" -> ")}`;
+      paintTraversal();
+    }
+
+    function doStep() {
+      if (!order.length) buildOrder();
+      if (orderIndex >= order.length) {
+        traversalStatus.textContent = "Traversal complete.";
+        stopAuto();
+        return;
+      }
+      const node = order[orderIndex];
+      traversalCurrent = node.id;
+      traversalVisited.add(node.id);
+      orderIndex += 1;
+      traversalStatus.textContent = `Step ${orderIndex}/${order.length}: visited ${node.value}`;
+      paintTraversal();
+      if (orderIndex >= order.length) {
+        traversalStatus.textContent = "Traversal complete.";
+        stopAuto();
+      }
+    }
+
+    function startAuto() {
+      if (autoRunning) return;
+      if (!order.length || orderIndex >= order.length) buildOrder();
+      autoRunning = true;
+      autoTraversalBtn.textContent = "Pause";
+      traversalTimer = setInterval(doStep, Number(speedRange.value));
+    }
+
+    function stopAuto() {
+      autoRunning = false;
+      autoTraversalBtn.textContent = "Auto Play";
+      if (traversalTimer) {
+        clearInterval(traversalTimer);
+        traversalTimer = null;
+      }
+    }
+
+    function resetTraversal() {
+      stopAuto();
+      order = [];
+      orderIndex = 0;
+      traversalVisited = new Set();
+      traversalCurrent = null;
+      traversalStatus.textContent = "Ready.";
+      traversalOutput.textContent = "[]";
+      drawTree(traversalSvg, sampleRoot);
+    }
+
+    prepareTraversalBtn.addEventListener("click", buildOrder);
+    stepTraversalBtn.addEventListener("click", doStep);
+    autoTraversalBtn.addEventListener("click", () => (autoRunning ? stopAuto() : startAuto()));
+    resetTraversalBtn.addEventListener("click", resetTraversal);
+    speedRange.addEventListener("input", () => {
+      if (autoRunning) {
+        stopAuto();
+        startAuto();
+      }
+    });
+    traversalType.addEventListener("change", buildOrder);
+
+    class BST {
+      constructor() {
+        this.root = null;
+      }
+
+      insert(value) {
+        if (!this.root) {
+          this.root = makeNode(value);
+          return { inserted: true, path: [this.root.id], changed: this.root.id, reason: "Inserted at root." };
+        }
+        const path = [];
+        let current = this.root;
+        while (current) {
+          path.push(current.id);
+          if (value < current.value) {
+            if (!current.left) {
+              current.left = makeNode(value);
+              path.push(current.left.id);
+              return { inserted: true, path, changed: current.left.id, reason: `Inserted ${value} to the left.` };
+            }
+            current = current.left;
+          } else if (value > current.value) {
+            if (!current.right) {
+              current.right = makeNode(value);
+              path.push(current.right.id);
+              return { inserted: true, path, changed: current.right.id, reason: `Inserted ${value} to the right.` };
+            }
+            current = current.right;
+          } else {
+            return { inserted: false, path, changed: current.id, reason: "Duplicate value. BST ignores duplicates." };
+          }
+        }
+      }
+
+      search(value) {
+        const path = [];
+        let current = this.root;
+        while (current) {
+          path.push(current.id);
+          if (value === current.value) {
+            return { found: true, path, foundId: current.id };
+          }
+          current = value < current.value ? current.left : current.right;
+        }
+        return { found: false, path, foundId: null };
+      }
+
+      delete(value) {
+        const path = [];
+        const result = this._deleteRec(this.root, value, path);
+        this.root = result.node;
+        return { deleted: result.deleted, path: result.path, changed: result.changed };
+      }
+
+      _deleteRec(node, value, path) {
+        if (!node) return { node: null, deleted: false, path, changed: null };
+
+        path.push(node.id);
+        if (value < node.value) {
+          const result = this._deleteRec(node.left, value, path);
+          node.left = result.node;
+          return { node, deleted: result.deleted, path, changed: result.changed };
+        }
+        if (value > node.value) {
+          const result = this._deleteRec(node.right, value, path);
+          node.right = result.node;
+          return { node, deleted: result.deleted, path, changed: result.changed };
+        }
+
+        if (!node.left && !node.right) {
+          return { node: null, deleted: true, path, changed: node.id };
+        }
+        if (!node.left) {
+          return { node: node.right, deleted: true, path, changed: node.right.id };
+        }
+        if (!node.right) {
+          return { node: node.left, deleted: true, path, changed: node.left.id };
+        }
+
+        let successorParent = node;
+        let successor = node.right;
+        while (successor.left) {
+          successorParent = successor;
+          path.push(successor.id);
+          successor = successor.left;
+        }
+        node.value = successor.value;
+        if (successorParent === node) {
+          successorParent.right = successor.right;
+        } else {
+          successorParent.left = successor.right;
+        }
+        return { node, deleted: true, path, changed: node.id };
+      }
+
+      inorder() {
+        const out = [];
+        (function walk(node) {
+          if (!node) return;
+          walk(node.left);
+          out.push(node.value);
+          walk(node.right);
+        })(this.root);
+        return out;
+      }
+
+      preorder() {
+        const out = [];
+        (function walk(node) {
+          if (!node) return;
+          out.push(node.value);
+          walk(node.left);
+          walk(node.right);
+        })(this.root);
+        return out;
+      }
+
+      postorder() {
+        const out = [];
+        (function walk(node) {
+          if (!node) return;
+          walk(node.left);
+          walk(node.right);
+          out.push(node.value);
+        })(this.root);
+        return out;
+      }
+
+      levelorder() {
+        if (!this.root) return [];
+        const out = [];
+        const queue = [this.root];
+        while (queue.length) {
+          const node = queue.shift();
+          out.push(node.value);
+          if (node.left) queue.push(node.left);
+          if (node.right) queue.push(node.right);
+        }
+        return out;
+      }
+
+      size() {
+        return this.inorder().length;
+      }
+
+      height() {
+        function h(node) {
+          if (!node) return 0;
+          return 1 + Math.max(h(node.left), h(node.right));
+        }
+        return h(this.root);
+      }
+
+      min() {
+        if (!this.root) return null;
+        let n = this.root;
+        while (n.left) n = n.left;
+        return n.value;
+      }
+
+      max() {
+        if (!this.root) return null;
+        let n = this.root;
+        while (n.right) n = n.right;
+        return n.value;
+      }
+
+      clear() {
+        this.root = null;
+      }
+    }
+
+    const bst = new BST();
+    const bstSvg = document.getElementById("bstSvg");
+    const bstValueInput = document.getElementById("bstValue");
+    const bstInsertBtn = document.getElementById("bstInsert");
+    const bstSearchBtn = document.getElementById("bstSearch");
+    const bstDeleteBtn = document.getElementById("bstDelete");
+    const bstRandomBtn = document.getElementById("bstRandom");
+    const bstResetBtn = document.getElementById("bstReset");
+    const bstStatus = document.getElementById("bstStatus");
+
+    const statSize = document.getElementById("statSize");
+    const statHeight = document.getElementById("statHeight");
+    const statMin = document.getElementById("statMin");
+    const statMax = document.getElementById("statMax");
+
+    const bstInorder = document.getElementById("bstInorder");
+    const bstPreorder = document.getElementById("bstPreorder");
+    const bstPostorder = document.getElementById("bstPostorder");
+    const bstLevelorder = document.getElementById("bstLevelorder");
+
+    let bstPath = new Set();
+    let bstStrong = null;
+
+    function renderBST() {
+      drawTree(bstSvg, bst.root, { path: bstPath, strong: bstStrong });
+
+      statSize.textContent = String(bst.size());
+      statHeight.textContent = String(bst.height());
+      statMin.textContent = bst.min() === null ? "-" : String(bst.min());
+      statMax.textContent = bst.max() === null ? "-" : String(bst.max());
+
+      bstInorder.textContent = `Inorder: [${bst.inorder().join(", ")}]`;
+      bstPreorder.textContent = `Preorder: [${bst.preorder().join(", ")}]`;
+      bstPostorder.textContent = `Postorder: [${bst.postorder().join(", ")}]`;
+      bstLevelorder.textContent = `Level-order: [${bst.levelorder().join(", ")}]`;
+    }
+
+    function parseInput() {
+      const raw = bstValueInput.value.trim();
+      if (!raw) return null;
+      const parsed = Number(raw);
+      if (!Number.isInteger(parsed)) return null;
+      return parsed;
+    }
+
+    function setBSTStatus(message) {
+      bstStatus.textContent = message;
+    }
+
+    bstInsertBtn.addEventListener("click", () => {
+      const value = parseInput();
+      if (value === null) {
+        setBSTStatus("Enter an integer value first.");
+        return;
+      }
+      const result = bst.insert(value);
+      bstPath = new Set(result.path);
+      bstStrong = result.changed;
+      setBSTStatus(result.inserted ? `Inserted ${value}. ${result.reason}` : `${value} not inserted. ${result.reason}`);
+      renderBST();
+    });
+
+    bstSearchBtn.addEventListener("click", () => {
+      const value = parseInput();
+      if (value === null) {
+        setBSTStatus("Enter an integer value first.");
+        return;
+      }
+      const result = bst.search(value);
+      bstPath = new Set(result.path);
+      bstStrong = result.foundId;
+      setBSTStatus(result.found ? `Found ${value}. Path highlighted.` : `${value} not found. Path still shown.`);
+      renderBST();
+    });
+
+    bstDeleteBtn.addEventListener("click", () => {
+      const value = parseInput();
+      if (value === null) {
+        setBSTStatus("Enter an integer value first.");
+        return;
+      }
+      const result = bst.delete(value);
+      bstPath = new Set(result.path);
+      bstStrong = result.changed;
+      setBSTStatus(result.deleted ? `Deleted ${value}.` : `${value} not found. Nothing deleted.`);
+      renderBST();
+    });
+
+    bstRandomBtn.addEventListener("click", () => {
+      bst.clear();
+      bstPath = new Set();
+      bstStrong = null;
+      const values = new Set();
+      while (values.size < 7) {
+        values.add(Math.floor(Math.random() * 90) + 10);
+      }
+      values.forEach((value) => bst.insert(value));
+      setBSTStatus(`Loaded random dataset: ${Array.from(values).join(", ")}`);
+      renderBST();
+    });
+
+    bstResetBtn.addEventListener("click", () => {
+      bst.clear();
+      bstPath = new Set();
+      bstStrong = null;
+      setBSTStatus("BST reset. Start by inserting values.");
+      renderBST();
+    });
+
+    bstValueInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        bstInsertBtn.click();
+      }
+    });
+
+    renderTerminology("root");
+    resetTraversal();
+    renderBST();
+  </script>
+</body>
+</html>
