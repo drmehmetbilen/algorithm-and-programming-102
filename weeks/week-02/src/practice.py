@@ -14,10 +14,31 @@ class Node():
 
     value: This parameter will be used as a position of the Node"""
     def __init__(self, text : str, value : int):
-        self.value = value
+        self.value = value 
         self.text = text
         self.left = None
         self.right = None
+
+    #Getter/Setter
+    @property
+    def value(self):
+        return self.__value
+    
+    @value.setter
+    def value(self,value):
+        if type(value) is not int:
+            raise TypeError("Error: Value must be intiger")
+        else: self.__value = value
+
+    @property
+    def text(self):
+        return self.__text
+    
+    @text.setter
+    def text(self,text):
+        if type(text) is not str:
+            raise TypeError("Error: Text must be string")
+        else: self.__text = text
 
 class BinaryTree():
     def __init__(self,text:str,value:int):
@@ -33,7 +54,9 @@ class BinaryTree():
     def add_node(self,text: str,value: int):
         """Insert a Node which used as a BST. 
         If a node can move to the right or left of the main root, it will; otherwise, it will be added there.
+
         text: this parameter will be used as a key
+
         value: this parameter will be used as a position of the Node
         """
         new_node = Node(text,value)
@@ -98,44 +121,38 @@ class BinaryTree():
             return 0
         return 1 + max(self._height(current_node.left),self._height(current_node.right))
 
-    # def delete(self, value: int):
-    #     """Deletes the selected node in BST (root is not deleted)
-        
-    #     value: The parameter of the node you want to delete
-    #     """
-    #     currentNode = self.root
-    #     if value == currentNode.value:
-    #         if currentNode.left.value < currentNode.right.value:
-    #             self.root = currentNode.right
-    #         else:
-    #             self.root = currentNode.left
-                
-    #     else:
-    #         while True:
-    #             if value < currentNode.value:
-    #                 if currentNode.left.value == value:
-    #                     parentNode = currentNode
-    #                     currentNode = currentNode.left
-    #                 else:
-    #                     currentNode = currentNode.left
-    #             elif value > currentNode.value:
-    #                 if currentNode.right.value == value:
-    #                     parentNode = currentNode
-    #                     currentNode = currentNode.right
-    #                 else:
-    #                     currentNode = currentNode.right
-    #             else:
-    #                 if not currentNode.left is None:
-    #                     parentNode.left.text = currentNode.left.text
-    #                     parentNode.left.value = currentNode.left.value
-    #                     break
-    #                 if not currentNode.right is None:
-    #                     parentNode.right.text = currentNode.right.text
-    #                     parentNode.right.value = currentNode.right.value
-    #                     break
+    def delete(self, value: int):
+        """The method the user will use
+
+        value: The node values ​​you want to delete"""
+        self.root = self._delete(self.root, value)
+
+    def _delete(self , currentNode, value: int):
+        """This method deletes the node that is requested to be removed from the BST."""
+        if currentNode is None:
+            return currentNode
+        if value < currentNode.value:
+            currentNode.left = self._delete(currentNode.left,value)
+        elif value > currentNode.value:
+            currentNode.right = self._delete(currentNode.right,value)
+        else:
+            if currentNode.left is None:
+                return currentNode.right
+            elif currentNode.right is None:
+                return currentNode.left
+            
+            minNode = self.findMinValue(currentNode.right)
+            currentNode.value = minNode.value
+            currentNode.text = minNode.text
+
+            currentNode.right = self._delete(currentNode.right, minNode.value)
+        return currentNode
+
+    def findMinValue(self, currentNode):
+        while currentNode.left is not None:
+            currentNode = currentNode.left
+        return currentNode
     
-
-
 if __name__ == "__main__":
     my_tree = BinaryTree("Mehmet",32)
     my_tree.add_node("Sabriye",9)
@@ -152,9 +169,6 @@ if __name__ == "__main__":
 
     print(my_tree.size())
     print(my_tree.delete(15))
-    print(my_tree.search_value(15))
-    print(my_tree.delete(32))
-    print(my_tree.search_value(32))
     print(my_tree.size())
-
-    
+    print(my_tree.search_value(15))
+    print(my_tree.delete(61))
