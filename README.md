@@ -41,14 +41,3 @@
   - `python3 -i weeks/week-03/src/2-binary_search.py`
   - `python3 -i weeks/week-03/src/3-jump_search.py`
 
-## How We Add New Weeks
-- Keep the same pattern each week:
-  - `README.md` for lecture notes
-  - `story.md` for class discussion
-  - `src/` for code snippets
-- Create a new week folder with:
-
-```bash
-mkdir -p weeks/week-03/src
-touch weeks/week-03/README.md weeks/week-03/story.md
-```
