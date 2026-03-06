@@ -137,7 +137,14 @@ class BinaryTree():
 
         if current_node is None:
             return 0
+            
+            # Temel Durum (Base Case):
+            # Eğer düğüm None ise, bu alt ağaçta başka eleman yok demektir. 
+            # Özyinelemeli (recursive) yapıyı sonlandırmak için 0 döneriz 
         return 1 + self._size(current_node.left) + self._size(current_node.right)
+# Özyinelemeli Adım (Recursive Step):
+        # Toplam boyutu bulmak için: Mevcut düğüm (1) + Sol alt ağaç + Sağ alt ağaç.
+        # Bu yaklaşım 'Post-order Traversal' mantığına benzer bir derinlik öncelikli aramadır [
 
     def height(self):        
       """  kökten en uzak yaprağına kadar olan uzunluğunu (yüksekliğini) ölçer"""
