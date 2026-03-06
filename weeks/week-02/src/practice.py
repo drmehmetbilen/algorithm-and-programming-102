@@ -8,9 +8,6 @@
 #   - size        : Total number of nodes in the tree
 #   - height      : Height (depth) of the tree
 #   - delete_node : Delete a node
-
-# Author : Çağın Kayra Yıldırım
-# Date   : 3/6/2026
 # ============================================================
 
 
