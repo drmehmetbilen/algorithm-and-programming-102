@@ -45,12 +45,14 @@ class BinaryTree():                         #   Create a class to manipulate and
                 break
     
     def getValue(self,target):              #   The main method to acquire values in this Class.
-        return self.searchintermediate(self.root, target.upper())  #    We use a intermediary method to avoid messy code and make the recursive method which is needed in searching possible. 
+        foundNode = self.searchintermediate(self.root, target.upper())  #    We use a intermediary method to avoid messy code and make the recursive method which is needed in searching possible. 
+        if foundNode:                                                   
+            return foundNode.value                                      #    The search sub-function returns the whole node itself so we will only extract the value out of it.
 
     def searchintermediate(self, currentNode, target):  #   The Searching Algorithm
         if currentNode is None:                                             #   This stops the recursion if the searching algorithm hit a empty Node spot.      
             return None
-        if currentNode.text == target:                                    #   We found the Node!
+        if currentNode.text == target:                                      #   We found the Node!
             return currentNode
         left_result = self.searchintermediate(currentNode.left, target)     #
         if left_result:                                                     #   We search the tree going left everytime until we either hit the wanted node or we hit a empty node
@@ -134,7 +136,7 @@ class BinaryTree():                         #   Create a class to manipulate and
             if node.left is None:                                                   #
                 return node.right                                                   #   In this case the children of the main parent node either had one children tree or had no children at all
             elif node.right is None:                                                #   this is the most simple case to solve so we either just delete the node entirely(No Children Present) or
-                return node.left                                                   #   Assign the Sole Child as the new Parent and move on.
+                return node.left                                                    #   Assign the Sole Child as the new Parent and move on.
             
             successorChild = self.getMin(node.right)                                #
                                                                                     #   In this case we have two seperate children so now we have to make a decision who gets to be the successor parent.
@@ -178,7 +180,7 @@ if __name__ == "__main__":
 
     result = MyTree.getValue("HELSINKI")
     if result:
-        print(f"Search Found: {result.text} with value {result.value}")
+        print(result)                                                               #   Expected: 128
 
     # Testing deleteDPO (Destructive)
     # Lets obliterate the "Apple" branch (80000). 
