@@ -19,6 +19,8 @@
   - Topics: Stack, Queue, Singly Linked List
 - `weeks/week-02`
   - Topics: Trees, Binary Search Trees (BST)
+- `weeks/week-03`
+  - Topics: Linear Search, Binary Search, Jump Search
 
 ## How Students Should Use This Repo
 - Start from the current week folder in `weeks/`.
@@ -34,6 +36,10 @@
 - Week 02:
   - `python3 -i weeks/week-02/src/1-trees.py`
   - `python3 -i weeks/week-02/src/2-binary_search_tree.py`
+- Week 03:
+  - `python3 -i weeks/week-03/src/1-linear_search.py`
+  - `python3 -i weeks/week-03/src/2-binary_search.py`
+  - `python3 -i weeks/week-03/src/3-jump_search.py`
 
 ## How We Add New Weeks
 - Keep the same pattern each week:

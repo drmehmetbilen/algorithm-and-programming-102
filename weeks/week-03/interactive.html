@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 03 - Search Simulators</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --panel: #fffaf2;
+      --line: #d8c9b2;
+      --text: #1f2e36;
+      --muted: #5f727c;
+      --shadow: 0 10px 28px rgba(31, 46, 54, 0.12);
+      --radius: 16px;
+
+      --current: #2f80ed;
+      --left: #8e44ad;
+      --mid: #f39c12;
+      --right: #16a085;
+      --jump-start: #8d6e63;
+      --jump-end: #ef5350;
+      --scan: #42a5f5;
+      --found: #2e7d32;
+      --eliminated: #cfd8dc;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1000px 500px at -10% -20%, #fff4d6 0%, transparent 56%),
+        radial-gradient(900px 500px at 110% 10%, #dbf6ea 0%, transparent 58%),
+        linear-gradient(150deg, #f8f4ec 0%, var(--bg) 100%);
+      min-height: 100vh;
+      padding: 20px 12px 34px;
+    }
+
+    .page {
+      max-width: 1250px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero, .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 16px;
+      background: linear-gradient(120deg, #fff6e6 0%, #eefdf7 100%);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 2.8vw, 2rem);
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .sim-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb 0%, #fff9ef 100%);
+    }
+
+    .sim-head h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .sim-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .sim-body {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid #cbbca6;
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.86rem;
+      color: var(--text);
+      background: #fff;
+    }
+
+    input[type="range"] {
+      width: 150px;
+      accent-color: #1f7a66;
+    }
+
+    button {
+      border: 1px solid #cbbca6;
+      border-radius: 9px;
+      padding: 8px 11px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .btn-build { background: #1f7a66; color: #fff; border-color: transparent; }
+    .btn-step { background: #e67e22; color: #fff; border-color: transparent; }
+
+    .error {
+      display: none;
+      border: 1px solid #f0b7b7;
+      background: #fff1f1;
+      color: #9e2f2f;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 0.84rem;
+    }
+
+    .viz {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffef9;
+      padding: 9px;
+      overflow-x: auto;
+    }
+
+    .pointer-row,
+    .cells,
+    .indices {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(52px, 1fr);
+      gap: 6px;
+    }
+
+    .pointer-row { min-height: 20px; margin-bottom: 4px; }
+
+    .ptr {
+      text-align: center;
+      font-size: .7rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 700;
+      color: #fff;
+      border-radius: 6px;
+      padding: 2px 4px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .ptr.show { opacity: 1; transform: translateY(0); }
+
+    .cell {
+      min-height: 54px;
+      border: 1px solid #c9b9a2;
+      border-radius: 10px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .94rem;
+      font-weight: 700;
+      transition: all .22s ease;
+    }
+
+    .idx {
+      text-align: center;
+      color: var(--muted);
+      font-size: .74rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 11px;
+      color: var(--muted);
+      font-size: 0.79rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .meta {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .mono {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .83rem;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .83rem;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 3px 9px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .78rem;
+      width: fit-content;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Week 03 - Search Algorithm Simulators</h1>
+      <p class="subtitle">Separate area per algorithm: generate random lists, run step-by-step simulation, and observe pointer movement.</p>
+    </section>
+
+    <section class="sim-grid">
+      <article class="sim-card" id="linearCard">
+        <header class="sim-head">
+          <h2>Linear Search Simulator</h2>
+          <p>No sorting requirement. Compares values from left to right.</p>
+        </header>
+        <div class="sim-body"></div>
+      </article>
+
+      <article class="sim-card" id="binaryCard">
+        <header class="sim-head">
+          <h2>Binary Search Simulator</h2>
+          <p>Works only on sorted lists. Repeatedly halves the search range.</p>
+        </header>
+        <div class="sim-body"></div>
+      </article>
+
+      <article class="sim-card" id="jumpCard">
+        <header class="sim-head">
+          <h2>Jump Search Simulator</h2>
+          <p>Works only on sorted lists. Jumps by blocks, then scans locally.</p>
+        </header>
+        <div class="sim-body"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const roleStyle = {
+      current: { color: "var(--current)", label: "current" },
+      left: { color: "var(--left)", label: "left" },
+      mid: { color: "var(--mid)", label: "mid" },
+      right: { color: "var(--right)", label: "right" },
+      jump_start: { color: "var(--jump-start)", label: "jump_start" },
+      jump_end: { color: "var(--jump-end)", label: "jump_end" },
+      scan: { color: "var(--scan)", label: "scan" },
+      found: { color: "var(--found)", label: "found" },
+      eliminated: { color: "var(--eliminated)", label: "eliminated" }
+    };
+
+    function parseArray(text) {
+      const parts = text.split(",").map((x) => x.trim()).filter(Boolean);
+      if (!parts.length) return [];
+      const arr = parts.map(Number);
+      if (arr.some((n) => !Number.isInteger(n))) {
+        throw new Error("List must contain integers separated by commas.");
+      }
+      return arr;
+    }
+
+    function isSorted(arr) {
+      for (let i = 0; i < arr.length - 1; i += 1) {
+        if (arr[i] > arr[i + 1]) return false;
+      }
+      return true;
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function randomArray(size, min, max) {
+      const arr = [];
+      for (let i = 0; i < size; i += 1) arr.push(randomInt(min, max));
+      return arr;
+    }
+
+    function makeStep(stepNo, message, array, highlights, vars, done, resultIndex, comparisons) {
+      return {
+        step_no: stepNo,
+        message,
+        array: array.slice(),
+        highlights: { ...highlights },
+        vars: { ...vars },
+        done,
+        result_index: resultIndex,
+        comparisons
+      };
+    }
+
+    function buildLinearTrace(arr, target) {
+      const trace = [];
+      let c = 0;
+      for (let i = 0; i < arr.length; i += 1) {
+        c += 1;
+        trace.push(makeStep(trace.length + 1, `Compared arr[${i}] = ${arr[i]} with target ${target}.`, arr, { [i]: "current" }, { i, target }, false, null, c));
+        if (arr[i] === target) {
+          trace.push(makeStep(trace.length + 1, `Found at index ${i}.`, arr, { [i]: "found" }, { i, target }, true, i, c));
+          return trace;
+        }
+      }
+      trace.push(makeStep(trace.length + 1, "Reached end of list. Target not found.", arr, {}, { target }, true, -1, c));
+      return trace;
+    }
+
+    function buildBinaryTrace(arr, target) {
+      const trace = [];
+      let c = 0;
+      let left = 0;
+      let right = arr.length - 1;
+
+      while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        c += 1;
+
+        const hl = {};
+        for (let i = 0; i < arr.length; i += 1) {
+          if (i < left || i > right) hl[i] = "eliminated";
+        }
+        hl[left] = "left";
+        hl[mid] = "mid";
+        hl[right] = "right";
+
+        trace.push(makeStep(trace.length + 1, `Range [${left}, ${right}], mid=${mid}, arr[mid]=${arr[mid]}.`, arr, hl, { left, mid, right, target }, false, null, c));
+
+        if (arr[mid] === target) {
+          trace.push(makeStep(trace.length + 1, `Found at index ${mid}.`, arr, { ...hl, [mid]: "found" }, { left, mid, right, target }, true, mid, c));
+          return trace;
+        }
+
+        if (target < arr[mid]) {
+          right = mid - 1;
+          trace.push(makeStep(trace.length + 1, `Target is smaller. Move right -> ${right}.`, arr, hl, { left, mid, right, target }, false, null, c));
+        } else {
+          left = mid + 1;
+          trace.push(makeStep(trace.length + 1, `Target is larger. Move left -> ${left}.`, arr, hl, { left, mid, right, target }, false, null, c));
+        }
+      }
+
+      trace.push(makeStep(trace.length + 1, "Range is empty. Target not found.", arr, {}, { left, right, target }, true, -1, c));
+      return trace;
+    }
+
+    function buildJumpTrace(arr, target) {
+      const trace = [];
+      let c = 0;
+      const n = arr.length;
+      if (!n) {
+        trace.push(makeStep(1, "List is empty.", arr, {}, { target }, true, -1, 0));
+        return trace;
+      }
+
+      const block = Math.max(1, Math.floor(Math.sqrt(n)));
+      let start = 0;
+
+      while (start < n) {
+        const end = Math.min(start + block, n);
+        const endIdx = end - 1;
+        c += 1;
+        trace.push(makeStep(trace.length + 1, `Block check [${start}, ${endIdx}], arr[${endIdx}] = ${arr[endIdx]}.`, arr, { [start]: "jump_start", [endIdx]: "jump_end" }, { start, end: endIdx, block, target }, false, null, c));
+
+        if (arr[endIdx] >= target) {
+          trace.push(makeStep(trace.length + 1, "Target may be in this block. Start local linear scan.", arr, { [start]: "jump_start", [endIdx]: "jump_end" }, { start, end: endIdx, block, target }, false, null, c));
+
+          for (let i = start; i < end; i += 1) {
+            c += 1;
+            trace.push(makeStep(trace.length + 1, `Compared arr[${i}] = ${arr[i]} with target ${target}.`, arr, { [start]: "jump_start", [endIdx]: "jump_end", [i]: "scan" }, { start, end: endIdx, i, block, target }, false, null, c));
+            if (arr[i] === target) {
+              trace.push(makeStep(trace.length + 1, `Found at index ${i}.`, arr, { [i]: "found" }, { start, end: endIdx, i, block, target }, true, i, c));
+              return trace;
+            }
+          }
+
+          trace.push(makeStep(trace.length + 1, "Target not found inside selected block.", arr, { [start]: "jump_start", [endIdx]: "jump_end" }, { start, end: endIdx, block, target }, true, -1, c));
+          return trace;
+        }
+
+        start += block;
+      }
+
+      trace.push(makeStep(trace.length + 1, "After all block jumps, target not found.", arr, {}, { block, target }, true, -1, c));
+      return trace;
+    }
+
+    function createSimulator(config) {
+      const root = document.querySelector(config.root);
+      const body = root.querySelector(".sim-body");
+
+      body.innerHTML = `
+        <div class="row">
+          <label>List (comma-separated)
+            <input type="text" class="array-input" value="${config.defaultArray.join(",")}">
+          </label>
+          <label style="max-width: 170px;">Target
+            <input type="number" class="target-input" value="${config.defaultTarget}">
+          </label>
+          <label style="max-width: 160px;">Element Count
+            <input type="number" class="size-input" min="3" max="40" value="${config.defaultArray.length}">
+          </label>
+        </div>
+
+        <div class="row">
+          <button class="btn-random">Random List</button>
+          <button class="btn-build btn-build">Build Simulation</button>
+          <button class="btn-step btn-step" disabled>Step</button>
+          <button class="btn-auto" disabled>Auto Play</button>
+          <button class="btn-reset">Reset</button>
+          <label style="max-width: 220px;">Speed
+            <input type="range" class="speed" min="200" max="1400" step="50" value="700">
+          </label>
+        </div>
+
+        <div class="error"></div>
+
+        <div class="viz">
+          <div class="pointer-row"></div>
+          <div class="cells"></div>
+          <div class="indices"></div>
+        </div>
+
+        <div class="legend"></div>
+
+        <div class="meta">
+          <div class="badge">${config.complexity}</div>
+          <div class="stats">
+            <span class="step-stat">Step: 0 / 0</span>
+            <span class="cmp-stat">Comparisons: 0</span>
+            <span class="result-stat">Result: -</span>
+          </div>
+          <p class="mono log">Simulation is ready.</p>
+          <p class="mono vars">Vars: -</p>
+        </div>
+      `;
+
+      const ui = {
+        arrayInput: body.querySelector(".array-input"),
+        targetInput: body.querySelector(".target-input"),
+        sizeInput: body.querySelector(".size-input"),
+        randomBtn: body.querySelector(".btn-random"),
+        buildBtn: body.querySelector(".btn-build"),
+        stepBtn: body.querySelector(".btn-step"),
+        autoBtn: body.querySelector(".btn-auto"),
+        resetBtn: body.querySelector(".btn-reset"),
+        speed: body.querySelector(".speed"),
+        error: body.querySelector(".error"),
+        pointers: body.querySelector(".pointer-row"),
+        cells: body.querySelector(".cells"),
+        indices: body.querySelector(".indices"),
+        legend: body.querySelector(".legend"),
+        stepStat: body.querySelector(".step-stat"),
+        cmpStat: body.querySelector(".cmp-stat"),
+        resultStat: body.querySelector(".result-stat"),
+        log: body.querySelector(".log"),
+        vars: body.querySelector(".vars")
+      };
+
+      const sim = {
+        trace: [],
+        cursor: 0,
+        timer: null,
+        playing: false
+      };
+
+      function renderLegend() {
+        ui.legend.innerHTML = config.roles
+          .map((role) => `<span><i class="dot" style="background:${roleStyle[role].color}"></i>${roleStyle[role].label}</span>`)
+          .join("");
+      }
+
+      function showError(msg) {
+        ui.error.style.display = "block";
+        ui.error.textContent = msg;
+      }
+
+      function clearError() {
+        ui.error.style.display = "none";
+        ui.error.textContent = "";
+      }
+
+      function renderArray(arr, highlights) {
+        ui.pointers.innerHTML = "";
+        ui.cells.innerHTML = "";
+        ui.indices.innerHTML = "";
+
+        if (!arr.length) {
+          ui.cells.innerHTML = '<div class="cell" style="grid-column:1/-1;">Empty list</div>';
+          return;
+        }
+
+        arr.forEach((value, i) => {
+          const role = highlights[i];
+
+          const p = document.createElement("div");
+          p.className = "ptr";
+          if (role) {
+            p.textContent = roleStyle[role].label;
+            p.style.background = roleStyle[role].color;
+            p.classList.add("show");
+          }
+          ui.pointers.appendChild(p);
+
+          const c = document.createElement("div");
+          c.className = "cell";
+          c.textContent = String(value);
+          if (role) {
+            if (role === "eliminated") {
+              c.style.background = "#eceff1";
+              c.style.color = "#607d8b";
+            } else {
+              c.style.borderColor = roleStyle[role].color;
+              c.style.boxShadow = `0 0 0 2px ${roleStyle[role].color}33`;
+              if (role === "found") c.style.background = "#e8f5e9";
+            }
+          }
+          ui.cells.appendChild(c);
+
+          const idx = document.createElement("div");
+          idx.className = "idx";
+          idx.textContent = String(i);
+          ui.indices.appendChild(idx);
+        });
+      }
+
+      function reset(keepTrace = false) {
+        stopAuto();
+        sim.cursor = 0;
+        if (!keepTrace) sim.trace = [];
+        ui.stepBtn.disabled = sim.trace.length === 0;
+        ui.autoBtn.disabled = sim.trace.length === 0;
+        ui.autoBtn.textContent = "Auto Play";
+        ui.stepStat.textContent = `Step: 0 / ${sim.trace.length}`;
+        ui.cmpStat.textContent = "Comparisons: 0";
+        ui.resultStat.textContent = "Result: -";
+        ui.log.textContent = sim.trace.length ? "Trace is ready. Use Step or Auto Play." : "Simulation is ready.";
+        ui.vars.textContent = "Vars: -";
+        try {
+          const arr = parseArray(ui.arrayInput.value);
+          renderArray(arr, {});
+        } catch {
+          renderArray([], {});
+        }
+      }
+
+      function applyStep(step) {
+        renderArray(step.array, step.highlights);
+        ui.stepStat.textContent = `Step: ${step.step_no} / ${sim.trace.length}`;
+        ui.cmpStat.textContent = `Comparisons: ${step.comparisons}`;
+        ui.resultStat.textContent = `Result: ${step.done ? step.result_index : "-"}`;
+        ui.log.textContent = step.message;
+        ui.vars.textContent = `Vars: ${JSON.stringify(step.vars)}`;
+      }
+
+      function consumeStep() {
+        if (sim.cursor >= sim.trace.length) {
+          stopAuto();
+          return;
+        }
+        const step = sim.trace[sim.cursor];
+        applyStep(step);
+        sim.cursor += 1;
+        if (sim.cursor >= sim.trace.length) {
+          ui.stepBtn.disabled = true;
+          stopAuto();
+        }
+      }
+
+      function startAuto() {
+        if (!sim.trace.length || sim.playing) return;
+        sim.playing = true;
+        ui.autoBtn.textContent = "Pause";
+        sim.timer = setInterval(() => consumeStep(), Number(ui.speed.value));
+      }
+
+      function stopAuto() {
+        sim.playing = false;
+        ui.autoBtn.textContent = "Auto Play";
+        if (sim.timer) {
+          clearInterval(sim.timer);
+          sim.timer = null;
+        }
+      }
+
+      function build() {
+        clearError();
+        let arr;
+        let target;
+
+        try {
+          arr = parseArray(ui.arrayInput.value);
+          target = Number(ui.targetInput.value);
+          if (!Number.isInteger(target)) {
+            throw new Error("Target must be an integer.");
+          }
+
+          if (config.requiresSorted && !isSorted(arr)) {
+            throw new Error("This algorithm requires a sorted list.");
+          }
+        } catch (err) {
+          showError(err.message);
+          return;
+        }
+
+        if (config.algorithm === "linear") {
+          sim.trace = buildLinearTrace(arr, target);
+        } else if (config.algorithm === "binary") {
+          sim.trace = buildBinaryTrace(arr, target);
+        } else {
+          sim.trace = buildJumpTrace(arr, target);
+        }
+
+        sim.cursor = 0;
+        ui.stepBtn.disabled = sim.trace.length === 0;
+        ui.autoBtn.disabled = sim.trace.length === 0;
+        ui.stepStat.textContent = `Step: 0 / ${sim.trace.length}`;
+        ui.cmpStat.textContent = "Comparisons: 0";
+        ui.resultStat.textContent = "Result: -";
+        ui.log.textContent = "Trace generated.";
+        ui.vars.textContent = "Vars: -";
+        renderArray(arr, {});
+      }
+
+      ui.randomBtn.addEventListener("click", () => {
+        const requested = Number(ui.sizeInput.value);
+        const size = Number.isInteger(requested) ? Math.max(3, Math.min(40, requested)) : 10;
+        ui.sizeInput.value = String(size);
+
+        const arr = randomArray(size, -15, 60);
+        if (config.requiresSorted) arr.sort((a, b) => a - b);
+        ui.arrayInput.value = arr.join(",");
+        ui.targetInput.value = String(arr[randomInt(0, arr.length - 1)]);
+        clearError();
+        reset(false);
+      });
+
+      ui.buildBtn.addEventListener("click", () => {
+        stopAuto();
+        build();
+      });
+
+      ui.stepBtn.addEventListener("click", () => consumeStep());
+      ui.autoBtn.addEventListener("click", () => (sim.playing ? stopAuto() : startAuto()));
+      ui.resetBtn.addEventListener("click", () => reset(true));
+
+      ui.speed.addEventListener("input", () => {
+        if (sim.playing) {
+          stopAuto();
+          startAuto();
+        }
+      });
+
+      ui.arrayInput.addEventListener("input", () => reset(false));
+      ui.targetInput.addEventListener("input", () => reset(false));
+      ui.sizeInput.addEventListener("input", () => {
+        const requested = Number(ui.sizeInput.value);
+        if (!Number.isInteger(requested)) return;
+        const size = Math.max(3, Math.min(40, requested));
+        if (size !== requested) ui.sizeInput.value = String(size);
+      });
+
+      renderLegend();
+      reset(false);
+    }
+
+    createSimulator({
+      root: "#linearCard",
+      algorithm: "linear",
+      requiresSorted: false,
+      complexity: "O(n)",
+      defaultArray: [12, 5, 9, 17, 3, 22, 7],
+      defaultTarget: 22,
+      roles: ["current", "found"]
+    });
+
+    createSimulator({
+      root: "#binaryCard",
+      algorithm: "binary",
+      requiresSorted: true,
+      complexity: "O(log n)",
+      defaultArray: [2, 4, 7, 9, 13, 16, 20, 24, 31, 40],
+      defaultTarget: 16,
+      roles: ["left", "mid", "right", "found", "eliminated"]
+    });
+
+    createSimulator({
+      root: "#jumpCard",
+      algorithm: "jump",
+      requiresSorted: true,
+      complexity: "O(√n)",
+      defaultArray: [1, 3, 5, 7, 9, 11, 13, 16, 20, 24, 29, 33],
+      defaultTarget: 20,
+      roles: ["jump_start", "jump_end", "scan", "found"]
+    });
+  </script>
+</body>
+</html>
