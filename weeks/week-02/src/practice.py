@@ -316,95 +316,97 @@ class BinaryTree():
 
     def delete_node(self, value: int) -> None:
         """
-        Verilen değere sahip düğümü ve o düğümün tüm alt ağacını siler.
+        Verilen değere sahip düğümü silip altındaki düğümleri korur.
 
-        Hedef düğümün altındaki her şey (sol/sağ alt ağaç dahil) tamamen
-        ağaçtan çıkarılır. Ebeveyn düğümün ilgili bağlantısı None yapılır.
+        Silme işlemi 4 adımda gerçekleşir:
+        1. Silinecek düğümü ve ebeveynini bul
+        2. Silinecek düğümün çocuklarını listeye topla
+        3. Ebeveynin bağlantısını kopar
+        4. Toplanan düğümleri geri ekle
 
-        Örnek: delete_node(9) çağrılırsa aşağıdaki tüm düğümler silinir:
-                      32
-                     /
-                    9        ← bu silinir
-                   / \
-                  ?   15     ← bunlar da silinir
-                      ...
-
-        Arguamanlar:
+        Argümanlar:
             value (int): Silinecek düğümün sayısal değeri.
 
         Olası Hatalar:
             TypeError : value sayısal değilse hata verir.
             KeyError  : Silinmek istenen değer ağaçta yoksa hata verir.
-            ValueError: Kök düğümü silmeye çalışılırsa hata verir
-                        (kök silinirse ağaç tamamen yok olur).
+            ValueError: Kök düğümü silmeye çalışılırsa hata verir.
 
         Örnek:
-            >>> tree.delete_node(9)   # 9 ve altındaki tüm düğümler silinir
+            >>> tree.delete_node(9)   # 9 silinir, altındaki düğümler korunur
         """
         if not isinstance(value, (int, float)):
-            raise TypeError(f"'value' int veya float olmalıdır.")
-
+            raise TypeError("'value' int veya float olmalıdır.")
         if self.root is None:
-            raise KeyError("HATA: Ağaç boş, silinecek düğüm bulunamadı.")
-
+            raise KeyError("HATA: Ağaç boş.")
         if self.root.value == value:
-            raise ValueError("HATA: Kök düğüm silinemez. Kök silinirse ağaç tamamen yok olur.")
+            raise ValueError("HATA: Kök düğüm silinemez.")
 
-        self.root = self._delete_subtree(self.root, value)
+        # 1. Adım — Silinecek düğümü ve ebeveynini bul
+        # Ebeveyni takip ediyoruz çünkü Node içinde yukarı çıkış yok.
+        # Döngü bitince elimizde hem current (silinecek) hem parent (ebeveyni) var.
+        parent  = None      # Node — Silinecek düğümün bir üstü
+        current = self.root # Node — Her zamanki gibi kökten başlıyoruz.
 
-    def _delete_subtree(self, current_node: 'Node', value: int) -> 'Node':
-        """
-        Recursive yardımcı metot — delete_node() tarafından çağrılır.
+        while current is not None:
+            if value == current.value:
+                break                      # Bulundu!
+            parent = current               # Bir adım geride kalması için
+            if value < current.value:
+                current = current.left     # Küçükse sola git
+            else:
+                current = current.right    # Büyükse sağa git
 
-        Hedef düğümü arar; bulduğunda o düğümü ve tüm alt ağacını silerek
-        ebeveyne None döner. Böylece o kol tamamen kopar.
+        if current is None:
+            raise KeyError(f"HATA: {value} değeri ağaçta bulunamadı.")
 
-        Arguamanlar:
-            current_node (Node) : Şu an işlenen düğüm.
-            value        (int)  : Silinecek değer.
+        # 2. Adım — Silinecek düğümün çocuklarını listeye topla
+        # current'ın çocuklarını topluyoruz.
+        collected = []                                   # list — (text, value) tuple'ları tutacak
+        self._collect_nodes(current.left,  collected)    # Sol alt ağacı topla
+        self._collect_nodes(current.right, collected)    # Sağ alt ağacı topla
 
-        Dönen Değer:
-            Node | None: Güncellenen alt ağacın kök düğümü.
-
-        Olası Hatalar:
-            KeyError: Değer bulunamazsa hata verir.
-        """
-        if current_node is None:
-            # Ağacın sonuna gelindi fakat değer bulunamadı
-            raise KeyError(f"HATA: {value} değeri ağaçta bulunamadı, silinemez.")
-
-        if value < current_node.value:
-            # Hedef sol alt ağaçta, devam et
-            current_node.left = self._delete_subtree(current_node.left, value)
-
-        elif value > current_node.value:
-            # Hedef sağ alt ağaçta, devam et
-            current_node.right = self._delete_subtree(current_node.right, value)
-
+        # 3. Adım — Ebeveynin bağlantısını kopar
+        # current parent'ın sol çocuğu mu sağ çocuğu mu olduğunu kontrol ediyoruz.
+        # Doğru tarafı None yapınca düğüm ağaçtan kopuyor.
+        # Python geri kalan kısmı otomatik bellekten temizler.
+        if parent.left == current:
+            parent.left  = None   # current sol çocuktu → sol bağlantıyı kopar
         else:
-            # Hedef düğüm bulundu — silme işlemi yapılacak
-            # Sol ve sağ çocukları korumadan direkt None döndürüyoruz.
-            # Python düğümü ve tüm alt ağacını
-            # otomatik olarak bellekten temizler.
-            return None  # Bu düğüm + tüm alt ağaç silindi
+            parent.right = None   # current sağ çocuktu → sağ bağlantıyı kopar
 
-        return current_node
+        # 4. Adım — Toplanan düğümleri geri ekle
+        # add_node BST kuralına göre yerleştiriyor.
+        # Üstten alta topladığımız için ebeveyn her zaman çocuğundan önce ekleniyor,
+        # bu sayede ağaç yapısı bozulmuyor.
+        for text, val in collected:
+            self.add_node(text, val)
 
-    def _find_min(self, current_node: 'Node') -> 'Node':
+
+    def _collect_nodes(self, node: 'Node', result: list) -> None:
         """
-        Bir alt ağaçtaki minimum değerli düğümü bulur.
+        Verilen düğümden itibaren tüm alt ağacı listeye toplar.
 
-        BST'de en küçük değer her zaman en soldaki düğümdür.
+        Üstten alta (ebeveyn önce, çocuklar sonra) toplar.
+        Bu sıra önemlidir: add_node ile geri eklerken ebeveyn
+        her zaman çocuğundan önce eklenmeli ki BST yapısı bozulmasın.
 
         Argümanlar:
-            current_node (Node): Arama başlangıç düğümü.
+            node   (Node) : Toplamanın başladığı düğüm.
+            result (list) : (text, value) eklenen liste.
 
-        Dönen Değer:
-            Node: Minimum değerli düğüm.
+        Örnek:
+            Girdi ağacı:
+                15
+                /
+              11
+            Çıktı: [("Burdur", 15), ("Bilecik", 11)]
         """
-        while current_node.left is not None:
-            current_node = current_node.left
-        return current_node
+        if node is None:
+            return
+        result.append((node.text, node.value))    # Önce kendisi
+        self._collect_nodes(node.left,  result)   # Sonra sol çocuk
+        self._collect_nodes(node.right, result)   # Sonra sağ çocuk
 
 
 # ==============================================================
