@@ -1,8 +1,3 @@
-# 0. Utils
-# 1. Linear Search
-# 2. Binary Search
-# 3. Jump Search
-
 import random
 
 def generate_random_unsorted_list(n: int = 20, min_value: int = 0, max_value: int = 1000) -> list:
@@ -39,8 +34,6 @@ def generate_random_sorted_list(n: int = 20, min_value: int = 0, max_value: int 
     new_value = 0
     
     for i in range(n):
-        # TODO Refine min/max value issue
-        # Solved using manual boundary checks instead of built-in min() or max() methods.
         upper_bound = last_added + 10
         if upper_bound > max_value:
             upper_bound = max_value
@@ -86,8 +79,6 @@ def search_binary(source_list: list, target: int) -> tuple:
     Raises:
         ValueError: If the provided list is not sorted.
     """
-    # TODO Check if the source_list actually sorted. If not raise an error.
-    # Solved by manually comparing adjacent elements without using sort() or sorted().
     for i in range(len(source_list) - 1):
         if source_list[i] > source_list[i + 1]:
             raise ValueError("Error: The list must be sorted to perform Binary Search.")
@@ -131,12 +122,9 @@ def search_jump(source_list: list, target: int) -> tuple:
         start = end
         end += block_size
         
-    # Manual boundary check instead of using min(end, n)
     if end > n:
         end = n
 
-    # TODO Use search_linear method and adjust the indexes
-    # Solved by manually creating a sub-list with a loop to avoid using Python's built-in slice feature [:]
     sub_list = []
     for i in range(start, end):
         sub_list.append(source_list[i])
@@ -150,21 +138,16 @@ def search_jump(source_list: list, target: int) -> tuple:
     return False, -1
 
 if __name__ == "__main__":
-    # TODO Create positive and negative case scenarios.
     print("--- Algorithm Test Scenarios ---\n")
     
     test_list = generate_random_sorted_list(15, 0, 100)
     
     print("Generated List:")
-    # Printing elements manually to avoid complex string formatting methods
     for item in test_list:
         print(item, end=" ")
     print("\n")
     
-    # Positive Scenario (Searching for an existing element)
     target_positive = test_list[7] 
-    
-    # Negative Scenario (Searching for a non-existing element)
     target_negative = -99 
     
     print("--- POSITIVE SCENARIO (Target:", target_positive, ") ---")
