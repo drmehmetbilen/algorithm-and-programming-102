@@ -1,20 +1,3 @@
-# 0. Utils: 
-        # Functions that help other functions
-        # Related functions:
-            # generate_random_unsorted_list(n:int=20, min_value:int=0, max_value:int=1000)->list:
-            # generate_random_sorted_list(n:int=20, min_value:int=0, max_value:int=1000)->list:
-# 1. Linear Search:
-        # Sequentially iterates through all array indices to locate the target value.
-        # Related functions:
-        # search_linear(source_list:list, target:int)->tuple:
-# 2. Binary Search:
-        # Finds the target value in a sorted array by repeatedly dividing the search interval in half.
-        # Related functions:
-        # search_binary(source_list:list, target:int)->tuple:
-# 3. Jump Search:
-        # Locates a target by jumping through fixed blocks and performing a linear search within the identified range.
-        # Related functions:
-        # search_jump(source_list:list, target:int)->tuple:
 import random
 
 def generate_random_unsorted_list(n:int=20, min_value:int=0, max_value:int=1000)->list:
@@ -50,7 +33,6 @@ def generate_random_sorted_list(n:int=20, min_value:int=0, max_value:int=1000)->
     new_value = 0
     
     for i in range(n):
-        # TODO Refine min/max value issue
         new_value = random.randint(last_added+1, max(last_added+10,max_value))
         new_list.append(new_value)
         last_added = new_value
@@ -94,9 +76,6 @@ def search_binary(source_list:list, target:int)->tuple:
         tuple: A pair containing a boolean (True if found, False otherwise) 
                and the integer index of the element (index if found, -1 otherwise).    
     """
-    # TODO Check if the source_list actually sorted. If not raise an error.
-    
-    
     start = 0
     end = len(source_list)-1
     while start<end:
@@ -141,8 +120,7 @@ def search_jump(source_list:list, target:int)->tuple:
             break
         start = end+1
         end += block_size
-    
-    # TODO Use search_linear method and adjust the indexes
+
     for i in range(start,end):
         if source_list[i]==target:
             return True, i
@@ -150,5 +128,4 @@ def search_jump(source_list:list, target:int)->tuple:
     return False, -1
 
 if __name__ == "__main__":
-    # TODO Create positive and negative case scenarios.
     pass
