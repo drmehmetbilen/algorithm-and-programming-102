@@ -21,6 +21,8 @@
   - Topics: Trees, Binary Search Trees (BST)
 - `weeks/week-03`
   - Topics: Linear Search, Binary Search, Jump Search
+- `weeks/week-04`
+  - Topics: Graph Basics, BFS, DFS, Connected Components, SCC
 
 ## How Students Should Use This Repo
 - Start from the current week folder in `weeks/`.
@@ -40,4 +42,8 @@
   - `python3 -i weeks/week-03/src/1-linear_search.py`
   - `python3 -i weeks/week-03/src/2-binary_search.py`
   - `python3 -i weeks/week-03/src/3-jump_search.py`
-
+- Week 04:
+  - `python3 -i weeks/week-04/src/1-graph_basics.py`
+  - `python3 -i weeks/week-04/src/2-bfs.py`
+  - `python3 -i weeks/week-04/src/3-dfs.py`
+  - `python3 -i weeks/week-04/src/4-strongly_connected_components.py`

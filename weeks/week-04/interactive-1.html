@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 04 - Graph Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --panel: #fffaf1;
+      --panel-soft: #fffdf8;
+      --ink: #1e3037;
+      --muted: #617279;
+      --line: #dbc8ae;
+      --shadow: 0 14px 30px rgba(30, 48, 55, 0.11);
+      --radius: 18px;
+
+      --node: #2d6cdf;
+      --node-2: #1d7f6d;
+      --node-3: #e57b2f;
+      --node-4: #7b59d0;
+      --current: #e25544;
+      --soft-blue: #dce9ff;
+      --soft-green: #daf3ec;
+      --soft-orange: #ffe6d3;
+      --muted-fill: #efe5d7;
+      --muted-stroke: #c8b8a2;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 480px at -10% -20%, #fff4d7 0%, transparent 56%),
+        radial-gradient(900px 480px at 110% 10%, #dbf6ea 0%, transparent 60%),
+        linear-gradient(150deg, #f7f2ea 0%, var(--bg) 100%);
+      min-height: 100vh;
+      padding: 24px 14px 42px;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, #fff5e3 0%, #eefdf7 100%);
+      padding: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.55rem, 3vw, 2.45rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 920px;
+      line-height: 1.55;
+    }
+
+    .chips {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 6px 12px;
+      font-size: 0.84rem;
+    }
+
+    .card {
+      background: var(--panel);
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb 0%, #fff8ee 100%);
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .card-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      min-width: 210px;
+      flex: 1;
+    }
+
+    select {
+      border: 1px solid #cab89f;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .graph-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .graph-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-family: "IBM Plex Mono", monospace;
+      width: fit-content;
+    }
+
+    .visual {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:
+        radial-gradient(500px 220px at 0% 0%, rgba(255, 246, 230, 0.7) 0%, transparent 72%),
+        linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      min-height: 340px;
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot,
+    .legend-line {
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .legend-line {
+      width: 18px;
+      height: 0;
+      border-top: 3px solid #000;
+      border-radius: 999px;
+    }
+
+    .surface-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-soft);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .surface h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .surface p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.88rem;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .mono {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.83rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #21363d;
+    }
+
+    .active-row {
+      background: var(--soft-orange);
+      color: #183139;
+      border-radius: 8px;
+      padding: 1px 6px;
+      display: inline-block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e7dbc9;
+      padding: 8px 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr.is-active {
+      background: #fff0e3;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1040px) {
+      .grid-two,
+      .surface-grid,
+      .data-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Week 04 - Graph Principles</h1>
+      <p class="subtitle">This page only teaches graph fundamentals. The same set of node names appears in an undirected graph and a directed graph so students can compare concepts like degree, path, cycle, component, and strongly connected component without switching context.</p>
+      <div class="chips">
+        <span class="chip">Undirected vs directed</span>
+        <span class="chip">Degree, in-degree, out-degree</span>
+        <span class="chip">Path, cycle, adjacency list</span>
+        <span class="chip">Components and SCCs</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <header class="card-head">
+        <h2>Concept Controls</h2>
+        <p>Pick one principle and the whole page updates together: graph highlights, explanations, adjacency list, and degree tables.</p>
+      </header>
+      <div class="card-body">
+        <div class="controls">
+          <label>Concept
+            <select id="conceptSelect">
+              <option value="direction">Directed vs Undirected</option>
+              <option value="node">Node / Vertex</option>
+              <option value="edge">Edge</option>
+              <option value="neighbor">Neighbor</option>
+              <option value="degree">Degree</option>
+              <option value="in_out_degree">In-Degree / Out-Degree</option>
+              <option value="adjacency_list">Adjacency List</option>
+              <option value="path">Path</option>
+              <option value="cycle">Cycle</option>
+              <option value="isolated_node">Isolated Node</option>
+              <option value="connected_component">Connected Component</option>
+              <option value="strongly_connected_component">Strongly Connected Component</option>
+            </select>
+          </label>
+          <label>Focus Node
+            <select id="nodeSelect">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="G">G</option>
+              <option value="H">H</option>
+            </select>
+          </label>
+        </div>
+        <p class="helper">The focus node is used for local concepts such as node, neighbor, degree, and adjacency list. Global concepts such as component or SCC ignore it.</p>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <article class="card graph-card">
+        <header class="card-head">
+          <h2>Undirected Graph</h2>
+          <p>Edges mean two-way connection. If A is linked to B, then B is linked to A.</p>
+        </header>
+        <div class="card-body">
+          <div class="graph-meta">
+            <span class="badge" id="undirectedFacts">|V| = 8, |E| = 6</span>
+            <span class="badge">Graph type: undirected</span>
+          </div>
+          <div class="visual">
+            <svg id="undirectedSvg" viewBox="0 0 720 360" aria-label="Undirected graph visualization"></svg>
+          </div>
+        </div>
+      </article>
+
+      <article class="card graph-card">
+        <header class="card-head">
+          <h2>Directed Graph</h2>
+          <p>Arrows matter. A -> B does not automatically mean B -> A.</p>
+        </header>
+        <div class="card-body">
+          <div class="graph-meta">
+            <span class="badge" id="directedFacts">|V| = 8, |E| = 9</span>
+            <span class="badge">Graph type: directed</span>
+          </div>
+          <div class="visual">
+            <svg id="directedSvg" viewBox="0 0 720 360" aria-label="Directed graph visualization"></svg>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card">
+      <header class="card-head">
+        <h2>Current Concept</h2>
+        <p>The notes below explain what the current concept means in both graph types.</p>
+      </header>
+      <div class="card-body">
+        <div class="legend" id="legend"></div>
+        <div class="surface-grid">
+          <section class="surface">
+            <h3>Definition</h3>
+            <p id="definitionText"></p>
+          </section>
+          <section class="surface">
+            <h3>Undirected Reading</h3>
+            <p id="undirectedText"></p>
+          </section>
+          <section class="surface">
+            <h3>Directed Reading</h3>
+            <p id="directedText"></p>
+          </section>
+          <section class="surface">
+            <h3>Current Example</h3>
+            <p id="exampleText"></p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="data-grid">
+      <article class="card">
+        <header class="card-head">
+          <h2>Undirected Adjacency List</h2>
+          <p>Each row lists the neighbors that can be reached in one step.</p>
+        </header>
+        <div class="card-body">
+          <p class="mono" id="undirectedAdjacency"></p>
+        </div>
+      </article>
+
+      <article class="card">
+        <header class="card-head">
+          <h2>Directed Adjacency List</h2>
+          <p>Rows show outgoing neighbors. Incoming neighbors appear in the degree table.</p>
+        </header>
+        <div class="card-body">
+          <p class="mono" id="directedAdjacency"></p>
+        </div>
+      </article>
+
+      <article class="card">
+        <header class="card-head">
+          <h2>Undirected Degree Table</h2>
+          <p>Degree counts how many edges touch each node.</p>
+        </header>
+        <div class="card-body" id="undirectedDegreeTable"></div>
+      </article>
+
+      <article class="card">
+        <header class="card-head">
+          <h2>Directed Degree Table</h2>
+          <p>Directed graphs separate incoming edges from outgoing edges.</p>
+        </header>
+        <div class="card-body" id="directedDegreeTable"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const colors = {
+      focus: "#e25544",
+      neighbor: "#2d6cdf",
+      incoming: "#1d7f6d",
+      path: "#e57b2f",
+      mutedNode: "#efe5d7",
+      mutedEdge: "#c9b89f"
+    };
+
+    const undirectedGraph = {
+      directed: false,
+      nodes: [
+        { id: "A", x: 90, y: 130 },
+        { id: "B", x: 220, y: 80 },
+        { id: "C", x: 220, y: 190 },
+        { id: "D", x: 365, y: 130 },
+        { id: "E", x: 505, y: 130 },
+        { id: "F", x: 620, y: 80 },
+        { id: "G", x: 620, y: 195 },
+        { id: "H", x: 530, y: 275 }
+      ],
+      edges: [
+        ["A", "B"],
+        ["A", "C"],
+        ["B", "D"],
+        ["C", "D"],
+        ["D", "E"],
+        ["F", "G"]
+      ]
+    };
+
+    const directedGraph = {
+      directed: true,
+      nodes: [
+        { id: "A", x: 90, y: 130 },
+        { id: "B", x: 220, y: 80 },
+        { id: "C", x: 220, y: 190 },
+        { id: "D", x: 365, y: 130 },
+        { id: "E", x: 505, y: 130 },
+        { id: "F", x: 620, y: 80 },
+        { id: "G", x: 620, y: 195 },
+        { id: "H", x: 530, y: 275 }
+      ],
+      edges: [
+        ["A", "B"],
+        ["B", "C"],
+        ["C", "A"],
+        ["C", "D"],
+        ["D", "E"],
+        ["E", "D"],
+        ["E", "F"],
+        ["F", "G"],
+        ["G", "F"]
+      ]
+    };
+
+    const conceptSelect = document.getElementById("conceptSelect");
+    const nodeSelect = document.getElementById("nodeSelect");
+    const undirectedSvg = document.getElementById("undirectedSvg");
+    const directedSvg = document.getElementById("directedSvg");
+    const legend = document.getElementById("legend");
+    const definitionText = document.getElementById("definitionText");
+    const undirectedText = document.getElementById("undirectedText");
+    const directedText = document.getElementById("directedText");
+    const exampleText = document.getElementById("exampleText");
+    const undirectedAdjacency = document.getElementById("undirectedAdjacency");
+    const directedAdjacency = document.getElementById("directedAdjacency");
+    const undirectedDegreeTable = document.getElementById("undirectedDegreeTable");
+    const directedDegreeTable = document.getElementById("directedDegreeTable");
+
+    function edgeKey(edge, directed) {
+      if (directed) {
+        return `${edge[0]}->${edge[1]}`;
+      }
+      return [edge[0], edge[1]].sort().join("--");
+    }
+
+    function buildAdjacency(graph, forceUndirected = false) {
+      const adjacency = {};
+      for (const node of graph.nodes) {
+        adjacency[node.id] = [];
+      }
+      for (const [start, end] of graph.edges) {
+        adjacency[start].push(end);
+        if (!graph.directed || forceUndirected) {
+          adjacency[end].push(start);
+        }
+      }
+      return adjacency;
+    }
+
+    function incomingAdjacency(graph) {
+      const incoming = {};
+      for (const node of graph.nodes) {
+        incoming[node.id] = [];
+      }
+      for (const [start, end] of graph.edges) {
+        incoming[end].push(start);
+      }
+      return incoming;
+    }
+
+    function degree(graph, node) {
+      const adjacency = buildAdjacency(graph, false);
+      return adjacency[node].length;
+    }
+
+    function inDegree(graph, node) {
+      const incoming = incomingAdjacency(graph);
+      return incoming[node].length;
+    }
+
+    function outDegree(graph, node) {
+      const adjacency = buildAdjacency(graph, false);
+      return adjacency[node].length;
+    }
+
+    function totalDegreeDirected(graph, node) {
+      return inDegree(graph, node) + outDegree(graph, node);
+    }
+
+    function findConnectedComponents(graph) {
+      const adjacency = buildAdjacency(graph, true);
+      const visited = new Set();
+      const groups = [];
+
+      for (const node of graph.nodes.map((item) => item.id)) {
+        if (visited.has(node)) {
+          continue;
+        }
+
+        const stack = [node];
+        const group = [];
+        visited.add(node);
+
+        while (stack.length) {
+          const current = stack.pop();
+          group.push(current);
+          for (const neighbor of adjacency[current]) {
+            if (!visited.has(neighbor)) {
+              visited.add(neighbor);
+              stack.push(neighbor);
+            }
+          }
+        }
+
+        groups.push(group.sort());
+      }
+
+      return groups;
+    }
+
+    function finishingOrder(graph) {
+      const adjacency = buildAdjacency(graph, false);
+      const visited = new Set();
+      const order = [];
+
+      function dfs(node) {
+        visited.add(node);
+        for (const neighbor of adjacency[node]) {
+          if (!visited.has(neighbor)) {
+            dfs(neighbor);
+          }
+        }
+        order.push(node);
+      }
+
+      for (const node of graph.nodes.map((item) => item.id)) {
+        if (!visited.has(node)) {
+          dfs(node);
+        }
+      }
+
+      return order;
+    }
+
+    function reverseGraph(graph) {
+      return {
+        directed: true,
+        nodes: graph.nodes,
+        edges: graph.edges.map((edge) => [edge[1], edge[0]])
+      };
+    }
+
+    function findStronglyConnectedComponents(graph) {
+      const order = finishingOrder(graph);
+      const reversedAdjacency = buildAdjacency(reverseGraph(graph), false);
+      const visited = new Set();
+      const groups = [];
+
+      function collect(node, group) {
+        visited.add(node);
+        group.push(node);
+        for (const neighbor of reversedAdjacency[node]) {
+          if (!visited.has(neighbor)) {
+            collect(neighbor, group);
+          }
+        }
+      }
+
+      while (order.length) {
+        const node = order.pop();
+        if (visited.has(node)) {
+          continue;
+        }
+        const group = [];
+        collect(node, group);
+        groups.push(group.sort());
+      }
+
+      return groups;
+    }
+
+    function edgeGeometry(from, to, radius = 23) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const x1 = from.x + (dx * radius) / length;
+      const y1 = from.y + (dy * radius) / length;
+      const x2 = to.x - (dx * radius) / length;
+      const y2 = to.y - (dy * radius) / length;
+      const angle = Math.atan2(dy, dx);
+      return { x1, y1, x2, y2, angle };
+    }
+
+    function arrowPoints(x, y, angle, size = 10) {
+      const backX = x - Math.cos(angle) * size;
+      const backY = y - Math.sin(angle) * size;
+      const leftX = backX + Math.sin(angle) * (size * 0.6);
+      const leftY = backY - Math.cos(angle) * (size * 0.6);
+      const rightX = backX - Math.sin(angle) * (size * 0.6);
+      const rightY = backY + Math.cos(angle) * (size * 0.6);
+      return `${x},${y} ${leftX},${leftY} ${rightX},${rightY}`;
+    }
+
+    function renderLegend(items) {
+      legend.innerHTML = "";
+      for (const item of items) {
+        const span = document.createElement("span");
+        span.className = "legend-item";
+        if (item.kind === "line") {
+          span.innerHTML = `<span class="legend-line" style="border-top-color:${item.color}"></span>${item.label}`;
+        } else {
+          span.innerHTML = `<span class="legend-dot" style="background:${item.color}"></span>${item.label}`;
+        }
+        legend.appendChild(span);
+      }
+    }
+
+    function renderGraph(svg, graph, state) {
+      const nodeLookup = {};
+      for (const node of graph.nodes) {
+        nodeLookup[node.id] = node;
+      }
+
+      const mutedNodes = new Set(state.mutedNodes || []);
+      const mutedEdges = new Set(state.mutedEdges || []);
+      const parts = [];
+
+      parts.push('<rect x="0" y="0" width="720" height="360" fill="transparent"></rect>');
+
+      for (const edge of graph.edges) {
+        const [startId, endId] = edge;
+        const from = nodeLookup[startId];
+        const to = nodeLookup[endId];
+        const key = edgeKey(edge, graph.directed);
+        const geometry = edgeGeometry(from, to);
+        const color = state.edgeColors[key] || colors.mutedEdge;
+        const width = state.edgeWidths[key] || 3;
+        const opacity = mutedEdges.has(key) ? 0.18 : 1;
+
+        parts.push(
+          `<line x1="${geometry.x1}" y1="${geometry.y1}" x2="${geometry.x2}" y2="${geometry.y2}" stroke="${color}" stroke-width="${width}" stroke-linecap="round" opacity="${opacity}"></line>`
+        );
+
+        if (graph.directed) {
+          parts.push(
+            `<polygon points="${arrowPoints(geometry.x2, geometry.y2, geometry.angle)}" fill="${color}" opacity="${opacity}"></polygon>`
+          );
+        }
+      }
+
+      for (const node of graph.nodes) {
+        const fill = state.nodeColors[node.id] || "#fffef9";
+        const stroke = state.nodeStrokes[node.id] || "#243840";
+        const textColor = state.nodeTextColors[node.id] || "#243840";
+        const opacity = mutedNodes.has(node.id) ? 0.22 : 1;
+        const badge = state.nodeBadges[node.id] || "";
+
+        if (badge) {
+          parts.push(
+            `<rect x="${node.x - 30}" y="${node.y - 46}" width="60" height="18" rx="9" fill="#243840" opacity="${opacity}"></rect>`
+          );
+          parts.push(
+            `<text x="${node.x}" y="${node.y - 33}" fill="#fff" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" opacity="${opacity}">${badge}</text>`
+          );
+        }
+
+        parts.push(
+          `<circle cx="${node.x}" cy="${node.y}" r="23" fill="${fill}" stroke="${stroke}" stroke-width="3" opacity="${opacity}"></circle>`
+        );
+        parts.push(
+          `<text x="${node.x}" y="${node.y + 5}" fill="${textColor}" text-anchor="middle" font-size="16" font-weight="700" font-family="Space Grotesk, sans-serif" opacity="${opacity}">${node.id}</text>`
+        );
+      }
+
+      svg.innerHTML = parts.join("");
+    }
+
+    function pickIncidentEdge(graph, focusNode) {
+      if (!graph.directed) {
+        for (const edge of graph.edges) {
+          if (edge[0] === focusNode || edge[1] === focusNode) {
+            return edge;
+          }
+        }
+        return null;
+      }
+
+      for (const edge of graph.edges) {
+        if (edge[0] === focusNode) {
+          return edge;
+        }
+      }
+      for (const edge of graph.edges) {
+        if (edge[1] === focusNode) {
+          return edge;
+        }
+      }
+      return null;
+    }
+
+    function pathEdges(path, directed) {
+      const keys = [];
+      for (let index = 0; index < path.length - 1; index += 1) {
+        keys.push(edgeKey([path[index], path[index + 1]], directed));
+      }
+      return keys;
+    }
+
+    function makeEmptyState() {
+      return {
+        nodeColors: {},
+        nodeStrokes: {},
+        nodeTextColors: {},
+        nodeBadges: {},
+        edgeColors: {},
+        edgeWidths: {},
+        mutedNodes: [],
+        mutedEdges: []
+      };
+    }
+
+    function colorGroups(graph, groups) {
+      const palette = ["#2d6cdf", "#1d7f6d", "#e57b2f", "#7b59d0"];
+      const state = makeEmptyState();
+
+      groups.forEach((group, index) => {
+        const color = palette[index % palette.length];
+        const set = new Set(group);
+        for (const node of group) {
+          state.nodeColors[node] = color;
+          state.nodeTextColors[node] = "#fff";
+        }
+        for (const edge of graph.edges) {
+          const key = edgeKey(edge, graph.directed);
+          if (set.has(edge[0]) && set.has(edge[1])) {
+            state.edgeColors[key] = color;
+            state.edgeWidths[key] = 5;
+          }
+        }
+      });
+
+      return state;
+    }
+
+    function buildConceptPayload(concept, focusNode) {
+      const undirectedAdj = buildAdjacency(undirectedGraph, false);
+      const directedAdj = buildAdjacency(directedGraph, false);
+      const incomingDir = incomingAdjacency(directedGraph);
+      const undirectedState = makeEmptyState();
+      const directedState = makeEmptyState();
+
+      if (concept === "direction") {
+        for (const edge of undirectedGraph.edges) {
+          const key = edgeKey(edge, false);
+          undirectedState.edgeColors[key] = colors.neighbor;
+          undirectedState.edgeWidths[key] = 4;
+        }
+        for (const edge of directedGraph.edges) {
+          const key = edgeKey(edge, true);
+          directedState.edgeColors[key] = colors.neighbor;
+          directedState.edgeWidths[key] = 4;
+        }
+
+        return {
+          definition: "An undirected graph uses plain connections, while a directed graph uses arrows that limit which way you can travel.",
+          undirected: "If A is connected to B, then B is also connected to A. One edge represents both directions.",
+          directed: "A -> B only guarantees movement from A to B. The reverse direction must be drawn separately if it exists.",
+          example: "Compare A-B in the undirected graph with A->B in the directed graph. One is symmetric, the other is directional.",
+          legend: [
+            { kind: "line", color: colors.neighbor, label: "all edges / arcs" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "node") {
+        undirectedState.nodeColors[focusNode] = colors.focus;
+        undirectedState.nodeTextColors[focusNode] = "#fff";
+        directedState.nodeColors[focusNode] = colors.focus;
+        directedState.nodeTextColors[focusNode] = "#fff";
+
+        return {
+          definition: "A node, also called a vertex, is one object in the graph.",
+          undirected: `Node ${focusNode} is one point in the undirected graph. It can have neighbors, degree, and membership in a component.`,
+          directed: `Node ${focusNode} is one point in the directed graph. It can have incoming edges, outgoing edges, and membership in an SCC.`,
+          example: `The highlighted node is ${focusNode} in both graphs.`,
+          legend: [
+            { kind: "dot", color: colors.focus, label: "selected node" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "edge") {
+        const undirectedEdge = pickIncidentEdge(undirectedGraph, focusNode);
+        const directedEdge = pickIncidentEdge(directedGraph, focusNode);
+
+        if (undirectedEdge) {
+          const key = edgeKey(undirectedEdge, false);
+          undirectedState.edgeColors[key] = colors.path;
+          undirectedState.edgeWidths[key] = 5;
+          undirectedState.nodeColors[undirectedEdge[0]] = colors.focus;
+          undirectedState.nodeColors[undirectedEdge[1]] = colors.neighbor;
+          undirectedState.nodeTextColors[undirectedEdge[0]] = "#fff";
+          undirectedState.nodeTextColors[undirectedEdge[1]] = "#fff";
+        }
+
+        if (directedEdge) {
+          const key = edgeKey(directedEdge, true);
+          directedState.edgeColors[key] = colors.path;
+          directedState.edgeWidths[key] = 5;
+          directedState.nodeColors[directedEdge[0]] = colors.focus;
+          directedState.nodeColors[directedEdge[1]] = colors.neighbor;
+          directedState.nodeTextColors[directedEdge[0]] = "#fff";
+          directedState.nodeTextColors[directedEdge[1]] = "#fff";
+        }
+
+        return {
+          definition: "An edge connects two nodes. In a directed graph, the edge is usually called an arc and has direction.",
+          undirected: undirectedEdge ? `Example edge: ${undirectedEdge[0]}-${undirectedEdge[1]}.` : `${focusNode} has no incident undirected edge.`,
+          directed: directedEdge ? `Example arc: ${directedEdge[0]} -> ${directedEdge[1]}.` : `${focusNode} has no incident directed edge.`,
+          example: "A graph is made from nodes and the connections between them.",
+          legend: [
+            { kind: "line", color: colors.path, label: "highlighted edge / arc" },
+            { kind: "dot", color: colors.focus, label: "start endpoint" },
+            { kind: "dot", color: colors.neighbor, label: "other endpoint" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "neighbor") {
+        const undirectedNeighbors = undirectedAdj[focusNode];
+        const outgoing = directedAdj[focusNode];
+        const incoming = incomingDir[focusNode];
+
+        undirectedState.nodeColors[focusNode] = colors.focus;
+        undirectedState.nodeTextColors[focusNode] = "#fff";
+        for (const neighbor of undirectedNeighbors) {
+          undirectedState.nodeColors[neighbor] = colors.neighbor;
+          undirectedState.nodeTextColors[neighbor] = "#fff";
+          const key = edgeKey([focusNode, neighbor], false);
+          undirectedState.edgeColors[key] = colors.neighbor;
+          undirectedState.edgeWidths[key] = 5;
+        }
+
+        directedState.nodeColors[focusNode] = colors.focus;
+        directedState.nodeTextColors[focusNode] = "#fff";
+        for (const neighbor of outgoing) {
+          directedState.nodeColors[neighbor] = colors.neighbor;
+          directedState.nodeTextColors[neighbor] = "#fff";
+          const key = edgeKey([focusNode, neighbor], true);
+          directedState.edgeColors[key] = colors.neighbor;
+          directedState.edgeWidths[key] = 5;
+        }
+        for (const node of incoming) {
+          if (!directedState.nodeColors[node]) {
+            directedState.nodeColors[node] = colors.incoming;
+            directedState.nodeTextColors[node] = "#fff";
+          }
+          const key = edgeKey([node, focusNode], true);
+          directedState.edgeColors[key] = colors.incoming;
+          directedState.edgeWidths[key] = 5;
+        }
+
+        return {
+          definition: "A neighbor is a node connected by one edge. In directed graphs you often separate outgoing neighbors from incoming neighbors.",
+          undirected: `${focusNode} has undirected neighbors [${undirectedNeighbors.join(", ") || "-"}].`,
+          directed: `${focusNode} has outgoing neighbors [${outgoing.join(", ") || "-"}] and incoming neighbors [${incoming.join(", ") || "-"}].`,
+          example: "Neighbor is a local, one-step relationship.",
+          legend: [
+            { kind: "dot", color: colors.focus, label: "focus node" },
+            { kind: "dot", color: colors.neighbor, label: "neighbor / outgoing neighbor" },
+            { kind: "dot", color: colors.incoming, label: "incoming neighbor" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "degree") {
+        for (const node of undirectedGraph.nodes.map((item) => item.id)) {
+          undirectedState.nodeBadges[node] = `deg ${degree(undirectedGraph, node)}`;
+        }
+        for (const node of directedGraph.nodes.map((item) => item.id)) {
+          directedState.nodeBadges[node] = `deg ${totalDegreeDirected(directedGraph, node)}`;
+        }
+
+        undirectedState.nodeColors[focusNode] = colors.focus;
+        undirectedState.nodeTextColors[focusNode] = "#fff";
+        directedState.nodeColors[focusNode] = colors.focus;
+        directedState.nodeTextColors[focusNode] = "#fff";
+
+        return {
+          definition: "Degree counts how many edges touch a node. In directed graphs, many courses split this into in-degree and out-degree.",
+          undirected: `deg(${focusNode}) = ${degree(undirectedGraph, focusNode)}.`,
+          directed: `total degree(${focusNode}) = in-degree ${inDegree(directedGraph, focusNode)} + out-degree ${outDegree(directedGraph, focusNode)} = ${totalDegreeDirected(directedGraph, focusNode)}.`,
+          example: "The badge above each node shows degree in the current graph.",
+          legend: [
+            { kind: "dot", color: colors.focus, label: "focus node" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "in_out_degree") {
+        for (const node of undirectedGraph.nodes.map((item) => item.id)) {
+          undirectedState.nodeBadges[node] = `deg ${degree(undirectedGraph, node)}`;
+        }
+        for (const node of directedGraph.nodes.map((item) => item.id)) {
+          directedState.nodeBadges[node] = `${inDegree(directedGraph, node)}/${outDegree(directedGraph, node)}`;
+        }
+        undirectedState.nodeColors[focusNode] = colors.focus;
+        undirectedState.nodeTextColors[focusNode] = "#fff";
+        directedState.nodeColors[focusNode] = colors.focus;
+        directedState.nodeTextColors[focusNode] = "#fff";
+
+        return {
+          definition: "In a directed graph, in-degree counts arrows coming in and out-degree counts arrows going out.",
+          undirected: "Undirected graphs do not separate direction, so one degree value is enough.",
+          directed: `${focusNode} has in-degree ${inDegree(directedGraph, focusNode)} and out-degree ${outDegree(directedGraph, focusNode)}. Directed badges are shown as in/out.`,
+          example: "For example, E has one incoming arrow and two outgoing arrows.",
+          legend: [
+            { kind: "dot", color: colors.focus, label: "focus node" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "adjacency_list") {
+        undirectedState.nodeColors[focusNode] = colors.focus;
+        undirectedState.nodeTextColors[focusNode] = "#fff";
+        for (const neighbor of undirectedAdj[focusNode]) {
+          undirectedState.nodeColors[neighbor] = colors.neighbor;
+          undirectedState.nodeTextColors[neighbor] = "#fff";
+          undirectedState.edgeColors[edgeKey([focusNode, neighbor], false)] = colors.neighbor;
+          undirectedState.edgeWidths[edgeKey([focusNode, neighbor], false)] = 5;
+        }
+
+        directedState.nodeColors[focusNode] = colors.focus;
+        directedState.nodeTextColors[focusNode] = "#fff";
+        for (const neighbor of directedAdj[focusNode]) {
+          directedState.nodeColors[neighbor] = colors.neighbor;
+          directedState.nodeTextColors[neighbor] = "#fff";
+          directedState.edgeColors[edgeKey([focusNode, neighbor], true)] = colors.neighbor;
+          directedState.edgeWidths[edgeKey([focusNode, neighbor], true)] = 5;
+        }
+
+        return {
+          definition: "An adjacency list stores, for each node, the nodes reachable in one step.",
+          undirected: `${focusNode}: [${undirectedAdj[focusNode].join(", ") || "-"}]`,
+          directed: `${focusNode}: [${directedAdj[focusNode].join(", ") || "-"}] for outgoing neighbors.`,
+          example: "Reading one adjacency-list row is often the easiest way to understand local graph structure.",
+          legend: [
+            { kind: "dot", color: colors.focus, label: "selected row node" },
+            { kind: "dot", color: colors.neighbor, label: "neighbors in that row" }
+          ],
+          undirectedState,
+          directedState,
+          activeAdjacencyNode: focusNode
+        };
+      }
+
+      if (concept === "path") {
+        const undirectedPath = ["A", "B", "D", "E"];
+        const directedPath = ["A", "B", "C", "D", "E", "F", "G"];
+
+        for (const node of undirectedPath) {
+          undirectedState.nodeColors[node] = colors.path;
+          undirectedState.nodeTextColors[node] = "#fff";
+        }
+        for (const key of pathEdges(undirectedPath, false)) {
+          undirectedState.edgeColors[key] = colors.path;
+          undirectedState.edgeWidths[key] = 5;
+        }
+
+        for (const node of directedPath) {
+          directedState.nodeColors[node] = colors.path;
+          directedState.nodeTextColors[node] = "#fff";
+        }
+        for (const key of pathEdges(directedPath, true)) {
+          directedState.edgeColors[key] = colors.path;
+          directedState.edgeWidths[key] = 5;
+        }
+
+        undirectedState.mutedNodes = ["F", "G", "H"];
+        directedState.mutedNodes = ["H"];
+
+        return {
+          definition: "A path is a sequence of nodes connected by edges. In directed graphs, the direction of each edge must be respected.",
+          undirected: `One undirected path is A -> B -> D -> E.`,
+          directed: `One directed path is A -> B -> C -> D -> E -> F -> G.`,
+          example: "Paths show reachability, not necessarily uniqueness. A graph can contain many different paths.",
+          legend: [
+            { kind: "line", color: colors.path, label: "path edges" },
+            { kind: "dot", color: colors.path, label: "path nodes" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "cycle") {
+        const undirectedCycle = ["A", "B", "D", "C", "A"];
+        const directedCycle = ["A", "B", "C", "A"];
+
+        for (const node of ["A", "B", "C", "D"]) {
+          undirectedState.nodeColors[node] = colors.path;
+          undirectedState.nodeTextColors[node] = "#fff";
+        }
+        for (const key of pathEdges(undirectedCycle, false)) {
+          undirectedState.edgeColors[key] = colors.path;
+          undirectedState.edgeWidths[key] = 5;
+        }
+
+        for (const node of ["A", "B", "C"]) {
+          directedState.nodeColors[node] = colors.path;
+          directedState.nodeTextColors[node] = "#fff";
+        }
+        for (const key of pathEdges(directedCycle, true)) {
+          directedState.edgeColors[key] = colors.path;
+          directedState.edgeWidths[key] = 5;
+        }
+
+        return {
+          definition: "A cycle starts at one node and returns to that same node by following valid edges.",
+          undirected: `One cycle is A -> B -> D -> C -> A.`,
+          directed: `One directed cycle is A -> B -> C -> A.`,
+          example: "Cycles matter because they show feedback, loops, and repeated reachability.",
+          legend: [
+            { kind: "line", color: colors.path, label: "cycle edges" },
+            { kind: "dot", color: colors.path, label: "cycle nodes" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "isolated_node") {
+        undirectedState.nodeColors.H = colors.focus;
+        undirectedState.nodeTextColors.H = "#fff";
+        directedState.nodeColors.H = colors.focus;
+        directedState.nodeTextColors.H = "#fff";
+
+        return {
+          definition: "An isolated node has no incident edges.",
+          undirected: "H is isolated because no undirected edge touches it.",
+          directed: "H is isolated because it has in-degree 0 and out-degree 0.",
+          example: "Isolated nodes form single-node components.",
+          legend: [
+            { kind: "dot", color: colors.focus, label: "isolated node" }
+          ],
+          undirectedState,
+          directedState
+        };
+      }
+
+      if (concept === "connected_component") {
+        const undirectedGroups = findConnectedComponents(undirectedGraph);
+        const weakGroups = findConnectedComponents(directedGraph);
+        return {
+          definition: "A connected component is a maximal set of nodes that stay connected. In directed graphs, if you ignore direction, you get weakly connected components.",
+          undirected: `The undirected graph has 3 components: {${undirectedGroups[0].join(", ")}}, {${undirectedGroups[1].join(", ")}}, {${undirectedGroups[2].join(", ")}}.`,
+          directed: `Ignoring direction, the directed graph has 2 weak components: {${weakGroups[0].join(", ")}}, {${weakGroups[1].join(", ")}}.`,
+          example: "Components show where connectivity breaks.",
+          legend: [
+            { kind: "dot", color: "#2d6cdf", label: "group 1" },
+            { kind: "dot", color: "#1d7f6d", label: "group 2" },
+            { kind: "dot", color: "#e57b2f", label: "group 3 if present" }
+          ],
+          undirectedState: colorGroups(undirectedGraph, undirectedGroups),
+          directedState: colorGroups(directedGraph, weakGroups)
+        };
+      }
+
+      if (concept === "strongly_connected_component") {
+        const directedGroups = findStronglyConnectedComponents(directedGraph);
+        const undirectedGroups = findConnectedComponents(undirectedGraph);
+        return {
+          definition: "A strongly connected component is a directed-graph group in which every node can reach every other node by following arrow direction.",
+          undirected: `SCC is mainly a directed concept. In the undirected graph, mutual reachability matches its connected components: {${undirectedGroups[0].join(", ")}}, {${undirectedGroups[1].join(", ")}}, {${undirectedGroups[2].join(", ")}}.`,
+          directed: `The directed graph has 4 SCCs: {${directedGroups[0].join(", ")}}, {${directedGroups[1].join(", ")}}, {${directedGroups[2].join(", ")}}, {${directedGroups[3].join(", ")}}.`,
+          example: "A, B, and C form one SCC because each can reach the others around the directed cycle.",
+          legend: [
+            { kind: "dot", color: "#2d6cdf", label: "SCC 1" },
+            { kind: "dot", color: "#1d7f6d", label: "SCC 2" },
+            { kind: "dot", color: "#e57b2f", label: "SCC 3" },
+            { kind: "dot", color: "#7b59d0", label: "SCC 4" }
+          ],
+          undirectedState: colorGroups(undirectedGraph, undirectedGroups),
+          directedState: colorGroups(directedGraph, directedGroups)
+        };
+      }
+
+      return {
+        definition: "",
+        undirected: "",
+        directed: "",
+        example: "",
+        legend: [],
+        undirectedState,
+        directedState
+      };
+    }
+
+    function renderAdjacencyList(container, graph, activeNode) {
+      const adjacency = buildAdjacency(graph, false);
+      const lines = [];
+
+      for (const node of graph.nodes.map((item) => item.id)) {
+        const line = `${node}: [${adjacency[node].join(", ")}]`;
+        if (activeNode === node) {
+          lines.push(`<span class="active-row">${line}</span>`);
+        } else {
+          lines.push(line);
+        }
+      }
+
+      container.innerHTML = lines.join("<br>");
+    }
+
+    function renderUndirectedDegreeTable(activeNode) {
+      let html = "<table><thead><tr><th>Node</th><th>Neighbors</th><th>Degree</th></tr></thead><tbody>";
+      const adjacency = buildAdjacency(undirectedGraph, false);
+      for (const node of undirectedGraph.nodes.map((item) => item.id)) {
+        const activeClass = node === activeNode ? "is-active" : "";
+        html += `<tr class="${activeClass}"><td>${node}</td><td>${adjacency[node].join(", ") || "-"}</td><td>${degree(undirectedGraph, node)}</td></tr>`;
+      }
+      html += "</tbody></table>";
+      undirectedDegreeTable.innerHTML = html;
+    }
+
+    function renderDirectedDegreeTable(activeNode) {
+      let html = "<table><thead><tr><th>Node</th><th>Outgoing</th><th>Incoming</th><th>Out</th><th>In</th><th>Total</th></tr></thead><tbody>";
+      const adjacency = buildAdjacency(directedGraph, false);
+      const incoming = incomingAdjacency(directedGraph);
+      for (const node of directedGraph.nodes.map((item) => item.id)) {
+        const activeClass = node === activeNode ? "is-active" : "";
+        html += `<tr class="${activeClass}"><td>${node}</td><td>${adjacency[node].join(", ") || "-"}</td><td>${incoming[node].join(", ") || "-"}</td><td>${outDegree(directedGraph, node)}</td><td>${inDegree(directedGraph, node)}</td><td>${totalDegreeDirected(directedGraph, node)}</td></tr>`;
+      }
+      html += "</tbody></table>";
+      directedDegreeTable.innerHTML = html;
+    }
+
+    function update() {
+      const concept = conceptSelect.value;
+      const focusNode = nodeSelect.value;
+      const payload = buildConceptPayload(concept, focusNode);
+
+      definitionText.textContent = payload.definition;
+      undirectedText.textContent = payload.undirected;
+      directedText.textContent = payload.directed;
+      exampleText.textContent = payload.example;
+      renderLegend(payload.legend);
+      renderGraph(undirectedSvg, undirectedGraph, payload.undirectedState);
+      renderGraph(directedSvg, directedGraph, payload.directedState);
+
+      const activeAdjacencyNode = payload.activeAdjacencyNode || null;
+      renderAdjacencyList(undirectedAdjacency, undirectedGraph, activeAdjacencyNode);
+      renderAdjacencyList(directedAdjacency, directedGraph, activeAdjacencyNode);
+
+      const degreeFocus =
+        concept === "degree" || concept === "in_out_degree" || concept === "adjacency_list" || concept === "neighbor" || concept === "node"
+          ? focusNode
+          : null;
+
+      renderUndirectedDegreeTable(degreeFocus);
+      renderDirectedDegreeTable(degreeFocus);
+    }
+
+    conceptSelect.addEventListener("change", update);
+    nodeSelect.addEventListener("change", update);
+
+    update();
+  </script>
+</body>
+</html>

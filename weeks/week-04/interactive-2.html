@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 04 - BFS and DFS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --panel: #fffaf1;
+      --panel-soft: #fffdf8;
+      --ink: #1e3037;
+      --muted: #617279;
+      --line: #dbc8ae;
+      --shadow: 0 14px 30px rgba(30, 48, 55, 0.11);
+      --radius: 18px;
+
+      --visited: #d9f1e7;
+      --frontier: #ffe5cf;
+      --current: #e25544;
+      --tree: #2d6cdf;
+      --active: #e57b2f;
+      --node-stroke: #243840;
+      --edge-muted: #ccbca7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 480px at -10% -20%, #fff4d7 0%, transparent 56%),
+        radial-gradient(900px 480px at 110% 10%, #dbf6ea 0%, transparent 60%),
+        linear-gradient(150deg, #f7f2ea 0%, var(--bg) 100%);
+      min-height: 100vh;
+      padding: 24px 14px 42px;
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, #fff5e3 0%, #eefdf7 100%);
+      padding: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.55rem, 3vw, 2.45rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 950px;
+      line-height: 1.55;
+    }
+
+    .chips {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 6px 12px;
+      font-size: 0.84rem;
+    }
+
+    .card {
+      background: var(--panel);
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb 0%, #fff8ee 100%);
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .card-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      min-width: 190px;
+      flex: 1;
+    }
+
+    select,
+    input[type="range"] {
+      width: 100%;
+    }
+
+    select {
+      border: 1px solid #cab89f;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    input[type="range"] {
+      accent-color: #1d7f6d;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: #1d7f6d;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(29, 127, 109, 0.2);
+    }
+
+    .btn-accent {
+      background: #e57b2f;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(229, 123, 47, 0.22);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: #cab89f;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .surface-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-soft);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .surface h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .surface p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.88rem;
+    }
+
+    .visual {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:
+        radial-gradient(500px 220px at 0% 0%, rgba(255, 246, 230, 0.7) 0%, transparent 72%),
+        linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      min-height: 360px;
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot,
+    .legend-line {
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .legend-line {
+      width: 18px;
+      height: 0;
+      border-top: 3px solid #000;
+      border-radius: 999px;
+    }
+
+    .status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      min-height: 1.35rem;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .metric .label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mono {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.83rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #21363d;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-family: "IBM Plex Mono", monospace;
+      width: fit-content;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .active-row {
+      background: #fff0e3;
+      color: #183139;
+      border-radius: 8px;
+      padding: 1px 6px;
+      display: inline-block;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-two,
+      .panel-grid,
+      .surface-grid,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Week 04 - BFS and DFS Explorer</h1>
+      <p class="subtitle">This page isolates traversal. Choose one graph and one start node, then compare breadth-first search and depth-first search side by side. The visuals show the active node, the queue or stack, visited nodes, traversal order, and the growing traversal tree.</p>
+      <div class="chips">
+        <span class="chip">BFS uses a queue</span>
+        <span class="chip">DFS uses a stack</span>
+        <span class="chip">Same graph, same start node</span>
+        <span class="chip">Tree edges and visit order</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <header class="card-head">
+        <h2>Shared Controls</h2>
+        <p>These controls rebuild both simulations so the two algorithms are always compared on the same input.</p>
+      </header>
+      <div class="card-body">
+        <div class="controls">
+          <label>Graph Preset
+            <select id="presetSelect"></select>
+          </label>
+          <label>Start Node
+            <select id="startNodeSelect"></select>
+          </label>
+          <label>Auto Speed
+            <input type="range" id="speedRange" min="240" max="1200" step="40" value="680">
+          </label>
+          <button class="btn-primary" id="buildButton">Build Simulations</button>
+        </div>
+
+        <div class="surface-grid">
+          <section class="surface">
+            <h3>How BFS Feels</h3>
+            <p>BFS explores level by level. It is the natural choice when nearest nodes or shortest paths in unweighted graphs matter.</p>
+          </section>
+          <section class="surface">
+            <h3>How DFS Feels</h3>
+            <p>DFS goes deep first, then backtracks. It is useful for structure exploration, recursion thinking, and component analysis.</p>
+          </section>
+          <section class="surface">
+            <h3>Adjacency List Used</h3>
+            <p class="mono" id="adjacencyView">-</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <article class="card">
+        <header class="card-head">
+          <h2>Breadth-First Search (BFS)</h2>
+          <p>Nodes enter a queue when discovered. In this simulator, the queue holds the frontier of nodes to visit next.</p>
+        </header>
+        <div class="card-body">
+          <div class="controls">
+            <button class="btn-accent" id="bfsStep" disabled>Step</button>
+            <button class="btn-secondary" id="bfsAuto" disabled>Auto Play</button>
+            <button class="btn-secondary" id="bfsReset" disabled>Reset</button>
+          </div>
+          <p class="status" id="bfsStatus">Build the simulation to begin.</p>
+          <div class="panel-grid">
+            <div class="stack">
+              <div class="visual">
+                <svg id="bfsSvg" viewBox="0 0 720 360" aria-label="BFS graph visualization"></svg>
+              </div>
+              <div class="legend" id="bfsLegend"></div>
+            </div>
+            <div class="stack">
+              <div class="surface">
+                <h3>Stats</h3>
+                <div class="badge">Time: O(V + E) | Space: O(V)</div>
+                <div class="metrics">
+                  <div class="metric">
+                    <span class="label">Step</span>
+                    <span class="value" id="bfsStepCount">0 / 0</span>
+                  </div>
+                  <div class="metric">
+                    <span class="label">Current</span>
+                    <span class="value" id="bfsCurrent">-</span>
+                  </div>
+                  <div class="metric">
+                    <span class="label">Queue Size</span>
+                    <span class="value" id="bfsSize">0</span>
+                  </div>
+                </div>
+              </div>
+              <div class="surface">
+                <h3>Queue</h3>
+                <p class="mono" id="bfsStructure">-</p>
+              </div>
+              <div class="surface">
+                <h3>Visited</h3>
+                <p class="mono" id="bfsVisited">-</p>
+              </div>
+              <div class="surface">
+                <h3>Traversal Order</h3>
+                <p class="mono" id="bfsOrder">-</p>
+              </div>
+              <div class="surface">
+                <h3>Level Map</h3>
+                <p class="mono" id="bfsMeta">-</p>
+              </div>
+              <div class="surface">
+                <h3>Traversal Tree Edges</h3>
+                <p class="mono" id="bfsTree">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <header class="card-head">
+          <h2>Depth-First Search (DFS)</h2>
+          <p>Nodes enter a stack when discovered. This version uses an explicit stack so the backtracking is visible.</p>
+        </header>
+        <div class="card-body">
+          <div class="controls">
+            <button class="btn-accent" id="dfsStep" disabled>Step</button>
+            <button class="btn-secondary" id="dfsAuto" disabled>Auto Play</button>
+            <button class="btn-secondary" id="dfsReset" disabled>Reset</button>
+          </div>
+          <p class="status" id="dfsStatus">Build the simulation to begin.</p>
+          <div class="panel-grid">
+            <div class="stack">
+              <div class="visual">
+                <svg id="dfsSvg" viewBox="0 0 720 360" aria-label="DFS graph visualization"></svg>
+              </div>
+              <div class="legend" id="dfsLegend"></div>
+            </div>
+            <div class="stack">
+              <div class="surface">
+                <h3>Stats</h3>
+                <div class="badge">Time: O(V + E) | Space: O(V)</div>
+                <div class="metrics">
+                  <div class="metric">
+                    <span class="label">Step</span>
+                    <span class="value" id="dfsStepCount">0 / 0</span>
+                  </div>
+                  <div class="metric">
+                    <span class="label">Current</span>
+                    <span class="value" id="dfsCurrent">-</span>
+                  </div>
+                  <div class="metric">
+                    <span class="label">Stack Size</span>
+                    <span class="value" id="dfsSize">0</span>
+                  </div>
+                </div>
+              </div>
+              <div class="surface">
+                <h3>Stack</h3>
+                <p class="mono" id="dfsStructure">-</p>
+              </div>
+              <div class="surface">
+                <h3>Visited</h3>
+                <p class="mono" id="dfsVisited">-</p>
+              </div>
+              <div class="surface">
+                <h3>Traversal Order</h3>
+                <p class="mono" id="dfsOrder">-</p>
+              </div>
+              <div class="surface">
+                <h3>Tree Depth Map</h3>
+                <p class="mono" id="dfsMeta">-</p>
+              </div>
+              <div class="surface">
+                <h3>Traversal Tree Edges</h3>
+                <p class="mono" id="dfsTree">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const presets = {
+      layered_undirected: {
+        label: "Layered Undirected Graph",
+        directed: false,
+        nodes: [
+          { id: "A", x: 90, y: 120 },
+          { id: "B", x: 240, y: 80 },
+          { id: "C", x: 240, y: 200 },
+          { id: "D", x: 395, y: 60 },
+          { id: "E", x: 395, y: 150 },
+          { id: "F", x: 395, y: 250 },
+          { id: "G", x: 560, y: 120 },
+          { id: "H", x: 560, y: 245 }
+        ],
+        edges: [
+          ["A", "B"],
+          ["A", "C"],
+          ["B", "D"],
+          ["B", "E"],
+          ["C", "E"],
+          ["C", "F"],
+          ["E", "G"],
+          ["F", "H"]
+        ]
+      },
+      cycle_undirected: {
+        label: "Undirected Graph With Cycle",
+        directed: false,
+        nodes: [
+          { id: "A", x: 110, y: 130 },
+          { id: "B", x: 240, y: 65 },
+          { id: "C", x: 240, y: 205 },
+          { id: "D", x: 380, y: 130 },
+          { id: "E", x: 520, y: 75 },
+          { id: "F", x: 520, y: 205 },
+          { id: "G", x: 650, y: 130 }
+        ],
+        edges: [
+          ["A", "B"],
+          ["A", "C"],
+          ["B", "D"],
+          ["C", "D"],
+          ["D", "E"],
+          ["D", "F"],
+          ["E", "G"],
+          ["F", "G"]
+        ]
+      },
+      directed_routes: {
+        label: "Directed Traversal Graph",
+        directed: true,
+        nodes: [
+          { id: "A", x: 90, y: 120 },
+          { id: "B", x: 235, y: 70 },
+          { id: "C", x: 235, y: 205 },
+          { id: "D", x: 390, y: 60 },
+          { id: "E", x: 390, y: 150 },
+          { id: "F", x: 390, y: 250 },
+          { id: "G", x: 565, y: 95 },
+          { id: "H", x: 565, y: 225 }
+        ],
+        edges: [
+          ["A", "B"],
+          ["A", "C"],
+          ["B", "D"],
+          ["B", "E"],
+          ["C", "E"],
+          ["C", "F"],
+          ["E", "G"],
+          ["F", "H"],
+          ["G", "H"]
+        ]
+      }
+    };
+
+    const ui = {
+      presetSelect: document.getElementById("presetSelect"),
+      startNodeSelect: document.getElementById("startNodeSelect"),
+      speedRange: document.getElementById("speedRange"),
+      buildButton: document.getElementById("buildButton"),
+      adjacencyView: document.getElementById("adjacencyView")
+    };
+
+    const panels = {
+      bfs: {
+        svg: document.getElementById("bfsSvg"),
+        legend: document.getElementById("bfsLegend"),
+        stepButton: document.getElementById("bfsStep"),
+        autoButton: document.getElementById("bfsAuto"),
+        resetButton: document.getElementById("bfsReset"),
+        status: document.getElementById("bfsStatus"),
+        stepCount: document.getElementById("bfsStepCount"),
+        current: document.getElementById("bfsCurrent"),
+        size: document.getElementById("bfsSize"),
+        structure: document.getElementById("bfsStructure"),
+        visited: document.getElementById("bfsVisited"),
+        order: document.getElementById("bfsOrder"),
+        meta: document.getElementById("bfsMeta"),
+        tree: document.getElementById("bfsTree"),
+        trace: [],
+        index: 0,
+        timer: null,
+        structureName: "Queue",
+        metaLabel: "level"
+      },
+      dfs: {
+        svg: document.getElementById("dfsSvg"),
+        legend: document.getElementById("dfsLegend"),
+        stepButton: document.getElementById("dfsStep"),
+        autoButton: document.getElementById("dfsAuto"),
+        resetButton: document.getElementById("dfsReset"),
+        status: document.getElementById("dfsStatus"),
+        stepCount: document.getElementById("dfsStepCount"),
+        current: document.getElementById("dfsCurrent"),
+        size: document.getElementById("dfsSize"),
+        structure: document.getElementById("dfsStructure"),
+        visited: document.getElementById("dfsVisited"),
+        order: document.getElementById("dfsOrder"),
+        meta: document.getElementById("dfsMeta"),
+        tree: document.getElementById("dfsTree"),
+        trace: [],
+        index: 0,
+        timer: null,
+        structureName: "Stack",
+        metaLabel: "depth"
+      }
+    };
+
+    function edgeKey(edge, directed) {
+      if (directed) {
+        return `${edge[0]}->${edge[1]}`;
+      }
+      return [edge[0], edge[1]].sort().join("--");
+    }
+
+    function buildAdjacency(preset) {
+      const adjacency = {};
+      for (const node of preset.nodes) {
+        adjacency[node.id] = [];
+      }
+      for (const [start, end] of preset.edges) {
+        adjacency[start].push(end);
+        if (!preset.directed) {
+          adjacency[end].push(start);
+        }
+      }
+      return adjacency;
+    }
+
+    function edgeGeometry(from, to, radius = 23) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const x1 = from.x + (dx * radius) / length;
+      const y1 = from.y + (dy * radius) / length;
+      const x2 = to.x - (dx * radius) / length;
+      const y2 = to.y - (dy * radius) / length;
+      const angle = Math.atan2(dy, dx);
+      return { x1, y1, x2, y2, angle };
+    }
+
+    function arrowPoints(x, y, angle, size = 10) {
+      const backX = x - Math.cos(angle) * size;
+      const backY = y - Math.sin(angle) * size;
+      const leftX = backX + Math.sin(angle) * (size * 0.6);
+      const leftY = backY - Math.cos(angle) * (size * 0.6);
+      const rightX = backX - Math.sin(angle) * (size * 0.6);
+      const rightY = backY + Math.cos(angle) * (size * 0.6);
+      return `${x},${y} ${leftX},${leftY} ${rightX},${rightY}`;
+    }
+
+    function renderLegend(container) {
+      const items = [
+        { kind: "dot", color: "var(--current)", label: "current node" },
+        { kind: "dot", color: "var(--frontier)", label: "queue / stack content" },
+        { kind: "dot", color: "var(--visited)", label: "visited node" },
+        { kind: "line", color: "var(--tree)", label: "traversal tree edge" },
+        { kind: "line", color: "var(--active)", label: "active edge" }
+      ];
+
+      container.innerHTML = "";
+      for (const item of items) {
+        const span = document.createElement("span");
+        span.className = "legend-item";
+        if (item.kind === "line") {
+          span.innerHTML = `<span class="legend-line" style="border-top-color:${item.color}"></span>${item.label}`;
+        } else {
+          span.innerHTML = `<span class="legend-dot" style="background:${item.color}"></span>${item.label}`;
+        }
+        container.appendChild(span);
+      }
+    }
+
+    function renderGraph(svg, preset, stepState, kind) {
+      const nodeLookup = {};
+      for (const node of preset.nodes) {
+        nodeLookup[node.id] = node;
+      }
+
+      const visitedSet = new Set(stepState ? stepState.visited : []);
+      const structureSet = new Set(stepState ? stepState.structure : []);
+      const orderSet = new Set(stepState ? stepState.order : []);
+      const treeSet = new Set(stepState ? stepState.treeEdges : []);
+      const activeEdge = stepState ? stepState.activeEdge : null;
+      const metaMap = stepState ? stepState.metaMap : {};
+      const parts = [];
+
+      parts.push('<rect x="0" y="0" width="720" height="360" fill="transparent"></rect>');
+
+      for (const edge of preset.edges) {
+        const [startId, endId] = edge;
+        const from = nodeLookup[startId];
+        const to = nodeLookup[endId];
+        const key = edgeKey(edge, preset.directed);
+        const geometry = edgeGeometry(from, to);
+        let color = "var(--edge-muted)";
+        let width = 3;
+
+        if (treeSet.has(key)) {
+          color = "var(--tree)";
+          width = 5;
+        }
+
+        if (activeEdge === key) {
+          color = "var(--active)";
+          width = 6;
+        }
+
+        parts.push(
+          `<line x1="${geometry.x1}" y1="${geometry.y1}" x2="${geometry.x2}" y2="${geometry.y2}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"></line>`
+        );
+
+        if (preset.directed) {
+          parts.push(
+            `<polygon points="${arrowPoints(geometry.x2, geometry.y2, geometry.angle)}" fill="${color}"></polygon>`
+          );
+        }
+      }
+
+      for (const node of preset.nodes) {
+        let fill = "#fffef9";
+        let textColor = "#243840";
+        let badge = "";
+
+        if (visitedSet.has(node.id)) {
+          fill = "var(--visited)";
+        }
+        if (orderSet.has(node.id)) {
+          fill = "#cfe9ff";
+        }
+        if (structureSet.has(node.id)) {
+          fill = "var(--frontier)";
+        }
+        if (stepState && stepState.current === node.id) {
+          fill = "var(--current)";
+          textColor = "#fff";
+        }
+
+        if (Object.prototype.hasOwnProperty.call(metaMap, node.id)) {
+          badge = kind === "bfs" ? `L${metaMap[node.id]}` : `D${metaMap[node.id]}`;
+        }
+
+        if (badge) {
+          parts.push(
+            `<rect x="${node.x - 27}" y="${node.y - 46}" width="54" height="18" rx="9" fill="#243840"></rect>`
+          );
+          parts.push(
+            `<text x="${node.x}" y="${node.y - 33}" fill="#fff" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace">${badge}</text>`
+          );
+        }
+
+        parts.push(
+          `<circle cx="${node.x}" cy="${node.y}" r="23" fill="${fill}" stroke="var(--node-stroke)" stroke-width="3"></circle>`
+        );
+        parts.push(
+          `<text x="${node.x}" y="${node.y + 5}" fill="${textColor}" text-anchor="middle" font-size="16" font-weight="700" font-family="Space Grotesk, sans-serif">${node.id}</text>`
+        );
+      }
+
+      svg.innerHTML = parts.join("");
+    }
+
+    function formatMap(map) {
+      const entries = Object.entries(map);
+      if (!entries.length) {
+        return "(empty)";
+      }
+      return entries.map(([key, value]) => `${key}: ${value}`).join("\n");
+    }
+
+    function formatTreeEdges(edges, directed) {
+      if (!edges.length) {
+        return "(none)";
+      }
+      return edges.map((key) => key.replace(directed ? "->" : "--", " -> ")).join("\n");
+    }
+
+    function makeStep(message, current, structure, visited, order, treeEdges, activeEdge, metaMap, done = false) {
+      return {
+        message,
+        current,
+        structure: structure.slice(),
+        visited: Array.from(visited),
+        order: order.slice(),
+        treeEdges: treeEdges.slice(),
+        activeEdge,
+        metaMap: { ...metaMap },
+        done
+      };
+    }
+
+    function buildBFSTrace(preset, start) {
+      const adjacency = buildAdjacency(preset);
+      const queue = [start];
+      const visited = new Set([start]);
+      const order = [];
+      const treeEdges = [];
+      const levels = { [start]: 0 };
+      const trace = [
+        makeStep(`Initialize BFS at ${start}. Mark it visited and enqueue it.`, null, queue, visited, order, treeEdges, null, levels)
+      ];
+
+      while (queue.length) {
+        const current = queue.shift();
+        trace.push(makeStep(`Dequeue ${current}.`, current, queue, visited, order, treeEdges, null, levels));
+
+        order.push(current);
+        trace.push(makeStep(`Visit ${current}.`, current, queue, visited, order, treeEdges, null, levels));
+
+        for (const neighbor of adjacency[current]) {
+          const active = edgeKey([current, neighbor], preset.directed);
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            queue.push(neighbor);
+            treeEdges.push(active);
+            levels[neighbor] = levels[current] + 1;
+            trace.push(makeStep(`Discover ${neighbor} from ${current}. Mark visited and enqueue it.`, current, queue, visited, order, treeEdges, active, levels));
+          } else {
+            trace.push(makeStep(`Skip ${neighbor} from ${current}; it is already visited.`, current, queue, visited, order, treeEdges, active, levels));
+          }
+        }
+      }
+
+      trace.push(makeStep("BFS complete. The queue is empty.", null, queue, visited, order, treeEdges, null, levels, true));
+      return trace;
+    }
+
+    function buildDFSTrace(preset, start) {
+      const adjacency = buildAdjacency(preset);
+      const stack = [start];
+      const visited = new Set([start]);
+      const order = [];
+      const treeEdges = [];
+      const depths = { [start]: 0 };
+      const trace = [
+        makeStep(`Initialize DFS at ${start}. Mark it visited and push it onto the stack.`, null, stack, visited, order, treeEdges, null, depths)
+      ];
+
+      while (stack.length) {
+        const current = stack.pop();
+        trace.push(makeStep(`Pop ${current} from the stack.`, current, stack, visited, order, treeEdges, null, depths));
+
+        order.push(current);
+        trace.push(makeStep(`Visit ${current}.`, current, stack, visited, order, treeEdges, null, depths));
+
+        const neighbors = adjacency[current].slice().reverse();
+        for (const neighbor of neighbors) {
+          const active = edgeKey([current, neighbor], preset.directed);
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            stack.push(neighbor);
+            treeEdges.push(active);
+            depths[neighbor] = depths[current] + 1;
+            trace.push(makeStep(`Discover ${neighbor} from ${current}. Mark visited and push it.`, current, stack, visited, order, treeEdges, active, depths));
+          } else {
+            trace.push(makeStep(`Do not push ${neighbor}; it is already visited.`, current, stack, visited, order, treeEdges, active, depths));
+          }
+        }
+      }
+
+      trace.push(makeStep("DFS complete. The stack is empty.", null, stack, visited, order, treeEdges, null, depths, true));
+      return trace;
+    }
+
+    function currentPreset() {
+      return presets[ui.presetSelect.value];
+    }
+
+    function stopAuto(kind) {
+      const panel = panels[kind];
+      if (panel.timer) {
+        window.clearInterval(panel.timer);
+        panel.timer = null;
+        panel.autoButton.textContent = "Auto Play";
+      }
+    }
+
+    function stopAllAuto() {
+      stopAuto("bfs");
+      stopAuto("dfs");
+    }
+
+    function renderPanel(kind) {
+      const panel = panels[kind];
+      const preset = currentPreset();
+
+      if (!panel.trace.length) {
+        renderGraph(panel.svg, preset, null, kind);
+        panel.status.textContent = "Build the simulation to begin.";
+        panel.stepCount.textContent = "0 / 0";
+        panel.current.textContent = "-";
+        panel.size.textContent = "0";
+        panel.structure.textContent = "-";
+        panel.visited.textContent = "-";
+        panel.order.textContent = "-";
+        panel.meta.textContent = "-";
+        panel.tree.textContent = "-";
+        return;
+      }
+
+      const step = panel.trace[panel.index];
+      renderGraph(panel.svg, preset, step, kind);
+      panel.status.textContent = step.message;
+      panel.stepCount.textContent = `${panel.index + 1} / ${panel.trace.length}`;
+      panel.current.textContent = step.current || "-";
+      panel.size.textContent = String(step.structure.length);
+      panel.structure.textContent = step.structure.length ? step.structure.join(" <- ") : "(empty)";
+      panel.visited.textContent = step.visited.length ? step.visited.join(", ") : "(none)";
+      panel.order.textContent = step.order.length ? step.order.join(" -> ") : "(not started)";
+      panel.meta.textContent = formatMap(step.metaMap);
+      panel.tree.textContent = formatTreeEdges(step.treeEdges, preset.directed);
+
+      if (step.done) {
+        panel.stepButton.disabled = true;
+        panel.autoButton.disabled = true;
+        stopAuto(kind);
+      }
+    }
+
+    function enablePanelControls(kind) {
+      const panel = panels[kind];
+      const enabled = panel.trace.length > 1;
+      panel.stepButton.disabled = !enabled;
+      panel.autoButton.disabled = !enabled;
+      panel.resetButton.disabled = !enabled;
+    }
+
+    function rebuild() {
+      stopAllAuto();
+      const preset = currentPreset();
+      const start = ui.startNodeSelect.value;
+
+      panels.bfs.trace = buildBFSTrace(preset, start);
+      panels.bfs.index = 0;
+      panels.dfs.trace = buildDFSTrace(preset, start);
+      panels.dfs.index = 0;
+
+      renderAdjacency();
+      renderPanel("bfs");
+      renderPanel("dfs");
+      enablePanelControls("bfs");
+      enablePanelControls("dfs");
+    }
+
+    function step(kind) {
+      const panel = panels[kind];
+      if (!panel.trace.length) {
+        return;
+      }
+      if (panel.index < panel.trace.length - 1) {
+        panel.index += 1;
+      }
+      renderPanel(kind);
+    }
+
+    function reset(kind) {
+      stopAuto(kind);
+      const panel = panels[kind];
+      if (!panel.trace.length) {
+        return;
+      }
+      panel.index = 0;
+      renderPanel(kind);
+      if (panel.trace.length > 1) {
+        panel.stepButton.disabled = false;
+        panel.autoButton.disabled = false;
+      }
+    }
+
+    function toggleAuto(kind) {
+      const panel = panels[kind];
+      if (!panel.trace.length) {
+        return;
+      }
+
+      if (panel.timer) {
+        stopAuto(kind);
+        return;
+      }
+
+      panel.autoButton.textContent = "Pause";
+      panel.timer = window.setInterval(() => {
+        if (panel.index >= panel.trace.length - 1) {
+          stopAuto(kind);
+          return;
+        }
+        step(kind);
+      }, Number(ui.speedRange.value));
+    }
+
+    function renderAdjacency() {
+      const preset = currentPreset();
+      const adjacency = buildAdjacency(preset);
+      const start = ui.startNodeSelect.value;
+      const lines = [];
+
+      for (const node of preset.nodes.map((item) => item.id)) {
+        const line = `${node}: [${adjacency[node].join(", ")}]`;
+        if (node === start) {
+          lines.push(`<span class="active-row">${line}</span>`);
+        } else {
+          lines.push(line);
+        }
+      }
+
+      ui.adjacencyView.innerHTML = lines.join("<br>");
+    }
+
+    function populatePresetSelect() {
+      ui.presetSelect.innerHTML = "";
+      for (const [key, preset] of Object.entries(presets)) {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = preset.label;
+        ui.presetSelect.appendChild(option);
+      }
+    }
+
+    function populateStartNodes() {
+      const preset = currentPreset();
+      const previous = ui.startNodeSelect.value;
+      ui.startNodeSelect.innerHTML = "";
+
+      for (const node of preset.nodes) {
+        const option = document.createElement("option");
+        option.value = node.id;
+        option.textContent = node.id;
+        ui.startNodeSelect.appendChild(option);
+      }
+
+      if (preset.nodes.some((node) => node.id === previous)) {
+        ui.startNodeSelect.value = previous;
+      }
+    }
+
+    ui.presetSelect.addEventListener("change", () => {
+      populateStartNodes();
+      stopAllAuto();
+      panels.bfs.trace = [];
+      panels.dfs.trace = [];
+      renderAdjacency();
+      renderPanel("bfs");
+      renderPanel("dfs");
+      enablePanelControls("bfs");
+      enablePanelControls("dfs");
+    });
+
+    ui.startNodeSelect.addEventListener("change", () => {
+      stopAllAuto();
+      panels.bfs.trace = [];
+      panels.dfs.trace = [];
+      renderAdjacency();
+      renderPanel("bfs");
+      renderPanel("dfs");
+      enablePanelControls("bfs");
+      enablePanelControls("dfs");
+    });
+
+    ui.buildButton.addEventListener("click", rebuild);
+    panels.bfs.stepButton.addEventListener("click", () => step("bfs"));
+    panels.dfs.stepButton.addEventListener("click", () => step("dfs"));
+    panels.bfs.resetButton.addEventListener("click", () => reset("bfs"));
+    panels.dfs.resetButton.addEventListener("click", () => reset("dfs"));
+    panels.bfs.autoButton.addEventListener("click", () => toggleAuto("bfs"));
+    panels.dfs.autoButton.addEventListener("click", () => toggleAuto("dfs"));
+
+    ui.speedRange.addEventListener("input", () => {
+      if (panels.bfs.timer) {
+        stopAuto("bfs");
+        toggleAuto("bfs");
+      }
+      if (panels.dfs.timer) {
+        stopAuto("dfs");
+        toggleAuto("dfs");
+      }
+    });
+
+    populatePresetSelect();
+    populateStartNodes();
+    renderLegend(panels.bfs.legend);
+    renderLegend(panels.dfs.legend);
+    renderAdjacency();
+    renderPanel("bfs");
+    renderPanel("dfs");
+    enablePanelControls("bfs");
+    enablePanelControls("dfs");
+  </script>
+</body>
+</html>
