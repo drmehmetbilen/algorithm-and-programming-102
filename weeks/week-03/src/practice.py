@@ -32,7 +32,7 @@ def generate_random_sorted_list(n:int = 20, min_value:int = 0, max_value:int = 1
 
 
     for i in range(n):
-        #TODO Refine min/max value issue
+        
         start = max(last_added+1,min_value)
         remaining = n - i - 1
         end = max_value - remaining
@@ -74,7 +74,7 @@ def search_binary(source_list:list, target:int) -> tuple:
     target : Searched item.
 
     """
-    #TODO Check if the source _list actually sorted. If not raise an error.
+    
     if not source_list: return False,-1
 
     for i in range(len(source_list)-1):
@@ -124,7 +124,7 @@ def search_jump(source_list:list,target:int)-> tuple:
         start = end + 1
         end += block_size
 
-    #TODO Use search_linear method and adjust the indexes
+    
 
     found,index = search_linear(source_list[start:end+1],target)
     if found:
@@ -134,7 +134,7 @@ def search_jump(source_list:list,target:int)-> tuple:
   
 
 if __name__ == "__main__":
-    #TODO Create positive and negative case scenarios.
+    
     print("--------- LINEAR SEARCH TEST ---------")
 
     unsorted_list = generate_random_unsorted_list()
