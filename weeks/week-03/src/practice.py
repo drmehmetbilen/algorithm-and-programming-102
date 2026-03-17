@@ -2,6 +2,13 @@ import random
 
 # 0. Utils
 def generate_random_unsorted_list(n:int=20, min_value:int=0, max_value:int=1000)->list:
+    """
+    Generate random and unsorted list with count n.
+    
+    n : List item count
+    min_value : minimum random value
+    max_value : maximum random value
+    """
     new_list = []
     for i in range(n):
         new_list.append(random.randint(min_value,max_value))
@@ -9,12 +16,9 @@ def generate_random_unsorted_list(n:int=20, min_value:int=0, max_value:int=1000)
 
 def generate_random_sorted_list(n:int=20, min_value:int=0, max_value:int=1000)->list:
     new_list = []
-    # Fixed: Started from min_value to respect the lower bound constraint
     last_added = min_value 
     
     for i in range(n):
-        # Refined min/max logic: Ensuring the value stays within the specified max_value
-        # and remains strictly increasing.
         step = (max_value - last_added) // (n - i)
         new_value = random.randint(last_added + 1, last_added + max(1, step))
         new_list.append(new_value)
@@ -37,7 +41,7 @@ def search_binary(source_list:list, target:int)->tuple:
     
     start = 0
     end = len(source_list) - 1
-    while start <= end: # Fixed: changed < to <= to include the last element
+    while start <= end:
         mid = (start + end) // 2
         if target > source_list[mid]:
             start = mid + 1
