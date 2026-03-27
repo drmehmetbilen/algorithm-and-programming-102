@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 05 - Sorting Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --panel: #fffaf1;
+      --panel-soft: #fffdf8;
+      --ink: #1e3037;
+      --muted: #617279;
+      --line: #dbc8ae;
+      --shadow: 0 14px 30px rgba(30, 48, 55, 0.11);
+      --radius: 18px;
+
+      --sorted: #d9f1e7;
+      --compare-left: #dce9ff;
+      --compare-right: #e8dcff;
+      --swap: #ffe2cf;
+      --scan: #fff2b7;
+      --minimum: #ffd6de;
+      --key: #d4f4ec;
+      --inserted: #cfeee4;
+      --default-cell: #fff;
+      --accent: #1d7f6d;
+      --accent-2: #e57b2f;
+      --accent-3: #2d6cdf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 480px at -10% -20%, #fff4d7 0%, transparent 56%),
+        radial-gradient(900px 480px at 110% 10%, #dbf6ea 0%, transparent 60%),
+        linear-gradient(150deg, #f7f2ea 0%, var(--bg) 100%);
+      min-height: 100vh;
+      padding: 24px 14px 42px;
+    }
+
+    .page {
+      max-width: 1260px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, #fff5e3 0%, #eefdf7 100%);
+      padding: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.55rem, 3vw, 2.45rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 960px;
+      line-height: 1.55;
+    }
+
+    .chips {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 6px 12px;
+      font-size: 0.84rem;
+    }
+
+    .card {
+      background: var(--panel);
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb 0%, #fff8ee 100%);
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .card-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .tab-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tab {
+      border: 1px solid #cab89f;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+    }
+
+    .tab.is-active {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 8px 16px rgba(29, 127, 109, 0.2);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      min-width: 170px;
+      flex: 1;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid #cab89f;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.87rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(29, 127, 109, 0.2);
+    }
+
+    .btn-accent {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(229, 123, 47, 0.22);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: #cab89f;
+    }
+
+    .surface-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-soft);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .surface h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .surface p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.88rem;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .visual {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:
+        radial-gradient(500px 220px at 0% 0%, rgba(255, 246, 230, 0.7) 0%, transparent 72%),
+        linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+      overflow-x: auto;
+      padding: 12px;
+    }
+
+    .pointer-row,
+    .cells,
+    .indices {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(58px, 1fr);
+      gap: 8px;
+    }
+
+    .pointer-row {
+      min-height: 24px;
+      margin-bottom: 6px;
+    }
+
+    .ptr {
+      text-align: center;
+      font-size: 0.68rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 700;
+      color: #fff;
+      border-radius: 999px;
+      padding: 3px 6px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      background: #243840;
+      width: fit-content;
+      margin: 0 auto;
+    }
+
+    .ptr.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cell {
+      min-height: 62px;
+      border: 1px solid #cbbca6;
+      border-radius: 12px;
+      background: var(--default-cell);
+      display: grid;
+      place-items: center;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .cell:hover {
+      transform: translateY(-1px);
+    }
+
+    .cell.sorted { background: var(--sorted); }
+    .cell.compare_left { background: var(--compare-left); }
+    .cell.compare_right { background: var(--compare-right); }
+    .cell.swap { background: var(--swap); }
+    .cell.scan { background: var(--scan); }
+    .cell.minimum { background: var(--minimum); }
+    .cell.key { background: var(--key); }
+    .cell.inserted { background: var(--inserted); }
+
+    .idx {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      display: inline-block;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .metric .label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-family: "IBM Plex Mono", monospace;
+      width: fit-content;
+    }
+
+    .mono {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.83rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #21363d;
+    }
+
+    .error {
+      display: none;
+      border: 1px solid #f0b7b7;
+      background: #fff1f1;
+      color: #9e2f2f;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.84rem;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1080px) {
+      .surface-grid,
+      .panel-grid,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      label {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Week 05 - Sorting Lab</h1>
+      <p class="subtitle">Switch between bubble sort, selection sort, and insertion sort using tabs. The same list can be reused across all three so students can compare how each algorithm grows the sorted part of the array.</p>
+      <div class="chips">
+        <span class="chip">Tabbed algorithm view</span>
+        <span class="chip">Step-by-step simulation</span>
+        <span class="chip">Comparisons and swaps/shifts</span>
+        <span class="chip">Sorted region highlighting</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <header class="card-head">
+        <h2>Algorithm Tabs</h2>
+        <p>Pick one algorithm, then run the simulation on your own input list.</p>
+      </header>
+      <div class="card-body">
+        <div class="tab-row" id="tabRow">
+          <button class="tab is-active" data-tab="bubble">Bubble Sort</button>
+          <button class="tab" data-tab="selection">Selection Sort</button>
+          <button class="tab" data-tab="insertion">Insertion Sort</button>
+        </div>
+
+        <div class="surface-grid">
+          <section class="surface">
+            <h3 id="algoTitle">Bubble Sort</h3>
+            <p id="algoSummary"></p>
+          </section>
+          <section class="surface">
+            <h3>How The Sorted Part Grows</h3>
+            <p id="algoGrowth"></p>
+          </section>
+          <section class="surface">
+            <h3>Complexity Snapshot</h3>
+            <p id="algoComplexity"></p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header class="card-head">
+        <h2>Controls</h2>
+        <p>Build a fresh simulation after changing the list or switching tabs.</p>
+      </header>
+      <div class="card-body">
+        <div class="controls">
+          <label>List (comma-separated)
+            <input type="text" id="arrayInput" value="29,10,14,37,13,8">
+          </label>
+          <label>Element Count
+            <input type="number" id="sizeInput" min="4" max="18" value="6">
+          </label>
+          <label>Auto Speed
+            <input type="range" id="speedInput" min="220" max="1200" step="40" value="680">
+          </label>
+          <button class="btn-secondary" id="randomButton">Random List</button>
+          <button class="btn-primary" id="buildButton">Build Simulation</button>
+          <button class="btn-accent" id="stepButton" disabled>Step</button>
+          <button class="btn-secondary" id="autoButton" disabled>Auto Play</button>
+          <button class="btn-secondary" id="resetButton">Reset</button>
+        </div>
+        <div class="error" id="errorBox"></div>
+        <p class="helper">Element count and list input now stay in sync. Use a short list first because sorting traces become long very quickly, especially for bubble sort.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <header class="card-head">
+        <h2>Simulation</h2>
+        <p>The pointer row shows the algorithm’s working variables. The cell colors show the current step, and the sorted region stays highlighted.</p>
+      </header>
+      <div class="card-body">
+        <div class="panel-grid">
+          <div class="stack">
+            <div class="visual">
+              <div class="pointer-row" id="pointerRow"></div>
+              <div class="cells" id="cellsRow"></div>
+              <div class="indices" id="indicesRow"></div>
+            </div>
+            <div class="legend" id="legend"></div>
+          </div>
+
+          <div class="stack">
+            <div class="surface">
+              <h3>Stats</h3>
+              <div class="badge" id="changeLabel">Swaps</div>
+              <div class="metrics">
+                <div class="metric">
+                  <span class="label">Step</span>
+                  <span class="value" id="stepStat">0 / 0</span>
+                </div>
+                <div class="metric">
+                  <span class="label">Pass</span>
+                  <span class="value" id="passStat">-</span>
+                </div>
+                <div class="metric">
+                  <span class="label">Comparisons</span>
+                  <span class="value" id="comparisonStat">0</span>
+                </div>
+                <div class="metric">
+                  <span class="label" id="changeStatLabel">Swaps</span>
+                  <span class="value" id="changeStat">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="surface">
+              <h3>Message</h3>
+              <p class="mono" id="messageBox">Build the simulation to begin.</p>
+            </div>
+
+            <div class="surface">
+              <h3>Current Variables</h3>
+              <p class="mono" id="varsBox">-</p>
+            </div>
+
+            <div class="surface">
+              <h3>Current Array</h3>
+              <p class="mono" id="arrayBox">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const algorithms = {
+      bubble: {
+        title: "Bubble Sort",
+        summary: "Bubble sort compares neighboring values and swaps them when they are out of order.",
+        growth: "The sorted suffix grows from right to left. After each pass, the largest unsorted value settles at the end.",
+        complexity: "Worst/Average: O(n^2). Best with early stop: O(n). Extra space: O(1).",
+        changeLabel: "Swaps"
+      },
+      selection: {
+        title: "Selection Sort",
+        summary: "Selection sort scans the unsorted region, finds the minimum value, and swaps it into the next sorted slot.",
+        growth: "The sorted prefix grows from left to right. Each pass permanently fixes one more position.",
+        complexity: "Best/Average/Worst: O(n^2). Extra space: O(1). Fewer swaps than bubble sort.",
+        changeLabel: "Swaps"
+      },
+      insertion: {
+        title: "Insertion Sort",
+        summary: "Insertion sort takes the next value and inserts it into the correct place inside the already sorted prefix.",
+        growth: "The sorted prefix grows from left to right. Values are shifted right until the key can be inserted.",
+        complexity: "Worst/Average: O(n^2). Best on nearly sorted data: O(n). Extra space: O(1).",
+        changeLabel: "Shifts"
+      }
+    };
+
+    const legendItems = [
+      { role: "sorted", label: "sorted region", color: "var(--sorted)" },
+      { role: "compare_left", label: "left / current compare", color: "var(--compare-left)" },
+      { role: "compare_right", label: "right / scanned compare", color: "var(--compare-right)" },
+      { role: "swap", label: "swap or moved values", color: "var(--swap)" },
+      { role: "scan", label: "scan position", color: "var(--scan)" },
+      { role: "minimum", label: "current minimum", color: "var(--minimum)" },
+      { role: "key", label: "key value", color: "var(--key)" },
+      { role: "inserted", label: "insert position", color: "var(--inserted)" }
+    ];
+
+    const ui = {
+      tabs: Array.from(document.querySelectorAll(".tab")),
+      algoTitle: document.getElementById("algoTitle"),
+      algoSummary: document.getElementById("algoSummary"),
+      algoGrowth: document.getElementById("algoGrowth"),
+      algoComplexity: document.getElementById("algoComplexity"),
+      arrayInput: document.getElementById("arrayInput"),
+      sizeInput: document.getElementById("sizeInput"),
+      speedInput: document.getElementById("speedInput"),
+      randomButton: document.getElementById("randomButton"),
+      buildButton: document.getElementById("buildButton"),
+      stepButton: document.getElementById("stepButton"),
+      autoButton: document.getElementById("autoButton"),
+      resetButton: document.getElementById("resetButton"),
+      errorBox: document.getElementById("errorBox"),
+      pointerRow: document.getElementById("pointerRow"),
+      cellsRow: document.getElementById("cellsRow"),
+      indicesRow: document.getElementById("indicesRow"),
+      legend: document.getElementById("legend"),
+      changeLabel: document.getElementById("changeLabel"),
+      stepStat: document.getElementById("stepStat"),
+      passStat: document.getElementById("passStat"),
+      comparisonStat: document.getElementById("comparisonStat"),
+      changeStatLabel: document.getElementById("changeStatLabel"),
+      changeStat: document.getElementById("changeStat"),
+      messageBox: document.getElementById("messageBox"),
+      varsBox: document.getElementById("varsBox"),
+      arrayBox: document.getElementById("arrayBox")
+    };
+
+    let activeTab = "bubble";
+    let trace = [];
+    let stepIndex = 0;
+    let autoTimer = null;
+
+    function setTab(tabName) {
+      activeTab = tabName;
+      ui.tabs.forEach((tab) => {
+        tab.classList.toggle("is-active", tab.dataset.tab === tabName);
+      });
+
+      const meta = algorithms[tabName];
+      ui.algoTitle.textContent = meta.title;
+      ui.algoSummary.textContent = meta.summary;
+      ui.algoGrowth.textContent = meta.growth;
+      ui.algoComplexity.textContent = meta.complexity;
+      ui.changeLabel.textContent = meta.changeLabel;
+      ui.changeStatLabel.textContent = meta.changeLabel;
+
+      stopAuto();
+      trace = [];
+      stepIndex = 0;
+      renderStep();
+    }
+
+    function renderLegend() {
+      ui.legend.innerHTML = "";
+      for (const item of legendItems) {
+        const span = document.createElement("span");
+        span.className = "legend-item";
+        span.innerHTML = `<span class="legend-dot" style="background:${item.color}"></span>${item.label}`;
+        ui.legend.appendChild(span);
+      }
+    }
+
+    function showError(message) {
+      ui.errorBox.style.display = "block";
+      ui.errorBox.textContent = message;
+    }
+
+    function clearError() {
+      ui.errorBox.style.display = "none";
+      ui.errorBox.textContent = "";
+    }
+
+    function parseArray(text) {
+      const parts = text.split(",").map((part) => part.trim()).filter(Boolean);
+      if (!parts.length) {
+        throw new Error("Please provide at least one integer.");
+      }
+      const values = parts.map(Number);
+      if (values.some((value) => !Number.isInteger(value))) {
+        throw new Error("The list must contain integers separated by commas.");
+      }
+      if (values.length > 18) {
+        throw new Error("Please keep the list at 18 elements or fewer for the visualizer.");
+      }
+      return values;
+    }
+
+    function tryParseArray(text) {
+      try {
+        return parseArray(text);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function clampSize(value) {
+      return Math.max(4, Math.min(18, Number(value) || 6));
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function randomArray(size) {
+      const values = [];
+      for (let index = 0; index < size; index += 1) {
+        values.push(randomInt(0, 99));
+      }
+      return values;
+    }
+
+    function syncSizeFromArray() {
+      const values = tryParseArray(ui.arrayInput.value);
+      if (!values) {
+        return;
+      }
+      ui.sizeInput.value = values.length;
+    }
+
+    function resizeArrayToCount(size) {
+      const safeSize = clampSize(size);
+      const currentValues = tryParseArray(ui.arrayInput.value) || [];
+      const nextValues = currentValues.slice(0, safeSize);
+
+      while (nextValues.length < safeSize) {
+        nextValues.push(randomInt(0, 99));
+      }
+
+      ui.arrayInput.value = nextValues.join(",");
+      ui.sizeInput.value = safeSize;
+      clearError();
+    }
+
+    function makeStep(array, message, highlights, pointers, sortedIndices, vars, pass, comparisons, changes, done = false) {
+      return {
+        array: array.slice(),
+        message,
+        highlights: { ...highlights },
+        pointers: { ...pointers },
+        sortedIndices: sortedIndices.slice(),
+        vars: { ...vars },
+        pass,
+        comparisons,
+        changes,
+        done
+      };
+    }
+
+    function bubbleTrace(input) {
+      const arr = input.slice();
+      const steps = [];
+      let comparisons = 0;
+      let swaps = 0;
+
+      steps.push(
+        makeStep(arr, "Bubble sort starts with the full unsorted array.", {}, {}, [], { n: arr.length }, 0, comparisons, swaps)
+      );
+
+      for (let end = arr.length - 1; end > 0; end -= 1) {
+        let swapped = false;
+
+        steps.push(
+          makeStep(
+            arr,
+            `Pass ${arr.length - end}: compare neighbors from index 0 to ${end}.`,
+            {},
+            { [end]: ["end"] },
+            Array.from({ length: arr.length - end - 1 }, (_, idx) => end + 1 + idx),
+            { end },
+            arr.length - end,
+            comparisons,
+            swaps
+          )
+        );
+
+        for (let j = 0; j < end; j += 1) {
+          comparisons += 1;
+          const sortedIndices = Array.from({ length: arr.length - end - 1 }, (_, idx) => end + 1 + idx);
+
+          steps.push(
+            makeStep(
+              arr,
+              `Compare arr[${j}] = ${arr[j]} with arr[${j + 1}] = ${arr[j + 1]}.`,
+              { [j]: "compare_left", [j + 1]: "compare_right" },
+              { [j]: ["j"], [j + 1]: ["j+1"], [end]: ["end"] },
+              sortedIndices,
+              { j, end },
+              arr.length - end,
+              comparisons,
+              swaps
+            )
+          );
+
+          if (arr[j] > arr[j + 1]) {
+            [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+            swaps += 1;
+            swapped = true;
+
+            steps.push(
+              makeStep(
+                arr,
+                `Swap because ${arr[j + 1]} was greater than ${arr[j]}.`,
+                { [j]: "swap", [j + 1]: "swap" },
+                { [j]: ["j"], [j + 1]: ["j+1"], [end]: ["end"] },
+                sortedIndices,
+                { j, end },
+                arr.length - end,
+                comparisons,
+                swaps
+              )
+            );
+          }
+        }
+
+        const afterPassSorted = Array.from({ length: arr.length - end }, (_, idx) => end + idx);
+        steps.push(
+          makeStep(
+            arr,
+            `Pass ${arr.length - end} finished. Index ${end} is now fixed.`,
+            {},
+            {},
+            afterPassSorted,
+            { end },
+            arr.length - end,
+            comparisons,
+            swaps
+          )
+        );
+
+        if (!swapped) {
+          const allSorted = Array.from({ length: arr.length }, (_, idx) => idx);
+          steps.push(
+            makeStep(
+              arr,
+              "No swap happened in this pass, so the whole array is already sorted.",
+              {},
+              {},
+              allSorted,
+              {},
+              arr.length - end,
+              comparisons,
+              swaps,
+              true
+            )
+          );
+          return steps;
+        }
+      }
+
+      steps.push(
+        makeStep(
+          arr,
+          "Bubble sort complete.",
+          {},
+          {},
+          Array.from({ length: arr.length }, (_, idx) => idx),
+          {},
+          Math.max(arr.length - 1, 0),
+          comparisons,
+          swaps,
+          true
+        )
+      );
+
+      return steps;
+    }
+
+    function selectionTrace(input) {
+      const arr = input.slice();
+      const steps = [];
+      let comparisons = 0;
+      let swaps = 0;
+
+      steps.push(
+        makeStep(arr, "Selection sort starts with an empty sorted prefix.", {}, {}, [], { n: arr.length }, 0, comparisons, swaps)
+      );
+
+      for (let start = 0; start < arr.length - 1; start += 1) {
+        let minIndex = start;
+        const sortedIndices = Array.from({ length: start }, (_, idx) => idx);
+
+        steps.push(
+          makeStep(
+            arr,
+            `Pass ${start + 1}: assume index ${start} holds the current minimum.`,
+            { [start]: "minimum" },
+            { [start]: ["min", "i"] },
+            sortedIndices,
+            { start, min_index: minIndex },
+            start + 1,
+            comparisons,
+            swaps
+          )
+        );
+
+        for (let scan = start + 1; scan < arr.length; scan += 1) {
+          comparisons += 1;
+
+          steps.push(
+            makeStep(
+              arr,
+              `Compare current minimum arr[${minIndex}] = ${arr[minIndex]} with arr[${scan}] = ${arr[scan]}.`,
+              { [minIndex]: "minimum", [scan]: "scan" },
+              { [start]: ["i"], [minIndex]: ["min"], [scan]: ["scan"] },
+              sortedIndices,
+              { start, min_index: minIndex, scan },
+              start + 1,
+              comparisons,
+              swaps
+            )
+          );
+
+          if (arr[scan] < arr[minIndex]) {
+            minIndex = scan;
+            steps.push(
+              makeStep(
+                arr,
+                `Update minimum: index ${scan} is the new minimum.`,
+                { [minIndex]: "minimum" },
+                { [start]: ["i"], [minIndex]: ["min"] },
+                sortedIndices,
+                { start, min_index: minIndex },
+                start + 1,
+                comparisons,
+                swaps
+              )
+            );
+          }
+        }
+
+        if (minIndex !== start) {
+          [arr[start], arr[minIndex]] = [arr[minIndex], arr[start]];
+          swaps += 1;
+          steps.push(
+            makeStep(
+              arr,
+              `Swap the minimum value into position ${start}.`,
+              { [start]: "swap", [minIndex]: "swap" },
+              { [start]: ["i"], [minIndex]: ["min"] },
+              sortedIndices,
+              { start, min_index: minIndex },
+              start + 1,
+              comparisons,
+              swaps
+            )
+          );
+        } else {
+          steps.push(
+            makeStep(
+              arr,
+              `No swap needed because the minimum was already at position ${start}.`,
+              { [start]: "inserted" },
+              { [start]: ["i"] },
+              sortedIndices,
+              { start, min_index: minIndex },
+              start + 1,
+              comparisons,
+              swaps
+            )
+          );
+        }
+
+        steps.push(
+          makeStep(
+            arr,
+            `Position ${start} is now fixed in the sorted prefix.`,
+            {},
+            {},
+            Array.from({ length: start + 1 }, (_, idx) => idx),
+            { start },
+            start + 1,
+            comparisons,
+            swaps
+          )
+        );
+      }
+
+      steps.push(
+        makeStep(
+          arr,
+          "Selection sort complete.",
+          {},
+          {},
+          Array.from({ length: arr.length }, (_, idx) => idx),
+          {},
+          Math.max(arr.length - 1, 0),
+          comparisons,
+          swaps,
+          true
+        )
+      );
+
+      return steps;
+    }
+
+    function insertionTrace(input) {
+      const arr = input.slice();
+      const steps = [];
+      let comparisons = 0;
+      let shifts = 0;
+
+      steps.push(
+        makeStep(
+          arr,
+          "Insertion sort starts with index 0 treated as a sorted prefix of length 1.",
+          { 0: "sorted" },
+          { 0: ["sorted"] },
+          arr.length ? [0] : [],
+          { n: arr.length },
+          0,
+          comparisons,
+          shifts
+        )
+      );
+
+      for (let index = 1; index < arr.length; index += 1) {
+        const key = arr[index];
+        let position = index - 1;
+
+        steps.push(
+          makeStep(
+            arr,
+            `Take key = ${key} from index ${index}.`,
+            { [index]: "key" },
+            { [index]: ["key"], [position]: ["left"] },
+            Array.from({ length: index }, (_, idx) => idx),
+            { index, key, position },
+            index,
+            comparisons,
+            shifts
+          )
+        );
+
+        while (position >= 0) {
+          comparisons += 1;
+
+          steps.push(
+            makeStep(
+              arr,
+              `Compare key ${key} with arr[${position}] = ${arr[position]}.`,
+              { [position]: "compare_left", [position + 1]: "compare_right" },
+              { [index]: ["key"], [position]: ["left"], [position + 1]: ["slot"] },
+              Array.from({ length: index }, (_, idx) => idx),
+              { index, key, position },
+              index,
+              comparisons,
+              shifts
+            )
+          );
+
+          if (arr[position] > key) {
+            arr[position + 1] = arr[position];
+            shifts += 1;
+
+            steps.push(
+              makeStep(
+                arr,
+                `Shift ${arr[position + 1]} right to open space for the key.`,
+                { [position]: "swap", [position + 1]: "swap" },
+                { [index]: ["key"], [position]: ["from"], [position + 1]: ["to"] },
+                Array.from({ length: index }, (_, idx) => idx),
+                { index, key, position },
+                index,
+                comparisons,
+                shifts
+              )
+            );
+
+            position -= 1;
+          } else {
+            break;
+          }
+        }
+
+        arr[position + 1] = key;
+        steps.push(
+          makeStep(
+            arr,
+            `Insert key ${key} at index ${position + 1}.`,
+            { [position + 1]: "inserted" },
+            { [position + 1]: ["insert"] },
+            Array.from({ length: index + 1 }, (_, idx) => idx),
+            { index, key, insert_at: position + 1 },
+            index,
+            comparisons,
+            shifts
+          )
+        );
+      }
+
+      steps.push(
+        makeStep(
+          arr,
+          "Insertion sort complete.",
+          {},
+          {},
+          Array.from({ length: arr.length }, (_, idx) => idx),
+          {},
+          Math.max(arr.length - 1, 0),
+          comparisons,
+          shifts,
+          true
+        )
+      );
+
+      return steps;
+    }
+
+    function buildTrace(values) {
+      if (activeTab === "bubble") {
+        return bubbleTrace(values);
+      }
+      if (activeTab === "selection") {
+        return selectionTrace(values);
+      }
+      return insertionTrace(values);
+    }
+
+    function renderStep() {
+      if (!trace.length) {
+        ui.pointerRow.innerHTML = "";
+        ui.cellsRow.innerHTML = "";
+        ui.indicesRow.innerHTML = "";
+        ui.stepStat.textContent = "0 / 0";
+        ui.passStat.textContent = "-";
+        ui.comparisonStat.textContent = "0";
+        ui.changeStat.textContent = "0";
+        ui.messageBox.textContent = "Build the simulation to begin.";
+        ui.varsBox.textContent = "-";
+        ui.arrayBox.textContent = "-";
+        ui.stepButton.disabled = true;
+        ui.autoButton.disabled = true;
+        return;
+      }
+
+      const step = trace[stepIndex];
+      const size = step.array.length;
+
+      ui.pointerRow.innerHTML = "";
+      ui.cellsRow.innerHTML = "";
+      ui.indicesRow.innerHTML = "";
+
+      for (let index = 0; index < size; index += 1) {
+        const pointerCell = document.createElement("div");
+        const labels = step.pointers[index] || [];
+        pointerCell.innerHTML = `<span class="ptr${labels.length ? " show" : ""}">${labels.join(" | ")}</span>`;
+        ui.pointerRow.appendChild(pointerCell);
+
+        const cell = document.createElement("div");
+        let role = step.highlights[index] || "";
+        if (!role && step.sortedIndices.includes(index)) {
+          role = "sorted";
+        }
+        cell.className = `cell${role ? ` ${role}` : ""}`;
+        cell.textContent = step.array[index];
+        ui.cellsRow.appendChild(cell);
+
+        const idx = document.createElement("div");
+        idx.className = "idx";
+        idx.textContent = index;
+        ui.indicesRow.appendChild(idx);
+      }
+
+      ui.stepStat.textContent = `${stepIndex + 1} / ${trace.length}`;
+      ui.passStat.textContent = step.pass;
+      ui.comparisonStat.textContent = step.comparisons;
+      ui.changeStat.textContent = step.changes;
+      ui.messageBox.textContent = step.message;
+      ui.varsBox.textContent = Object.keys(step.vars).length
+        ? Object.entries(step.vars).map(([key, value]) => `${key} = ${value}`).join("\n")
+        : "-";
+      ui.arrayBox.textContent = `[${step.array.join(", ")}]`;
+
+      if (step.done) {
+        ui.stepButton.disabled = true;
+        ui.autoButton.disabled = true;
+        stopAuto();
+      }
+    }
+
+    function buildSimulation() {
+      clearError();
+      stopAuto();
+
+      try {
+        const values = parseArray(ui.arrayInput.value);
+        trace = buildTrace(values);
+        stepIndex = 0;
+        ui.stepButton.disabled = trace.length <= 1;
+        ui.autoButton.disabled = trace.length <= 1;
+        ui.autoButton.textContent = "Auto Play";
+        renderStep();
+      } catch (error) {
+        trace = [];
+        stepIndex = 0;
+        renderStep();
+        showError(error.message);
+      }
+    }
+
+    function stepForward() {
+      if (!trace.length) {
+        return;
+      }
+      if (stepIndex < trace.length - 1) {
+        stepIndex += 1;
+      }
+      renderStep();
+    }
+
+    function stopAuto() {
+      if (autoTimer) {
+        window.clearInterval(autoTimer);
+        autoTimer = null;
+        ui.autoButton.textContent = "Auto Play";
+      }
+    }
+
+    function toggleAuto() {
+      if (!trace.length) {
+        return;
+      }
+
+      if (autoTimer) {
+        stopAuto();
+        return;
+      }
+
+      ui.autoButton.textContent = "Pause";
+      autoTimer = window.setInterval(() => {
+        if (stepIndex >= trace.length - 1) {
+          stopAuto();
+          return;
+        }
+        stepForward();
+      }, Number(ui.speedInput.value));
+    }
+
+    function resetSimulation() {
+      stopAuto();
+      stepIndex = 0;
+      renderStep();
+      if (trace.length > 1) {
+        ui.stepButton.disabled = false;
+        ui.autoButton.disabled = false;
+      }
+    }
+
+    ui.tabs.forEach((tab) => {
+      tab.addEventListener("click", () => setTab(tab.dataset.tab));
+    });
+
+    ui.randomButton.addEventListener("click", () => {
+      const size = clampSize(ui.sizeInput.value);
+      ui.sizeInput.value = size;
+      ui.arrayInput.value = randomArray(size).join(",");
+      clearError();
+    });
+
+    ui.arrayInput.addEventListener("input", syncSizeFromArray);
+    ui.sizeInput.addEventListener("change", () => {
+      resizeArrayToCount(ui.sizeInput.value);
+    });
+
+    ui.buildButton.addEventListener("click", buildSimulation);
+    ui.stepButton.addEventListener("click", stepForward);
+    ui.autoButton.addEventListener("click", toggleAuto);
+    ui.resetButton.addEventListener("click", resetSimulation);
+
+    ui.speedInput.addEventListener("input", () => {
+      if (autoTimer) {
+        stopAuto();
+        toggleAuto();
+      }
+    });
+
+    setTab("bubble");
+    renderLegend();
+    renderStep();
+  </script>
+</body>
+</html>
