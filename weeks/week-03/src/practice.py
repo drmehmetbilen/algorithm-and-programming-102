@@ -7,10 +7,6 @@ PROJECT STANDARDS:
 
 import random
 
-# ─────────────────────────────────────────────
-# 0. UTILITIES
-# ─────────────────────────────────────────────
-
 def generate_random_unsorted_list(n: int = 20, min_value: int = 0, max_value: int = 1000) -> list:
     """
     Generates a random unsorted list of integers.
@@ -72,10 +68,6 @@ def is_sorted(source_list: list) -> bool:
             return False
     return True
 
-# ─────────────────────────────────────────────
-# 1. LINEAR SEARCH  —  O(n)
-# ─────────────────────────────────────────────
-
 def search_linear(source_list: list, target: int) -> tuple:
     """
     Scans the list from left to right to locate the target value.
@@ -104,10 +96,6 @@ def search_linear(source_list: list, target: int) -> tuple:
             return True, index
 
     return False, -1
-
-# ─────────────────────────────────────────────
-# 2. BINARY SEARCH  —  O(log n)
-# ─────────────────────────────────────────────
 
 def search_binary(source_list: list, target: int) -> tuple:
     """
@@ -160,10 +148,6 @@ def search_binary(source_list: list, target: int) -> tuple:
             start = mid + 1
 
     return False, -1
-
-# ─────────────────────────────────────────────
-# 3. JUMP SEARCH  —  O(sqrt n)
-# ─────────────────────────────────────────────
 
 def search_jump(source_list: list, target: int) -> tuple:
     """
@@ -223,10 +207,6 @@ def search_jump(source_list: list, target: int) -> tuple:
 
     return False, -1
 
-# ─────────────────────────────────────────────
-# COMPARISON UTILITY
-# ─────────────────────────────────────────────
-
 def compare_algorithms(source_list: list, target: int) -> None:
     """
     Runs all three search algorithms on the same input and prints
@@ -253,10 +233,6 @@ def compare_algorithms(source_list: list, target: int) -> None:
         print(f"  Jump Search →  Error: {error}")
     print(f"\n{'='*50}")
     
-# ─────────────────────────────────────────────
-# TEST
-# ─────────────────────────────────────────────
-
 if __name__ == "__main__":
 
     # ── Positive case: target exists in a sorted list ──
