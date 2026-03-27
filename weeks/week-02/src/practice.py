@@ -1,16 +1,3 @@
-# Binary Search Tree: each node has at most two children.
-#   - Left child value  < parent value
-#   - Right child value > parent value
-#
-# Operations:
-#   - add_node    : Insert a new node
-#   - search_value: Search for a value
-#   - size        : Total number of nodes in the tree
-#   - height      : Height (depth) of the tree
-#   - delete_node : Delete a node
-# ============================================================
-
-
 class Node():
     """
     Represents a single node in the BST.
@@ -34,9 +21,9 @@ class Node():
             TypeError : Raises an error if text is not str or value is not numeric.
         """
         if not isinstance(text, str):
-            raise TypeError(f"text parametresi(ilk parametre) string olmalıdır.")
+            raise TypeError("text parameter (first parameter) must be a string.")
         if not isinstance(value, (int, float)):
-            raise TypeError(f"'value' parametresi(ikinci parametre) sayısal olmalıdır.")
+            raise TypeError("'value' parameter (second parameter) must be numeric.")
 
         self.value = value   # int  — Numeric key that determines position in the tree
         self.text  = text    # str  — Text/name data carried by the node
@@ -67,10 +54,6 @@ class BinaryTree():
             >>> tree = BinaryTree("Root", 50)
         """
         self.root = Node(text, value)
-
-    # ----------------------------------------------------------
-    # INSERTION (ADD NODE)
-    # ----------------------------------------------------------
 
     def add_node(self, text: str, value: int) -> None:
         """
@@ -104,11 +87,7 @@ class BinaryTree():
                 else:
                     current_node = current_node.left
             else:
-                raise ValueError(f"HATA: {value} değeri zaten mevcut! BST'de tekrar eden değer eklenemez.")
-
-    # ----------------------------------------------------------
-    # SEARCH (SEARCH VALUE)
-    # ----------------------------------------------------------
+                raise ValueError(f"ERROR: Value {value} already exists! Duplicate values cannot be added to a BST.")
 
     def search_value(self, value: int) -> str:
         """
@@ -129,7 +108,7 @@ class BinaryTree():
             'Ankara'
         """
         if not isinstance(value, int):
-            raise TypeError(f"'value' sayısal değer olmalıdır.")
+            raise TypeError("'value' must be a numeric value.")
 
         current_node = self.root
 
@@ -141,11 +120,7 @@ class BinaryTree():
             else:
                 current_node = current_node.right
 
-        raise KeyError(f"HATA: {value} değeri ağaçta bulunamadı.")
-
-    # ----------------------------------------------------------
-    # SIZE
-    # ----------------------------------------------------------
+        raise KeyError(f"ERROR: Value {value} not found in the tree.")
 
     def size(self) -> int:
         """
@@ -174,10 +149,6 @@ class BinaryTree():
             return 0
         return 1 + self._size(current_node.left) + self._size(current_node.right)
 
-    # ----------------------------------------------------------
-    # HEIGHT
-    # ----------------------------------------------------------
-
     def height(self) -> int:
         """
         Returns the height (depth) of the tree.
@@ -205,10 +176,6 @@ class BinaryTree():
             return 0
         return 1 + max(self._height(current_node.left), self._height(current_node.right))
 
-    # ----------------------------------------------------------
-    # DELETION (DELETE NODE)
-    # ----------------------------------------------------------
-
     def delete_node(self, value: int) -> None:
         """
         Deletes the node with the given value while preserving the nodes below it.
@@ -225,11 +192,11 @@ class BinaryTree():
             >>> tree.delete_node(9)
         """
         if not isinstance(value, (int, float)):
-            raise TypeError("'value' int veya float olmalıdır.")
+            raise TypeError("'value' must be an int or float.")
         if self.root is None:
-            raise KeyError("HATA: Ağaç boş.")
+            raise KeyError("ERROR: Tree is empty.")
         if self.root.value == value:
-            raise ValueError("HATA: Kök düğüm silinemez.")
+            raise ValueError("ERROR: Root node cannot be deleted.")
 
         parent  = None
         current = self.root
@@ -244,7 +211,7 @@ class BinaryTree():
                 current = current.right
 
         if current is None:
-            raise KeyError(f"HATA: {value} değeri ağaçta bulunamadı.")
+            raise KeyError(f"ERROR: Value {value} not found in the tree.")
 
         collected = []
         self._collect_nodes(current.left,  collected)
@@ -274,10 +241,6 @@ class BinaryTree():
         self._collect_nodes(node.right, result)
 
 
-# ==============================================================
-# MAIN PROGRAM — Test and Usage Example
-# ==============================================================
-
 if __name__ == "__main__":
 
     my_tree = BinaryTree("Mehmet", 32)
@@ -289,16 +252,16 @@ if __name__ == "__main__":
     my_tree.add_node("Konya", 42)
     my_tree.add_node("Bilecik", 11)
 
-    print(f"41 değerindeki düğüm : {my_tree.search_value(41)}")
-    print(f"9  değerindeki düğüm : {my_tree.search_value(9)}")
+    print(f"Node with value 41 : {my_tree.search_value(41)}")
+    print(f"Node with value 9  : {my_tree.search_value(9)}")
 
-    print(f"\nAğaç boyutu    : {my_tree.size()}")
-    print(f"Ağaç yüksekliği: {my_tree.height()}")
+    print(f"\nTree size          : {my_tree.size()}")
+    print(f"Tree height        : {my_tree.height()}")
 
-    print(f"Silmeden önce boyut: {my_tree.size()}")
+    print(f"Size before deletion: {my_tree.size()}")
 
     my_tree.delete_node(15)
-    print(f"15 (Burdur) silindi → boyut: {my_tree.size()}")
+    print(f"15 (Burdur) deleted -> size: {my_tree.size()}")
 
     my_tree.delete_node(9)
-    print(f"9  (Sabriye) silindi → boyut: {my_tree.size()}")
+    print(f"9  (Sabriye) deleted -> size: {my_tree.size()}")
