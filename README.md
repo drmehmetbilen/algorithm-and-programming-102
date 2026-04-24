@@ -25,6 +25,8 @@
   - Topics: Graph Basics, BFS, DFS, Connected Components, SCC
 - `weeks/week-05`
   - Topics: Bubble Sort, Selection Sort, Insertion Sort
+- `weeks/week-06`
+  - Topics: Divide and Conquer, Merge Sort, Quick Sort
 
 ## How Students Should Use This Repo
 - Start from the current week folder in `weeks/`.
@@ -51,3 +53,6 @@
   - `python3 -i weeks/week-05/src/1-bubble_sort.py`
   - `python3 -i weeks/week-05/src/2-selection_sort.py`
   - `python3 -i weeks/week-05/src/3-insertion_sort.py`
+- Week 06:
+  - `python3 -i weeks/week-06/src/1-merge_sort.py`
+  - `python3 -i weeks/week-06/src/2-quick_sort.py`
