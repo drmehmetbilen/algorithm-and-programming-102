@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 07 - Greedy Algorithms Lab</title>
+  <style>
+    :root {
+      --bg: #f3ede3;
+      --panel: #fffaf3;
+      --panel-strong: #fffefb;
+      --ink: #213038;
+      --muted: #617179;
+      --line: #d7c5ab;
+      --shadow: 0 18px 36px rgba(33, 48, 56, 0.12);
+      --radius: 18px;
+
+      --accent: #0f7a6d;
+      --accent-soft: #d8f2ec;
+      --accent-warm: #d97a24;
+      --accent-warm-soft: #ffe5cf;
+      --accent-cool: #2f67d8;
+      --accent-cool-soft: #dbe6ff;
+      --danger: #b4485a;
+      --danger-soft: #ffe0e6;
+      --success: #d8f1e5;
+      --warning: #fff2bc;
+      --quiet: #f2ece3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 480px at -10% -15%, #fff0d3 0%, transparent 58%),
+        radial-gradient(900px 480px at 112% 6%, #dff8ed 0%, transparent 58%),
+        linear-gradient(150deg, #f8f4ed 0%, var(--bg) 100%);
+      min-height: 100vh;
+      padding: 24px 14px 40px;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, #fff4de 0%, #ebfbf3 100%);
+      padding: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      line-height: 1.08;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 980px;
+    }
+
+    .chips {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 7px 12px;
+      font-size: 0.84rem;
+    }
+
+    .card {
+      background: var(--panel);
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefc 0%, #fff7ea 100%);
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.16rem;
+    }
+
+    .card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.52;
+      font-size: 0.92rem;
+    }
+
+    .card-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .surface-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-strong);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .surface h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .surface p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.54;
+      font-size: 0.88rem;
+    }
+
+    .tab-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tab {
+      border: 1px solid #c8b499;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+    }
+
+    .tab.is-active {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 18px rgba(15, 122, 109, 0.22);
+    }
+
+    .control-panels {
+      display: grid;
+      gap: 10px;
+    }
+
+    .control-panel {
+      display: none;
+      gap: 10px;
+    }
+
+    .control-panel.is-active {
+      display: grid;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      min-width: 190px;
+      flex: 1;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      border: 1px solid #c8b499;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.56;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(15, 122, 109, 0.22);
+    }
+
+    .btn-accent {
+      background: var(--accent-warm);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(217, 122, 36, 0.24);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: #c8b499;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-strong);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 0.96rem;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.54;
+      font-size: 0.89rem;
+    }
+
+    .stats {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 0.96rem;
+      line-height: 1.45;
+    }
+
+    .note {
+      border-radius: 12px;
+      padding: 11px 12px;
+      line-height: 1.54;
+      font-size: 0.9rem;
+    }
+
+    .note.info {
+      background: var(--accent-cool-soft);
+      color: #1d3f7d;
+    }
+
+    .note.warn {
+      background: var(--warning);
+      color: #6e5717;
+    }
+
+    .note.alert {
+      background: var(--danger-soft);
+      color: #7c2635;
+    }
+
+    .timeline-wrap {
+      overflow-x: auto;
+    }
+
+    .timeline {
+      min-width: 760px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .axis {
+      position: relative;
+      height: 28px;
+      border-bottom: 2px dashed #ccb897;
+    }
+
+    .tick {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .tick::before {
+      content: "";
+      width: 2px;
+      height: 8px;
+      background: #ccb897;
+      display: block;
+    }
+
+    .interval-row {
+      display: grid;
+      grid-template-columns: 66px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .interval-label {
+      font-weight: 700;
+    }
+
+    .interval-track {
+      position: relative;
+      height: 38px;
+      background: var(--quiet);
+      border-radius: 999px;
+      border: 1px solid var(--line);
+    }
+
+    .interval-bar {
+      position: absolute;
+      top: 6px;
+      height: 24px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: all 0.28s ease;
+    }
+
+    .interval-bar.future {
+      background: #fff;
+      border-color: #d7c5ab;
+    }
+
+    .interval-bar.selected {
+      background: var(--success);
+      border-color: #97c3ad;
+    }
+
+    .interval-bar.rejected {
+      background: var(--danger-soft);
+      border-color: #d899a7;
+      color: #7c2635;
+    }
+
+    .interval-bar.current {
+      box-shadow: 0 0 0 3px rgba(47, 103, 216, 0.22);
+      border-color: var(--accent-cool);
+      animation: pulse 0.9s ease-in-out infinite alternate;
+    }
+
+    .finish-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--accent-cool);
+      border-radius: 999px;
+      transform: translateX(-50%);
+      opacity: 0.9;
+    }
+
+    .coin-area,
+    .item-area {
+      display: grid;
+      gap: 10px;
+    }
+
+    .coin-grid,
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .coin-card,
+    .item-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .coin-card.current,
+    .item-card.current {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 20px rgba(47, 103, 216, 0.18);
+      border-color: var(--accent-cool);
+    }
+
+    .coin-card.used {
+      background: var(--accent-soft);
+      border-color: #92c9bd;
+    }
+
+    .item-card.full {
+      background: var(--success);
+      border-color: #97c3ad;
+    }
+
+    .item-card.partial {
+      background: var(--accent-warm-soft);
+      border-color: #e3b083;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .meter {
+      height: 18px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--quiet);
+      border: 1px solid var(--line);
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent) 0%, #22ab92 100%);
+      transition: width 0.28s ease;
+    }
+
+    .bag {
+      min-height: 86px;
+      border: 1px dashed #c6b28f;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fffefb 0%, #fff7ed 100%);
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .bag-piece {
+      min-width: 42px;
+      border-radius: 10px;
+      color: #173840;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      transition: width 0.28s ease;
+    }
+
+    .piece-0 {
+      background: #d8f1e5;
+    }
+
+    .piece-1 {
+      background: #ffe3c8;
+    }
+
+    .piece-2 {
+      background: #dbe6ff;
+    }
+
+    .piece-3 {
+      background: #f3dbff;
+    }
+
+    .footnote {
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.5;
+    }
+
+    @keyframes pulse {
+      from {
+        transform: scale(1);
+      }
+      to {
+        transform: scale(1.015);
+      }
+    }
+
+    @media (max-width: 1020px) {
+      .surface-grid,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px 10px 28px;
+      }
+
+      .surface-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .interval-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .surface-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Week 07 - Greedy Algorithms Lab</h1>
+      <p>
+        This page focuses on one question: what is the greedy rule, and what exactly happens when we keep applying it?
+        Each tab shows the candidate set, the current choice, and the result built so far.
+      </p>
+      <div class="chips">
+        <span class="chip">Local choice</span>
+        <span class="chip">Result so far</span>
+        <span class="chip">Constraint updates</span>
+        <span class="chip">Counterexample awareness</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Greedy Checklist</h2>
+        <p>Before trusting a greedy idea, identify the rule, the candidates, the constraint, and the risk.</p>
+      </div>
+      <div class="card-body">
+        <div class="surface-grid">
+          <article class="surface">
+            <h3>1. Selection Rule</h3>
+            <p>What looks best right now? Earliest finish, largest coin, or highest value/weight ratio?</p>
+          </article>
+          <article class="surface">
+            <h3>2. Feasibility</h3>
+            <p>Can we still add this choice without breaking the schedule, amount, or capacity limit?</p>
+          </article>
+          <article class="surface">
+            <h3>3. Build the Answer</h3>
+            <p>The final answer is formed step by step. The page shows the result growing after every decision.</p>
+          </article>
+          <article class="surface">
+            <h3>4. Watch for Failure</h3>
+            <p>Greedy is not automatically optimal. The coin-change tab includes a deliberate counterexample.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Interactive Greedy Lab</h2>
+        <p>Build a scenario, then step through the greedy choices one by one.</p>
+      </div>
+      <div class="card-body">
+        <div class="tab-row">
+          <button class="tab is-active" data-tab="activity">Activity Selection</button>
+          <button class="tab" data-tab="coin">Coin Change</button>
+          <button class="tab" data-tab="knapsack">Fractional Knapsack</button>
+        </div>
+
+        <div class="control-panels">
+          <div class="control-panel is-active" data-panel="activity">
+            <div class="controls">
+              <label>
+                Interval Preset
+                <select id="activityPreset">
+                  <option value="classic">Classic classroom set</option>
+                  <option value="dense">Dense overlap set</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="control-panel" data-panel="coin">
+            <div class="controls">
+              <label>
+                Coin System
+                <select id="coinPreset">
+                  <option value="canonical">Canonical: 25, 10, 5, 1</option>
+                  <option value="tricky">Counterexample: 4, 3, 1</option>
+                </select>
+              </label>
+              <label>
+                Target Amount
+                <input id="coinAmount" type="number" min="1" max="200" value="63">
+              </label>
+            </div>
+          </div>
+
+          <div class="control-panel" data-panel="knapsack">
+            <div class="controls">
+              <label>
+                Item Preset
+                <select id="knapsackPreset">
+                  <option value="classic">Classic ratio example</option>
+                  <option value="mixed">Mixed ratios example</option>
+                </select>
+              </label>
+              <label>
+                Capacity
+                <input id="knapsackCapacity" type="number" min="1" max="100" value="50">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="buildBtn" class="btn-primary">Build Simulation</button>
+          <button id="stepBtn" class="btn-accent">Next Step</button>
+          <button id="autoBtn" class="btn-secondary">Auto Play</button>
+          <button id="resetBtn" class="btn-secondary">Reset</button>
+          <label>
+            Auto Speed
+            <input id="speedInput" type="range" min="250" max="1400" step="50" value="700">
+          </label>
+        </div>
+
+        <div class="layout">
+          <div class="stack">
+            <section class="panel">
+              <h3>Current Visualization</h3>
+              <div id="visualArea"></div>
+            </section>
+            <section class="panel">
+              <h3>Result So Far</h3>
+              <div id="resultArea"></div>
+            </section>
+          </div>
+
+          <aside class="stack">
+            <section class="panel">
+              <h3>Decision Summary</h3>
+              <div class="stats">
+                <div class="stat">
+                  <div class="stat-label">Greedy Rule</div>
+                  <div id="ruleText" class="stat-value"></div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Current Step</div>
+                  <div id="stepText" class="stat-value"></div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">What Is Happening?</div>
+                  <div id="messageText" class="stat-value"></div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Constraint State</div>
+                  <div id="constraintText" class="stat-value"></div>
+                </div>
+              </div>
+            </section>
+            <section class="panel">
+              <h3>Notes</h3>
+              <div id="notesArea"></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const presets = {
+      activity: {
+        classic: [
+          { id: "A", start: 1, end: 4 },
+          { id: "B", start: 3, end: 5 },
+          { id: "C", start: 0, end: 6 },
+          { id: "D", start: 5, end: 7 },
+          { id: "E", start: 8, end: 9 },
+          { id: "F", start: 5, end: 9 },
+          { id: "G", start: 6, end: 10 }
+        ],
+        dense: [
+          { id: "P", start: 0, end: 2 },
+          { id: "Q", start: 1, end: 4 },
+          { id: "R", start: 3, end: 5 },
+          { id: "S", start: 4, end: 7 },
+          { id: "T", start: 5, end: 9 },
+          { id: "U", start: 8, end: 10 },
+          { id: "V", start: 9, end: 11 }
+        ]
+      },
+      coin: {
+        canonical: {
+          coins: [25, 10, 5, 1],
+          defaultAmount: 63,
+          note: "This coin system is a standard case where the largest-valid-coin rule is usually a good fit."
+        },
+        tricky: {
+          coins: [4, 3, 1],
+          defaultAmount: 6,
+          note: "This preset is intentionally tricky. Greedy picks 4 first, but 3 + 3 uses fewer coins."
+        }
+      },
+      knapsack: {
+        classic: {
+          items: [
+            { id: "Gold", value: 60, weight: 10 },
+            { id: "Silver", value: 100, weight: 20 },
+            { id: "Bronze", value: 120, weight: 30 }
+          ],
+          defaultCapacity: 50
+        },
+        mixed: {
+          items: [
+            { id: "Map", value: 40, weight: 4 },
+            { id: "Rope", value: 42, weight: 7 },
+            { id: "Food", value: 25, weight: 5 },
+            { id: "Water", value: 36, weight: 8 }
+          ],
+          defaultCapacity: 15
+        }
+      }
+    };
+
+    const appState = {
+      activeTab: "activity",
+      timer: null,
+      speed: 700,
+      simulations: {
+        activity: buildActivitySimulation("classic"),
+        coin: buildCoinSimulation("canonical", 63),
+        knapsack: buildKnapsackSimulation("classic", 50)
+      }
+    };
+
+    const tabs = [...document.querySelectorAll(".tab")];
+    const panels = [...document.querySelectorAll(".control-panel")];
+    const speedInput = document.getElementById("speedInput");
+    const activityPreset = document.getElementById("activityPreset");
+    const coinPreset = document.getElementById("coinPreset");
+    const coinAmount = document.getElementById("coinAmount");
+    const knapsackPreset = document.getElementById("knapsackPreset");
+    const knapsackCapacity = document.getElementById("knapsackCapacity");
+
+    tabs.forEach((tabButton) => {
+      tabButton.addEventListener("click", () => {
+        stopAuto();
+        appState.activeTab = tabButton.dataset.tab;
+        tabs.forEach((button) => button.classList.toggle("is-active", button === tabButton));
+        panels.forEach((panel) => panel.classList.toggle("is-active", panel.dataset.panel === appState.activeTab));
+        syncPresetInputs();
+        render();
+      });
+    });
+
+    speedInput.addEventListener("input", () => {
+      appState.speed = Number(speedInput.value);
+      if (appState.timer) {
+        stopAuto();
+        startAuto();
+      }
+    });
+
+    activityPreset.addEventListener("change", () => {
+      appState.simulations.activity = buildActivitySimulation(activityPreset.value);
+      render();
+    });
+
+    coinPreset.addEventListener("change", () => {
+      const preset = presets.coin[coinPreset.value];
+      coinAmount.value = preset.defaultAmount;
+      appState.simulations.coin = buildCoinSimulation(coinPreset.value, Number(coinAmount.value));
+      render();
+    });
+
+    coinAmount.addEventListener("change", () => {
+      appState.simulations.coin = buildCoinSimulation(coinPreset.value, Number(coinAmount.value));
+      render();
+    });
+
+    knapsackPreset.addEventListener("change", () => {
+      const preset = presets.knapsack[knapsackPreset.value];
+      knapsackCapacity.value = preset.defaultCapacity;
+      appState.simulations.knapsack = buildKnapsackSimulation(knapsackPreset.value, Number(knapsackCapacity.value));
+      render();
+    });
+
+    knapsackCapacity.addEventListener("change", () => {
+      appState.simulations.knapsack = buildKnapsackSimulation(knapsackPreset.value, Number(knapsackCapacity.value));
+      render();
+    });
+
+    document.getElementById("buildBtn").addEventListener("click", () => {
+      stopAuto();
+      rebuildCurrent();
+      render();
+    });
+
+    document.getElementById("stepBtn").addEventListener("click", () => {
+      stepCurrent();
+      render();
+    });
+
+    document.getElementById("autoBtn").addEventListener("click", () => {
+      if (appState.timer) {
+        stopAuto();
+      } else {
+        startAuto();
+      }
+      render();
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      stopAuto();
+      resetCurrent();
+      render();
+    });
+
+    function syncPresetInputs() {
+      const activityState = appState.simulations.activity.meta;
+      const coinState = appState.simulations.coin.meta;
+      const knapsackState = appState.simulations.knapsack.meta;
+
+      activityPreset.value = activityState.presetKey;
+      coinPreset.value = coinState.presetKey;
+      coinAmount.value = coinState.amount;
+      knapsackPreset.value = knapsackState.presetKey;
+      knapsackCapacity.value = knapsackState.capacity;
+    }
+
+    function rebuildCurrent() {
+      if (appState.activeTab === "activity") {
+        appState.simulations.activity = buildActivitySimulation(activityPreset.value);
+      } else if (appState.activeTab === "coin") {
+        appState.simulations.coin = buildCoinSimulation(coinPreset.value, Number(coinAmount.value));
+      } else {
+        appState.simulations.knapsack = buildKnapsackSimulation(knapsackPreset.value, Number(knapsackCapacity.value));
+      }
+    }
+
+    function resetCurrent() {
+      const simulation = currentSimulation();
+      simulation.index = 0;
+    }
+
+    function stepCurrent() {
+      const simulation = currentSimulation();
+      if (simulation.index < simulation.steps.length - 1) {
+        simulation.index += 1;
+      } else {
+        stopAuto();
+      }
+    }
+
+    function startAuto() {
+      const simulation = currentSimulation();
+      if (simulation.index >= simulation.steps.length - 1) {
+        simulation.index = 0;
+      }
+
+      appState.timer = window.setInterval(() => {
+        const current = currentSimulation();
+        if (current.index >= current.steps.length - 1) {
+          stopAuto();
+          render();
+          return;
+        }
+        current.index += 1;
+        render();
+      }, appState.speed);
+    }
+
+    function stopAuto() {
+      if (appState.timer) {
+        window.clearInterval(appState.timer);
+        appState.timer = null;
+      }
+    }
+
+    function currentSimulation() {
+      return appState.simulations[appState.activeTab];
+    }
+
+    function buildActivitySimulation(presetKey) {
+      const original = presets.activity[presetKey].map((interval) => ({ ...interval }));
+      const ordered = original.slice().sort((left, right) => left.end - right.end || left.start - right.start);
+      const steps = [{
+        phase: "ready",
+        message: "Intervals are sorted by finish time. The scan has not started yet.",
+        constraint: "No activity selected yet.",
+        selectedIds: [],
+        processedIds: [],
+        rejectedIds: [],
+        currentId: null,
+        lastFinish: null
+      }];
+
+      const selectedIds = [];
+      const processedIds = [];
+      const rejectedIds = [];
+      let lastFinish = null;
+
+      ordered.forEach((interval, index) => {
+        const accepted = lastFinish === null || interval.start >= lastFinish;
+        processedIds.push(interval.id);
+
+        if (accepted) {
+          selectedIds.push(interval.id);
+          lastFinish = interval.end;
+        } else {
+          rejectedIds.push(interval.id);
+        }
+
+        steps.push({
+          phase: accepted ? "select" : "skip",
+          message: accepted
+            ? interval.id + " starts at " + interval.start + ", which is compatible with the current finish boundary."
+            : interval.id + " starts at " + interval.start + ", which overlaps with the selected schedule.",
+          constraint: accepted
+            ? "Last finish time moves to " + lastFinish + "."
+            : "Last finish time stays at " + lastFinish + ".",
+          selectedIds: selectedIds.slice(),
+          processedIds: processedIds.slice(),
+          rejectedIds: rejectedIds.slice(),
+          currentId: interval.id,
+          lastFinish,
+          stepLabel: "Consider interval " + (index + 1) + " of " + ordered.length
+        });
+      });
+
+      return {
+        type: "activity",
+        index: 0,
+        steps,
+        meta: {
+          presetKey,
+          ordered
+        }
+      };
+    }
+
+    function buildCoinSimulation(presetKey, rawAmount) {
+      const preset = presets.coin[presetKey];
+      const amount = Math.max(1, Number(rawAmount) || preset.defaultAmount);
+      const coins = preset.coins.slice().sort((left, right) => right - left);
+      const steps = [{
+        phase: "ready",
+        message: "Coins are ordered from largest to smallest. The greedy scan has not started yet.",
+        constraint: "Remaining amount is " + amount + ".",
+        chosen: [],
+        currentCoin: null,
+        remaining: amount
+      }];
+
+      const chosen = [];
+      let remaining = amount;
+
+      while (remaining > 0) {
+        const nextCoin = coins.find((coin) => coin <= remaining);
+        if (!nextCoin) {
+          steps.push({
+            phase: "stuck",
+            message: "No coin fits the remaining amount.",
+            constraint: "Remaining amount is " + remaining + ".",
+            chosen: chosen.slice(),
+            currentCoin: null,
+            remaining
+          });
+          break;
+        }
+
+        chosen.push(nextCoin);
+        remaining -= nextCoin;
+        steps.push({
+          phase: "choose",
+          message: "Choose " + nextCoin + " because it is the largest coin that does not exceed the remaining amount.",
+          constraint: "Remaining amount becomes " + remaining + ".",
+          chosen: chosen.slice(),
+          currentCoin: nextCoin,
+          remaining
+        });
+      }
+
+      return {
+        type: "coin",
+        index: 0,
+        steps,
+        meta: {
+          presetKey,
+          amount,
+          coins,
+          note: preset.note
+        }
+      };
+    }
+
+    function buildKnapsackSimulation(presetKey, rawCapacity) {
+      const preset = presets.knapsack[presetKey];
+      const capacity = Math.max(1, Number(rawCapacity) || preset.defaultCapacity);
+      const ordered = preset.items
+        .map((item) => ({ ...item, ratio: item.value / item.weight }))
+        .sort((left, right) => right.ratio - left.ratio);
+
+      const steps = [{
+        phase: "ready",
+        message: "Items are sorted by value/weight ratio. The bag is still empty.",
+        constraint: "Remaining capacity is " + capacity.toFixed(2) + ".",
+        currentId: null,
+        remainingCapacity: capacity,
+        totalValue: 0,
+        taken: []
+      }];
+
+      let remainingCapacity = capacity;
+      let totalValue = 0;
+      const taken = [];
+
+      ordered.forEach((item) => {
+        if (remainingCapacity <= 0) {
+          return;
+        }
+
+        const fraction = Math.min(1, remainingCapacity / item.weight);
+        const weightUsed = item.weight * fraction;
+        const valueAdded = item.value * fraction;
+
+        taken.push({
+          id: item.id,
+          fraction,
+          weightUsed,
+          valueAdded
+        });
+        remainingCapacity -= weightUsed;
+        totalValue += valueAdded;
+
+        steps.push({
+          phase: fraction === 1 ? "full" : "partial",
+          message: fraction === 1
+            ? "Take the full " + item.id + " item because it still fits."
+            : "Take only the part of " + item.id + " that fits in the remaining space.",
+          constraint: "Remaining capacity becomes " + remainingCapacity.toFixed(2) + ".",
+          currentId: item.id,
+          remainingCapacity,
+          totalValue,
+          taken: taken.map((entry) => ({ ...entry }))
+        });
+      });
+
+      return {
+        type: "knapsack",
+        index: 0,
+        steps,
+        meta: {
+          presetKey,
+          capacity,
+          ordered
+        }
+      };
+    }
+
+    function render() {
+      const simulation = currentSimulation();
+      const step = simulation.steps[simulation.index];
+
+      document.getElementById("autoBtn").textContent = appState.timer ? "Stop Auto" : "Auto Play";
+      document.getElementById("stepBtn").disabled = simulation.index >= simulation.steps.length - 1;
+
+      if (simulation.type === "activity") {
+        renderActivity(simulation, step);
+      } else if (simulation.type === "coin") {
+        renderCoin(simulation, step);
+      } else {
+        renderKnapsack(simulation, step);
+      }
+    }
+
+    function renderActivity(simulation, step) {
+      const ordered = simulation.meta.ordered;
+      const maxTime = Math.max(...ordered.map((interval) => interval.end), 10);
+      const finishMarker = step.lastFinish === null
+        ? ""
+        : "<div class=\"finish-marker\" style=\"left:" + ((step.lastFinish / maxTime) * 100) + "%\"></div>";
+
+      const axisTicks = Array.from({ length: maxTime + 1 }, (_, tick) => (
+        "<div class=\"tick\" style=\"left:" + ((tick / maxTime) * 100) + "%\">" + tick + "</div>"
+      )).join("");
+
+      const rows = ordered.map((interval) => {
+        const classes = ["interval-bar"];
+        const isProcessed = step.processedIds.includes(interval.id);
+        const isSelected = step.selectedIds.includes(interval.id);
+        const isRejected = step.rejectedIds.includes(interval.id);
+
+        if (!isProcessed) {
+          classes.push("future");
+        }
+        if (isSelected) {
+          classes.push("selected");
+        }
+        if (isRejected) {
+          classes.push("rejected");
+        }
+        if (step.currentId === interval.id) {
+          classes.push("current");
+        }
+
+        return [
+          "<div class=\"interval-row\">",
+          "<div class=\"interval-label\">" + interval.id + "</div>",
+          "<div class=\"interval-track\">",
+          finishMarker,
+          "<div class=\"" + classes.join(" ") + "\" style=\"left:" + ((interval.start / maxTime) * 100) + "%; width:" + (((interval.end - interval.start) / maxTime) * 100) + "%;\">",
+          interval.start + "-" + interval.end,
+          "</div>",
+          "</div>",
+          "</div>"
+        ].join("");
+      }).join("");
+
+      document.getElementById("visualArea").innerHTML = [
+        "<div class=\"timeline-wrap\">",
+        "<div class=\"timeline\">",
+        "<div class=\"axis\">" + axisTicks + "</div>",
+        rows,
+        "</div>",
+        "</div>"
+      ].join("");
+
+      document.getElementById("resultArea").innerHTML = [
+        "<div class=\"pill-row\">",
+        step.selectedIds.length
+          ? step.selectedIds.map((id) => "<span class=\"pill\">" + id + "</span>").join("")
+          : "<span class=\"pill\">No intervals selected yet</span>",
+        "</div>",
+        "<p class=\"footnote\">Selected activities stay compatible because each new interval must start after the last selected finish time.</p>"
+      ].join("");
+
+      document.getElementById("ruleText").textContent =
+        "Choose the earliest-finishing compatible interval.";
+      document.getElementById("stepText").textContent =
+        step.stepLabel || "Ready to scan the intervals.";
+      document.getElementById("messageText").textContent = step.message;
+      document.getElementById("constraintText").textContent = step.constraint;
+      document.getElementById("notesArea").innerHTML = [
+        "<div class=\"note info\">Intervals are first sorted by finish time, not by start time.</div>",
+        "<div class=\"note warn\">A tempting long interval can block several shorter compatible ones later.</div>"
+      ].join("");
+    }
+
+    function renderCoin(simulation, step) {
+      const totalChosen = step.chosen.reduce((sum, coin) => sum + coin, 0);
+      const progress = ((simulation.meta.amount - step.remaining) / simulation.meta.amount) * 100;
+
+      const cards = simulation.meta.coins.map((coin) => {
+        const usedCount = step.chosen.filter((chosenCoin) => chosenCoin === coin).length;
+        const classes = ["coin-card"];
+        if (step.currentCoin === coin) {
+          classes.push("current");
+        }
+        if (usedCount > 0) {
+          classes.push("used");
+        }
+
+        return [
+          "<div class=\"" + classes.join(" ") + "\">",
+          "<strong>" + coin + "</strong>",
+          "<span>Chosen " + usedCount + " time(s)</span>",
+          "<span>" + (coin <= step.remaining ? "Fits current remainder" : "Too large right now") + "</span>",
+          "</div>"
+        ].join("");
+      }).join("");
+
+      document.getElementById("visualArea").innerHTML = [
+        "<div class=\"coin-area\">",
+        "<div class=\"panel\">",
+        "<h3>Remaining Amount</h3>",
+        "<div class=\"meter\"><div class=\"meter-fill\" style=\"width:" + progress + "%\"></div></div>",
+        "<p>Built amount: " + totalChosen + " / " + simulation.meta.amount + " | Remaining: " + step.remaining + "</p>",
+        "</div>",
+        "<div class=\"coin-grid\">" + cards + "</div>",
+        "</div>"
+      ].join("");
+
+      document.getElementById("resultArea").innerHTML = [
+        "<div class=\"pill-row\">",
+        step.chosen.length
+          ? step.chosen.map((coin, index) => "<span class=\"pill\">" + coin + " (#" + (index + 1) + ")</span>").join("")
+          : "<span class=\"pill\">No coins chosen yet</span>",
+        "</div>",
+        "<p class=\"footnote\">Greedy always grabs the largest valid coin first. The tricky preset shows why that local rule is not always globally optimal.</p>"
+      ].join("");
+
+      document.getElementById("ruleText").textContent =
+        "Take the largest coin that does not exceed the remaining amount.";
+      document.getElementById("stepText").textContent =
+        "Chosen " + step.chosen.length + " coin(s).";
+      document.getElementById("messageText").textContent = step.message;
+      document.getElementById("constraintText").textContent = step.constraint;
+
+      const extraNote = simulation.meta.presetKey === "tricky" && step.remaining === 0
+        ? "<div class=\"note alert\">Greedy finishes with " + step.chosen.join(" + ") + ", but 3 + 3 would use fewer coins.</div>"
+        : "<div class=\"note info\">" + simulation.meta.note + "</div>";
+
+      document.getElementById("notesArea").innerHTML = [
+        extraNote,
+        "<div class=\"note warn\">Coin change is a good reminder that a simple greedy rule must be tested before it is trusted.</div>"
+      ].join("");
+    }
+
+    function renderKnapsack(simulation, step) {
+      const items = simulation.meta.ordered;
+      const capacityUsed = simulation.meta.capacity - step.remainingCapacity;
+      const fill = (capacityUsed / simulation.meta.capacity) * 100;
+
+      const cards = items.map((item) => {
+        const takenEntry = step.taken.find((entry) => entry.id === item.id);
+        const fraction = takenEntry ? takenEntry.fraction : 0;
+        const classes = ["item-card"];
+        if (step.currentId === item.id) {
+          classes.push("current");
+        }
+        if (fraction === 1) {
+          classes.push("full");
+        } else if (fraction > 0) {
+          classes.push("partial");
+        }
+
+        return [
+          "<div class=\"" + classes.join(" ") + "\">",
+          "<strong>" + item.id + "</strong>",
+          "<span>value = " + item.value + "</span>",
+          "<span>weight = " + item.weight + "</span>",
+          "<span>ratio = " + item.ratio.toFixed(2) + "</span>",
+          "<span>taken = " + (fraction * 100).toFixed(0) + "%</span>",
+          "</div>"
+        ].join("");
+      }).join("");
+
+      const bagPieces = step.taken.map((entry, index) => {
+        const width = (entry.weightUsed / simulation.meta.capacity) * 100;
+        return "<div class=\"bag-piece piece-" + (index % 4) + "\" style=\"width:" + Math.max(width, 12) + "%\">" +
+          entry.id + " " + (entry.fraction * 100).toFixed(0) + "%" +
+          "</div>";
+      }).join("");
+
+      document.getElementById("visualArea").innerHTML = [
+        "<div class=\"item-area\">",
+        "<div class=\"panel\">",
+        "<h3>Capacity Meter</h3>",
+        "<div class=\"meter\"><div class=\"meter-fill\" style=\"width:" + fill + "%\"></div></div>",
+        "<p>Used: " + capacityUsed.toFixed(2) + " / " + simulation.meta.capacity.toFixed(2) +
+          " | Total value: " + step.totalValue.toFixed(2) + "</p>",
+        "</div>",
+        "<div class=\"item-grid\">" + cards + "</div>",
+        "</div>"
+      ].join("");
+
+      document.getElementById("resultArea").innerHTML = [
+        "<div class=\"bag\">",
+        bagPieces || "<span class=\"footnote\">Bag is empty.</span>",
+        "</div>",
+        "<p class=\"footnote\">Because this is fractional knapsack, the last item can be taken partially instead of being skipped completely.</p>"
+      ].join("");
+
+      document.getElementById("ruleText").textContent =
+        "Take the highest value/weight ratio first.";
+      document.getElementById("stepText").textContent =
+        "Taken items: " + step.taken.length;
+      document.getElementById("messageText").textContent = step.message;
+      document.getElementById("constraintText").textContent = step.constraint;
+      document.getElementById("notesArea").innerHTML = [
+        "<div class=\"note info\">The ratio determines the order. Higher ratio means more value gained per unit of weight.</div>",
+        "<div class=\"note warn\">This rule is correct for fractional knapsack, but not for 0/1 knapsack where items cannot be split.</div>"
+      ].join("");
+    }
+
+    syncPresetInputs();
+    render();
+  </script>
+</body>
+</html>

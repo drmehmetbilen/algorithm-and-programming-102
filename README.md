@@ -27,6 +27,8 @@
   - Topics: Bubble Sort, Selection Sort, Insertion Sort
 - `weeks/week-06`
   - Topics: Divide and Conquer, Merge Sort, Quick Sort
+- `weeks/week-07`
+  - Topics: Greedy Algorithms, Activity Selection, Coin Change, Fractional Knapsack
 
 ## How Students Should Use This Repo
 - Start from the current week folder in `weeks/`.
@@ -56,3 +58,7 @@
 - Week 06:
   - `python3 -i weeks/week-06/src/1-merge_sort.py`
   - `python3 -i weeks/week-06/src/2-quick_sort.py`
+- Week 07:
+  - `python3 -i weeks/week-07/src/1-activity_selection.py`
+  - `python3 -i weeks/week-07/src/2-coin_change.py`
+  - `python3 -i weeks/week-07/src/3-fractional_knapsack.py`
