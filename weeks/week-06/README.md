@@ -120,4 +120,4 @@ flowchart TD
   - Compare insertion sort, merge sort, and quick sort on the same list.
 
 ## Next Week Topic (Brief)
-- Next week can move to hashing, dictionaries, and set-based thinking.
+- Next week can move to greedy algorithms and local-choice strategies.
