@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 08 - Dijkstra Lab</title>
+  <style>
+    :root {
+      --bg: #f2ede5;
+      --panel: #fffaf2;
+      --panel-strong: #fffefb;
+      --ink: #1d3038;
+      --muted: #62727a;
+      --line: #d7c6ad;
+      --shadow: 0 16px 32px rgba(29, 48, 56, 0.12);
+      --radius: 18px;
+
+      --accent: #0f7f71;
+      --accent-soft: #daf4ee;
+      --accent-2: #d47b2e;
+      --accent-2-soft: #ffe7d3;
+      --accent-3: #2f68da;
+      --accent-3-soft: #dce7ff;
+      --good: #d8f1e5;
+      --warn: #fff1b9;
+      --alert: #ffe1e7;
+      --quiet: #f3ede4;
+      --node: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 460px at -10% -15%, #fff0d1 0%, transparent 58%),
+        radial-gradient(900px 460px at 110% 8%, #dcf7eb 0%, transparent 58%),
+        linear-gradient(150deg, #f8f4ed 0%, var(--bg) 100%);
+      min-height: 100vh;
+      padding: 24px 14px 40px;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, #fff4de 0%, #ebfbf3 100%);
+      padding: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      line-height: 1.08;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 980px;
+    }
+
+    .chips {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 7px 12px;
+      font-size: 0.84rem;
+    }
+
+    .card {
+      background: var(--panel);
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefc 0%, #fff7ea 100%);
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.16rem;
+    }
+
+    .card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.52;
+      font-size: 0.92rem;
+    }
+
+    .card-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .surface-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .surface {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-strong);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .surface h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .surface p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.54;
+      font-size: 0.88rem;
+    }
+
+    .tab-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tab {
+      border: 1px solid #c8b59b;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+    }
+
+    .tab.is-active {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 18px rgba(15, 127, 113, 0.22);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      min-width: 180px;
+      flex: 1;
+    }
+
+    select,
+    input[type="range"] {
+      width: 100%;
+    }
+
+    select {
+      border: 1px solid #c8b59b;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent);
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.56;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(15, 127, 113, 0.22);
+    }
+
+    .btn-accent {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(212, 123, 46, 0.24);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: #c8b59b;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.85fr 1fr;
+      gap: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-strong);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 0.96rem;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.54;
+      font-size: 0.89rem;
+    }
+
+    .stats {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 0.96rem;
+      line-height: 1.45;
+    }
+
+    .note {
+      border-radius: 12px;
+      padding: 11px 12px;
+      line-height: 1.54;
+      font-size: 0.9rem;
+    }
+
+    .note.info {
+      background: var(--accent-3-soft);
+      color: #1f417d;
+    }
+
+    .note.warn {
+      background: var(--warn);
+      color: #6f5816;
+    }
+
+    .note.alert {
+      background: var(--alert);
+      color: #7a2636;
+    }
+
+    .graph-wrap {
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+
+    .edge-base {
+      stroke: #c7b9a4;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .edge-tree {
+      stroke: rgba(15, 127, 113, 0.9);
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+
+    .edge-path {
+      stroke: rgba(47, 104, 218, 0.92);
+      stroke-width: 10;
+      stroke-linecap: round;
+    }
+
+    .edge-current {
+      stroke: rgba(212, 123, 46, 0.95);
+      stroke-width: 10;
+      stroke-linecap: round;
+    }
+
+    .edge-label {
+      fill: #5c6970;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .edge-badge {
+      fill: #fffaf2;
+      stroke: #d7c6ad;
+      stroke-width: 1;
+    }
+
+    .node-circle {
+      fill: var(--node);
+      stroke: #c8b59b;
+      stroke-width: 3;
+    }
+
+    .node-start .node-circle {
+      stroke: var(--accent);
+      stroke-width: 4;
+    }
+
+    .node-frontier .node-circle {
+      fill: #eef5ff;
+      stroke: var(--accent-3);
+    }
+
+    .node-settled .node-circle {
+      fill: var(--good);
+      stroke: #89bea8;
+    }
+
+    .node-current .node-circle {
+      fill: var(--accent-2-soft);
+      stroke: var(--accent-2);
+      filter: drop-shadow(0 0 8px rgba(212, 123, 46, 0.22));
+    }
+
+    .node-target .node-circle {
+      stroke-dasharray: 5 4;
+      stroke-width: 4;
+    }
+
+    .node-label {
+      fill: #17323a;
+      font-size: 18px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .node-distance {
+      fill: #5d6b72;
+      font-size: 12px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mini-table {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .mini-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    .mini-table th,
+    .mini-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee3d2;
+      text-align: left;
+    }
+
+    .mini-table tr:last-child th,
+    .mini-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .comparison {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .comparison strong {
+      font-size: 0.95rem;
+    }
+
+    .footnote {
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1040px) {
+      .surface-grid,
+      .layout,
+      .table-grid,
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px 10px 28px;
+      }
+
+      .surface-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .surface-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Week 08 - Weighted Graphs and Dijkstra</h1>
+      <p>
+        This page focuses on one core difference: BFS counts edges, but Dijkstra counts total cost.
+        Use the tabs to inspect weighted path ideas, step through Dijkstra, and reconstruct a shortest path.
+      </p>
+      <div class="chips">
+        <span class="chip">Weighted edges</span>
+        <span class="chip">Tentative distances</span>
+        <span class="chip">Relaxation</span>
+        <span class="chip">Parent pointers</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Key Ideas</h2>
+        <p>Dijkstra is not just “BFS with numbers.” It tracks the cheapest known total cost at every step.</p>
+      </div>
+      <div class="card-body">
+        <div class="surface-grid">
+          <article class="surface">
+            <h3>Weighted Edge</h3>
+            <p>Every edge has a cost. A path cost is the sum of those edge weights.</p>
+          </article>
+          <article class="surface">
+            <h3>Tentative Distance</h3>
+            <p>Each node stores the best known cost from the start so far. The value can improve later.</p>
+          </article>
+          <article class="surface">
+            <h3>Relaxation</h3>
+            <p>Check whether going through the current node gives a smaller distance to a neighbor.</p>
+          </article>
+          <article class="surface">
+            <h3>Settled Node</h3>
+            <p>When the smallest tentative node is chosen, its shortest distance is fixed.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Dijkstra Lab</h2>
+        <p>The same graph supports all three views, so concept, algorithm, and final path stay aligned.</p>
+      </div>
+      <div class="card-body">
+        <div class="tab-row">
+          <button class="tab is-active" data-tab="concept">Weighted Graph</button>
+          <button class="tab" data-tab="steps">Dijkstra Steps</button>
+          <button class="tab" data-tab="path">Path Reconstruction</button>
+        </div>
+
+        <div class="controls">
+          <label>
+            Graph Preset
+            <select id="graphPreset"></select>
+          </label>
+          <label>
+            Start Node
+            <select id="startNode"></select>
+          </label>
+          <label>
+            Target Node
+            <select id="targetNode"></select>
+          </label>
+          <label>
+            Auto Speed
+            <input id="speedInput" type="range" min="250" max="1400" step="50" value="700">
+          </label>
+        </div>
+
+        <div class="controls">
+          <button id="buildBtn" class="btn-primary">Build Simulation</button>
+          <button id="stepBtn" class="btn-accent">Next Step</button>
+          <button id="autoBtn" class="btn-secondary">Auto Play</button>
+          <button id="resetBtn" class="btn-secondary">Reset</button>
+        </div>
+
+        <div class="layout">
+          <div class="stack">
+            <section class="panel">
+              <h3>Current Visualization</h3>
+              <div id="visualArea"></div>
+            </section>
+            <section class="panel">
+              <h3>Result So Far</h3>
+              <div id="resultArea"></div>
+            </section>
+          </div>
+
+          <aside class="stack">
+            <section class="panel">
+              <h3>Decision Summary</h3>
+              <div class="stats">
+                <div class="stat">
+                  <div class="stat-label">Main Rule</div>
+                  <div id="ruleText" class="stat-value"></div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Current Step</div>
+                  <div id="stepText" class="stat-value"></div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">What Is Happening?</div>
+                  <div id="messageText" class="stat-value"></div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Constraint State</div>
+                  <div id="constraintText" class="stat-value"></div>
+                </div>
+              </div>
+            </section>
+            <section class="panel">
+              <h3>Notes</h3>
+              <div id="notesArea"></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const graphPresets = {
+      classroom: {
+        label: "Classroom route map",
+        directed: false,
+        nodes: {
+          A: { x: 90, y: 180 },
+          B: { x: 220, y: 80 },
+          C: { x: 220, y: 280 },
+          D: { x: 380, y: 120 },
+          E: { x: 380, y: 260 },
+          F: { x: 540, y: 190 }
+        },
+        edges: [
+          ["A", "B", 4],
+          ["A", "C", 2],
+          ["B", "C", 1],
+          ["B", "D", 5],
+          ["C", "D", 8],
+          ["C", "E", 10],
+          ["D", "E", 2],
+          ["D", "F", 6],
+          ["E", "F", 3]
+        ],
+        comparisons: [
+          {
+            label: "Fewer edges",
+            path: ["A", "B", "D", "F"],
+            description: "This route uses 3 edges, but it is not the cheapest."
+          },
+          {
+            label: "Lower total cost",
+            path: ["A", "C", "B", "D", "E", "F"],
+            description: "This route uses more edges, but its total cost is smaller."
+          }
+        ]
+      },
+      textbook: {
+        label: "Textbook weighted graph",
+        directed: false,
+        nodes: {
+          A: { x: 90, y: 180 },
+          B: { x: 220, y: 80 },
+          C: { x: 230, y: 250 },
+          D: { x: 400, y: 90 },
+          F: { x: 390, y: 300 },
+          E: { x: 550, y: 190 }
+        },
+        edges: [
+          ["A", "B", 7],
+          ["A", "C", 9],
+          ["A", "F", 14],
+          ["B", "C", 10],
+          ["B", "D", 15],
+          ["C", "D", 11],
+          ["C", "F", 2],
+          ["D", "E", 6],
+          ["E", "F", 9]
+        ],
+        comparisons: [
+          {
+            label: "Direct-looking route",
+            path: ["A", "F", "E"],
+            description: "This route looks short in edges, but the total cost is not minimal."
+          },
+          {
+            label: "Cheaper route",
+            path: ["A", "C", "F", "E"],
+            description: "A slightly longer-looking route can still be cheaper in total cost."
+          }
+        ]
+      }
+    };
+
+    const state = {
+      activeTab: "concept",
+      timer: null,
+      speed: 700,
+      simulation: null
+    };
+
+    const tabs = [...document.querySelectorAll(".tab")];
+    const graphPresetSelect = document.getElementById("graphPreset");
+    const startNodeSelect = document.getElementById("startNode");
+    const targetNodeSelect = document.getElementById("targetNode");
+    const speedInput = document.getElementById("speedInput");
+    const buildBtn = document.getElementById("buildBtn");
+    const stepBtn = document.getElementById("stepBtn");
+    const autoBtn = document.getElementById("autoBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    Object.entries(graphPresets).forEach(([key, preset]) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = preset.label;
+      graphPresetSelect.appendChild(option);
+    });
+
+    tabs.forEach((tabButton) => {
+      tabButton.addEventListener("click", () => {
+        if (tabButton.dataset.tab === "concept") {
+          stopAuto();
+        }
+        state.activeTab = tabButton.dataset.tab;
+        tabs.forEach((button) => button.classList.toggle("is-active", button === tabButton));
+        render();
+      });
+    });
+
+    graphPresetSelect.addEventListener("change", () => {
+      stopAuto();
+      updateNodeOptions();
+      rebuildSimulation();
+      render();
+    });
+
+    startNodeSelect.addEventListener("change", () => {
+      stopAuto();
+      keepTargetDistinct();
+      rebuildSimulation();
+      render();
+    });
+
+    targetNodeSelect.addEventListener("change", render);
+
+    speedInput.addEventListener("input", () => {
+      state.speed = Number(speedInput.value);
+      if (state.timer) {
+        stopAuto();
+        startAuto();
+      }
+    });
+
+    buildBtn.addEventListener("click", () => {
+      stopAuto();
+      rebuildSimulation();
+      render();
+    });
+
+    stepBtn.addEventListener("click", () => {
+      stepSimulation();
+      render();
+    });
+
+    autoBtn.addEventListener("click", () => {
+      if (state.timer) {
+        stopAuto();
+      } else {
+        startAuto();
+      }
+      render();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      stopAuto();
+      if (state.simulation) {
+        state.simulation.index = 0;
+      }
+      render();
+    });
+
+    function selectedPreset() {
+      return graphPresets[graphPresetSelect.value];
+    }
+
+    function buildAdjacency(preset) {
+      const adjacency = {};
+
+      Object.keys(preset.nodes).forEach((node) => {
+        adjacency[node] = [];
+      });
+
+      preset.edges.forEach(([from, to, weight]) => {
+        adjacency[from].push({ node: to, weight });
+        if (!preset.directed) {
+          adjacency[to].push({ node: from, weight });
+        }
+      });
+
+      Object.keys(adjacency).forEach((node) => {
+        adjacency[node].sort((left, right) => left.node.localeCompare(right.node));
+      });
+
+      return adjacency;
+    }
+
+    function pathCost(adjacency, path) {
+      if (path.length < 2) {
+        return 0;
+      }
+
+      let total = 0;
+      for (let index = 0; index < path.length - 1; index += 1) {
+        const from = path[index];
+        const to = path[index + 1];
+        const edge = adjacency[from].find((neighbor) => neighbor.node === to);
+        if (!edge) {
+          return null;
+        }
+        total += edge.weight;
+      }
+      return total;
+    }
+
+    function updateNodeOptions() {
+      const preset = selectedPreset();
+      const nodes = Object.keys(preset.nodes).sort();
+      const previousStart = startNodeSelect.value;
+      const previousTarget = targetNodeSelect.value;
+
+      startNodeSelect.innerHTML = "";
+      targetNodeSelect.innerHTML = "";
+
+      nodes.forEach((node) => {
+        const startOption = document.createElement("option");
+        startOption.value = node;
+        startOption.textContent = node;
+        startNodeSelect.appendChild(startOption);
+
+        const targetOption = document.createElement("option");
+        targetOption.value = node;
+        targetOption.textContent = node;
+        targetNodeSelect.appendChild(targetOption);
+      });
+
+      startNodeSelect.value = nodes.includes(previousStart) ? previousStart : nodes[0];
+      targetNodeSelect.value = nodes.includes(previousTarget) ? previousTarget : nodes[nodes.length - 1];
+      keepTargetDistinct();
+    }
+
+    function keepTargetDistinct() {
+      const options = [...targetNodeSelect.options].map((option) => option.value);
+      if (targetNodeSelect.value === startNodeSelect.value && options.length > 1) {
+        const replacement = options.find((node) => node !== startNodeSelect.value);
+        targetNodeSelect.value = replacement;
+      }
+    }
+
+    function rebuildSimulation() {
+      const presetKey = graphPresetSelect.value;
+      const preset = selectedPreset();
+      const start = startNodeSelect.value;
+      const adjacency = buildAdjacency(preset);
+
+      state.simulation = buildDijkstraSimulation(presetKey, preset, adjacency, start);
+    }
+
+    function buildDijkstraSimulation(presetKey, preset, adjacency, start) {
+      const nodes = Object.keys(preset.nodes).sort();
+      const distances = {};
+      const parents = {};
+      const settled = [];
+      const settledSet = new Set();
+      const steps = [];
+
+      nodes.forEach((node) => {
+        distances[node] = Infinity;
+        parents[node] = null;
+      });
+      distances[start] = 0;
+
+      steps.push(snapshotStep({
+        phase: "ready",
+        message: "Distances are initialized. Only the start node begins with distance 0.",
+        constraint: "All other nodes are currently unreachable.",
+        current: null,
+        edge: null,
+        distances,
+        parents,
+        settled,
+        adjacency,
+        start
+      }));
+
+      while (settled.length < nodes.length) {
+        const current = pickMinimumUnsettled(nodes, distances, settledSet);
+        if (current === null) {
+          steps.push(snapshotStep({
+            phase: "done",
+            message: "No more reachable unsettled nodes remain.",
+            constraint: "The algorithm stops here.",
+            current: null,
+            edge: null,
+            distances,
+            parents,
+            settled,
+            adjacency,
+            start
+          }));
+          break;
+        }
+
+        settled.push(current);
+        settledSet.add(current);
+
+        steps.push(snapshotStep({
+          phase: "select",
+          message: "Choose " + current + " because it has the smallest unsettled tentative distance.",
+          constraint: current + " is now settled at cost " + formatDistance(distances[current]) + ".",
+          current,
+          edge: null,
+          distances,
+          parents,
+          settled,
+          adjacency,
+          start
+        }));
+
+        adjacency[current].forEach((neighbor) => {
+          if (settledSet.has(neighbor.node)) {
+            return;
+          }
+
+          const candidate = distances[current] + neighbor.weight;
+          const improved = candidate < distances[neighbor.node];
+          const oldDistance = distances[neighbor.node];
+
+          if (improved) {
+            distances[neighbor.node] = candidate;
+            parents[neighbor.node] = current;
+          }
+
+          steps.push(snapshotStep({
+            phase: "relax",
+            message: improved
+              ? "Relax " + current + " -> " + neighbor.node + ": the new path is cheaper, so update the distance."
+              : "Relax " + current + " -> " + neighbor.node + ": the new path is not better, so keep the old distance.",
+            constraint: improved
+              ? "Distance[" + neighbor.node + "] changes from " + formatDistance(oldDistance) + " to " + formatDistance(candidate) + "."
+              : "Distance[" + neighbor.node + "] stays at " + formatDistance(oldDistance) + ".",
+            current,
+            edge: {
+              from: current,
+              to: neighbor.node,
+              weight: neighbor.weight,
+              candidate,
+              improved
+            },
+            distances,
+            parents,
+            settled,
+            adjacency,
+            start
+          }));
+        });
+      }
+
+      steps.push(snapshotStep({
+        phase: "complete",
+        message: "All reachable nodes have settled shortest distances.",
+        constraint: "Parent pointers now describe one shortest-path tree.",
+        current: null,
+        edge: null,
+        distances,
+        parents,
+        settled,
+        adjacency,
+        start
+      }));
+
+      return {
+        index: 0,
+        steps,
+        meta: {
+          presetKey,
+          preset,
+          adjacency,
+          start,
+          nodes
+        }
+      };
+    }
+
+    function snapshotStep(details) {
+      const frontier = Object.keys(details.distances)
+        .filter((node) => !details.settled.includes(node) && details.distances[node] !== Infinity)
+        .sort((left, right) => {
+          if (details.distances[left] === details.distances[right]) {
+            return left.localeCompare(right);
+          }
+          return details.distances[left] - details.distances[right];
+        })
+        .map((node) => ({
+          node,
+          distance: details.distances[node]
+        }));
+
+      return {
+        phase: details.phase,
+        message: details.message,
+        constraint: details.constraint,
+        current: details.current,
+        edge: details.edge ? { ...details.edge } : null,
+        distances: { ...details.distances },
+        parents: { ...details.parents },
+        settled: details.settled.slice(),
+        frontier,
+        start: details.start
+      };
+    }
+
+    function pickMinimumUnsettled(nodes, distances, settledSet) {
+      let bestNode = null;
+      let bestDistance = Infinity;
+
+      nodes.forEach((node) => {
+        if (settledSet.has(node)) {
+          return;
+        }
+        if (distances[node] < bestDistance) {
+          bestDistance = distances[node];
+          bestNode = node;
+        }
+      });
+
+      return bestDistance === Infinity ? null : bestNode;
+    }
+
+    function stepSimulation() {
+      if (!state.simulation) {
+        return;
+      }
+      if (state.simulation.index < state.simulation.steps.length - 1) {
+        state.simulation.index += 1;
+      } else {
+        stopAuto();
+      }
+    }
+
+    function startAuto() {
+      if (!state.simulation) {
+        return;
+      }
+      if (state.simulation.index >= state.simulation.steps.length - 1) {
+        state.simulation.index = 0;
+      }
+      state.timer = window.setInterval(() => {
+        if (!state.simulation || state.simulation.index >= state.simulation.steps.length - 1) {
+          stopAuto();
+          render();
+          return;
+        }
+        state.simulation.index += 1;
+        render();
+      }, state.speed);
+    }
+
+    function stopAuto() {
+      if (state.timer) {
+        window.clearInterval(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function currentStep() {
+      return state.simulation.steps[state.simulation.index];
+    }
+
+    function formatDistance(value) {
+      return value === Infinity ? "∞" : String(value);
+    }
+
+    function edgeKey(from, to) {
+      return [from, to].sort().join("|");
+    }
+
+    function reconstructPath(parents, start, target) {
+      if (start === target) {
+        return [start];
+      }
+      if (!parents[target]) {
+        return null;
+      }
+
+      const path = [];
+      const seen = new Set();
+      let current = target;
+
+      while (current !== null && current !== undefined) {
+        if (seen.has(current)) {
+          return null;
+        }
+        seen.add(current);
+        path.push(current);
+        if (current === start) {
+          path.reverse();
+          return path;
+        }
+        current = parents[current];
+      }
+
+      return null;
+    }
+
+    function render() {
+      if (!state.simulation) {
+        return;
+      }
+
+      const canAnimate = state.activeTab !== "concept";
+      if (!canAnimate) {
+        stopAuto();
+      }
+
+      autoBtn.textContent = state.timer ? "Stop Auto" : "Auto Play";
+      stepBtn.disabled = !canAnimate || state.simulation.index >= state.simulation.steps.length - 1;
+      autoBtn.disabled = !canAnimate;
+
+      if (state.activeTab === "concept") {
+        renderConceptTab();
+      } else if (state.activeTab === "steps") {
+        renderStepsTab();
+      } else {
+        renderPathTab();
+      }
+    }
+
+    function renderConceptTab() {
+      const preset = selectedPreset();
+      const adjacency = state.simulation.meta.adjacency;
+      const comparisonsHtml = preset.comparisons.map((comparison) => {
+        const cost = pathCost(adjacency, comparison.path);
+        return [
+          "<article class=\"comparison\">",
+          "<strong>" + comparison.label + "</strong>",
+          "<span>Path: " + comparison.path.join(" → ") + "</span>",
+          "<span>Edges: " + (comparison.path.length - 1) + "</span>",
+          "<span>Total cost: " + cost + "</span>",
+          "<span>" + comparison.description + "</span>",
+          "</article>"
+        ].join("");
+      }).join("");
+
+      const adjacencyHtml = Object.keys(adjacency).sort().map((node) => {
+        const summary = adjacency[node].map((neighbor) => neighbor.node + "(" + neighbor.weight + ")").join(", ");
+        return "<span class=\"pill\">" + node + ": " + summary + "</span>";
+      }).join("");
+
+      document.getElementById("visualArea").innerHTML = renderGraphSvg({
+        preset,
+        distances: {},
+        settled: [],
+        current: null,
+        currentEdge: null,
+        treeEdges: new Set(),
+        pathEdges: new Set(),
+        target: targetNodeSelect.value,
+        start: startNodeSelect.value
+      });
+
+      document.getElementById("resultArea").innerHTML = [
+        "<div class=\"comparison-grid\">",
+        comparisonsHtml,
+        "</div>",
+        "<div class=\"panel\">",
+        "<h3>Adjacency Summary</h3>",
+        "<div class=\"pill-row\">" + adjacencyHtml + "</div>",
+        "</div>",
+        "<p class=\"footnote\">The cheaper path may use more edges. That is exactly why total cost matters more than edge count in a weighted graph.</p>"
+      ].join("");
+
+      document.getElementById("ruleText").textContent = "Path cost is the sum of edge weights.";
+      document.getElementById("stepText").textContent = "Concept view";
+      document.getElementById("messageText").textContent =
+        "The graph stores costs on edges, so two paths must be compared by total weight, not by edge count.";
+      document.getElementById("constraintText").textContent =
+        "Dijkstra assumes all edge weights are non-negative.";
+      document.getElementById("notesArea").innerHTML = [
+        "<div class=\"note info\">Weighted shortest path means minimum total cost from the chosen start node.</div>",
+        "<div class=\"note warn\">BFS would prefer fewer edges, but fewer edges is not always cheaper.</div>"
+      ].join("");
+    }
+
+    function renderStepsTab() {
+      const step = currentStep();
+      const preset = selectedPreset();
+      const treeEdges = treeEdgeSet(step.parents);
+      const currentEdge = step.edge ? edgeKey(step.edge.from, step.edge.to) : null;
+
+      document.getElementById("visualArea").innerHTML = renderGraphSvg({
+        preset,
+        distances: step.distances,
+        settled: step.settled,
+        current: step.current,
+        currentEdge,
+        treeEdges,
+        pathEdges: new Set(),
+        target: targetNodeSelect.value,
+        start: startNodeSelect.value
+      });
+
+      const frontierHtml = step.frontier.length
+        ? step.frontier.map((entry) => "<span class=\"pill\">" + entry.node + ": " + formatDistance(entry.distance) + "</span>").join("")
+        : "<span class=\"pill\">Frontier empty</span>";
+
+      const settledHtml = step.settled.length
+        ? step.settled.map((node) => "<span class=\"pill\">" + node + "</span>").join("")
+        : "<span class=\"pill\">No settled nodes yet</span>";
+
+      const distanceRows = Object.keys(step.distances).sort().map((node) => {
+        return "<tr><th>" + node + "</th><td>" + formatDistance(step.distances[node]) + "</td></tr>";
+      }).join("");
+
+      const parentRows = Object.keys(step.parents).sort().map((node) => {
+        return "<tr><th>" + node + "</th><td>" + (step.parents[node] === null ? "None" : step.parents[node]) + "</td></tr>";
+      }).join("");
+
+      document.getElementById("resultArea").innerHTML = [
+        "<div class=\"panel\">",
+        "<h3>Frontier Candidates</h3>",
+        "<div class=\"pill-row\">" + frontierHtml + "</div>",
+        "</div>",
+        "<div class=\"panel\">",
+        "<h3>Settled Order</h3>",
+        "<div class=\"pill-row\">" + settledHtml + "</div>",
+        "</div>",
+        "<div class=\"table-grid\">",
+        "<div class=\"mini-table\"><table><tr><th>Node</th><th>Distance</th></tr>" + distanceRows + "</table></div>",
+        "<div class=\"mini-table\"><table><tr><th>Node</th><th>Parent</th></tr>" + parentRows + "</table></div>",
+        "</div>"
+      ].join("");
+
+      document.getElementById("ruleText").textContent =
+        "Repeatedly settle the node with the smallest unsettled tentative distance.";
+      document.getElementById("stepText").textContent =
+        "Step " + (state.simulation.index + 1) + " of " + state.simulation.steps.length;
+      document.getElementById("messageText").textContent = step.message;
+      document.getElementById("constraintText").textContent = step.constraint;
+
+      const relaxNote = step.edge
+        ? "<div class=\"note info\">Candidate cost through " + step.edge.from + " is " + formatDistance(step.edge.candidate) + " for node " + step.edge.to + ".</div>"
+        : "<div class=\"note info\">No edge relaxation is being processed on this step.</div>";
+
+      document.getElementById("notesArea").innerHTML = [
+        relaxNote,
+        "<div class=\"note warn\">A settled node will not receive a smaller distance later, as long as all weights are non-negative.</div>"
+      ].join("");
+    }
+
+    function renderPathTab() {
+      const step = currentStep();
+      const preset = selectedPreset();
+      const start = startNodeSelect.value;
+      const target = targetNodeSelect.value;
+      const path = reconstructPath(step.parents, start, target);
+      const pathEdges = new Set();
+
+      if (path) {
+        for (let index = 0; index < path.length - 1; index += 1) {
+          pathEdges.add(edgeKey(path[index], path[index + 1]));
+        }
+      }
+
+      document.getElementById("visualArea").innerHTML = renderGraphSvg({
+        preset,
+        distances: step.distances,
+        settled: step.settled,
+        current: null,
+        currentEdge: null,
+        treeEdges: treeEdgeSet(step.parents),
+        pathEdges,
+        target,
+        start
+      });
+
+      let resultHtml = "";
+      if (step.distances[target] === Infinity || !path) {
+        resultHtml = [
+          "<div class=\"pill-row\"><span class=\"pill\">No known path to " + target + " yet</span></div>",
+          "<p class=\"footnote\">If the target distance is still infinity, the algorithm has not discovered a route yet.</p>"
+        ].join("");
+      } else {
+        resultHtml = [
+          "<div class=\"pill-row\">",
+          path.map((node) => "<span class=\"pill\">" + node + "</span>").join(""),
+          "</div>",
+          "<p>Total cost from " + start + " to " + target + ": <strong>" + formatDistance(step.distances[target]) + "</strong></p>",
+          "<p class=\"footnote\">The path comes from walking backward with parent pointers and then reversing the order.</p>"
+        ].join("");
+      }
+
+      document.getElementById("resultArea").innerHTML = resultHtml;
+
+      document.getElementById("ruleText").textContent =
+        "Use parent pointers to walk backward from the target to the start.";
+      document.getElementById("stepText").textContent =
+        "Current target: " + target;
+      document.getElementById("messageText").textContent =
+        step.distances[target] === Infinity
+          ? "The target is not reachable yet from the known part of the search."
+          : "This is the current best-known path to the selected target.";
+      document.getElementById("constraintText").textContent =
+        "Distance[" + target + "] = " + formatDistance(step.distances[target]) + ".";
+
+      document.getElementById("notesArea").innerHTML = [
+        "<div class=\"note info\">Green edges show the current shortest-path tree. Blue edges show the selected target path.</div>",
+        "<div class=\"note warn\">Parent pointers describe one shortest path, not every shortest path that may exist with the same total cost.</div>"
+      ].join("");
+    }
+
+    function treeEdgeSet(parents) {
+      const edges = new Set();
+      Object.keys(parents).forEach((node) => {
+        const parent = parents[node];
+        if (parent) {
+          edges.add(edgeKey(parent, node));
+        }
+      });
+      return edges;
+    }
+
+    function renderGraphSvg(options) {
+      const { preset, distances, settled, current, currentEdge, treeEdges, pathEdges, target, start } = options;
+      const settledSet = new Set(settled);
+      const nodeKeys = Object.keys(preset.nodes);
+
+      const edgeLayers = preset.edges.map(([from, to, weight]) => {
+        const fromNode = preset.nodes[from];
+        const toNode = preset.nodes[to];
+        const key = edgeKey(from, to);
+        const midX = (fromNode.x + toNode.x) / 2;
+        const midY = (fromNode.y + toNode.y) / 2;
+
+        const overlays = [];
+        if (treeEdges.has(key)) {
+          overlays.push("<line class=\"edge-tree\" x1=\"" + fromNode.x + "\" y1=\"" + fromNode.y + "\" x2=\"" + toNode.x + "\" y2=\"" + toNode.y + "\"></line>");
+        }
+        if (pathEdges.has(key)) {
+          overlays.push("<line class=\"edge-path\" x1=\"" + fromNode.x + "\" y1=\"" + fromNode.y + "\" x2=\"" + toNode.x + "\" y2=\"" + toNode.y + "\"></line>");
+        }
+        if (currentEdge === key) {
+          overlays.push("<line class=\"edge-current\" x1=\"" + fromNode.x + "\" y1=\"" + fromNode.y + "\" x2=\"" + toNode.x + "\" y2=\"" + toNode.y + "\"></line>");
+        }
+
+        return [
+          "<g>",
+          "<line class=\"edge-base\" x1=\"" + fromNode.x + "\" y1=\"" + fromNode.y + "\" x2=\"" + toNode.x + "\" y2=\"" + toNode.y + "\"></line>",
+          overlays.join(""),
+          "<rect class=\"edge-badge\" x=\"" + (midX - 16) + "\" y=\"" + (midY - 14) + "\" width=\"32\" height=\"24\" rx=\"12\"></rect>",
+          "<text class=\"edge-label\" x=\"" + midX + "\" y=\"" + (midY + 5) + "\" text-anchor=\"middle\">" + weight + "</text>",
+          "</g>"
+        ].join("");
+      }).join("");
+
+      const nodeLayer = nodeKeys.map((node) => {
+        const point = preset.nodes[node];
+        const classes = ["graph-node"];
+        if (node === start) {
+          classes.push("node-start");
+        }
+        if (distances[node] !== undefined && distances[node] !== Infinity && !settledSet.has(node) && node !== current) {
+          classes.push("node-frontier");
+        }
+        if (settledSet.has(node)) {
+          classes.push("node-settled");
+        }
+        if (node === current) {
+          classes.push("node-current");
+        }
+        if (node === target) {
+          classes.push("node-target");
+        }
+
+        const distanceText = distances[node] === undefined ? "" : "<text class=\"node-distance\" x=\"" + point.x + "\" y=\"" + (point.y - 34) + "\">" + formatDistance(distances[node]) + "</text>";
+
+        return [
+          "<g class=\"" + classes.join(" ") + "\">",
+          distanceText,
+          "<circle class=\"node-circle\" cx=\"" + point.x + "\" cy=\"" + point.y + "\" r=\"24\"></circle>",
+          "<text class=\"node-label\" x=\"" + point.x + "\" y=\"" + point.y + "\">" + node + "</text>",
+          "</g>"
+        ].join("");
+      }).join("");
+
+      return [
+        "<div class=\"graph-wrap\">",
+        "<svg viewBox=\"0 0 640 360\" role=\"img\" aria-label=\"Weighted graph visualization\">",
+        edgeLayers,
+        nodeLayer,
+        "</svg>",
+        "</div>"
+      ].join("");
+    }
+
+    graphPresetSelect.value = "classroom";
+    updateNodeOptions();
+    rebuildSimulation();
+    render();
+  </script>
+</body>
+</html>

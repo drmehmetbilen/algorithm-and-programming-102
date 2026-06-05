@@ -27,6 +27,8 @@
   - Topics: Bubble Sort, Selection Sort, Insertion Sort
 - `weeks/week-06`
   - Topics: Divide and Conquer, Merge Sort, Quick Sort
+- `weeks/week-08`
+  - Topics: Weighted Graphs, Dijkstra's Algorithm, Shortest Paths
 - `weeks/week-07`
   - Topics: Greedy Algorithms, Activity Selection, Coin Change, Fractional Knapsack
 
@@ -58,6 +60,10 @@
 - Week 06:
   - `python3 -i weeks/week-06/src/1-merge_sort.py`
   - `python3 -i weeks/week-06/src/2-quick_sort.py`
+- Week 08:
+  - `python3 -i weeks/week-08/src/1-weighted_graph_basics.py`
+  - `python3 -i weeks/week-08/src/2-dijkstra.py`
+  - `python3 -i weeks/week-08/src/3-shortest_path_reconstruction.py`
 - Week 07:
   - `python3 -i weeks/week-07/src/1-activity_selection.py`
   - `python3 -i weeks/week-07/src/2-coin_change.py`
