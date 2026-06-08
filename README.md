@@ -68,3 +68,7 @@
   - `python3 -i weeks/week-07/src/1-activity_selection.py`
   - `python3 -i weeks/week-07/src/2-coin_change.py`
   - `python3 -i weeks/week-07/src/3-fractional_knapsack.py`
+
+## Review Materials
+- `weeks/recap-weeks-01-08.html`
+  - Interactive recap page for Weeks 01 through 08

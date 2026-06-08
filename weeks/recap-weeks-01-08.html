@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algorithm and Programming 102 - 8 Week Recap Lab</title>
+  <style>
+    :root {
+      --bg: #f3ede4;
+      --paper: #fffaf2;
+      --paper-strong: #fffefb;
+      --ink: #1f3138;
+      --muted: #60727a;
+      --line: #d8c7ad;
+      --shadow: 0 18px 36px rgba(31, 49, 56, 0.12);
+      --radius: 20px;
+
+      --accent: #0f7c6e;
+      --accent-soft: #dbf4ee;
+      --accent-2: #d47c2e;
+      --accent-2-soft: #ffe7d3;
+      --accent-3: #2f68d9;
+      --accent-3-soft: #dce7ff;
+      --good: #d8f1e4;
+      --warn: #fff1b9;
+      --alert: #ffe1e7;
+      --quiet: #f4eee5;
+      --white: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 500px at -10% -20%, #fff2d7 0%, transparent 58%),
+        radial-gradient(900px 500px at 110% 6%, #dff8ed 0%, transparent 58%),
+        linear-gradient(150deg, #f8f4ed 0%, var(--bg) 100%);
+      min-height: 100vh;
+      padding: 24px 14px 42px;
+    }
+
+    .page {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, #fff4de 0%, #ebfbf3 100%);
+      padding: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3vw, 2.75rem);
+      line-height: 1.06;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 980px;
+      line-height: 1.6;
+    }
+
+    .chips,
+    .week-tabs,
+    .mode-tabs,
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chips {
+      margin-top: 14px;
+    }
+
+    .chip,
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 7px 12px;
+      font-size: 0.84rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.86);
+      padding: 12px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .card {
+      background: var(--paper);
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb 0%, #fff7ea 100%);
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.16rem;
+    }
+
+    .card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.54;
+      font-size: 0.92rem;
+    }
+
+    .card-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .week-tab,
+    .mode-tab,
+    .mini-button,
+    .answer-button {
+      border: 1px solid #c8b59b;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+    }
+
+    .week-tab,
+    .mode-tab {
+      padding: 9px 14px;
+      font-weight: 700;
+    }
+
+    .week-tab:hover,
+    .mode-tab:hover,
+    .mini-button:hover,
+    .answer-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .week-tab.is-active,
+    .mode-tab.is-active {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 9px 16px rgba(15, 124, 110, 0.22);
+    }
+
+    .week-tab.was-visited {
+      box-shadow: inset 0 0 0 2px rgba(47, 104, 217, 0.18);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper-strong);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel h3,
+    .panel h4 {
+      margin: 0;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.54;
+      font-size: 0.9rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-line {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    .summary-line strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .concept-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .concept-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 9px 10px;
+      font-size: 0.9rem;
+    }
+
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .demo-step {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .mini-button {
+      padding: 9px 12px;
+      font-weight: 700;
+    }
+
+    .mini-button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .mini-button.accent {
+      background: var(--accent-2);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .mini-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .note {
+      border-radius: 14px;
+      padding: 11px 12px;
+      line-height: 1.55;
+      font-size: 0.9rem;
+    }
+
+    .note.info {
+      background: var(--accent-3-soft);
+      color: #1e447e;
+    }
+
+    .note.warn {
+      background: var(--warn);
+      color: #6f5816;
+    }
+
+    .note.alert {
+      background: var(--alert);
+      color: #7c2635;
+    }
+
+    .structure-grid,
+    .quiz-grid,
+    .scenario-grid,
+    .flash-grid,
+    .compare-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .structure-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .structure-card,
+    .question-card,
+    .scenario-card,
+    .flash-card,
+    .compare-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .structure-title {
+      font-weight: 700;
+    }
+
+    .stack-view,
+    .queue-view,
+    .list-view,
+    .array-row,
+    .array-lane,
+    .frontier-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .stack-view,
+    .queue-view {
+      flex-direction: column;
+    }
+
+    .cell,
+    .node-pill,
+    .interval-pill {
+      min-width: 42px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--quiet);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .cell.current,
+    .node-pill.current,
+    .interval-pill.current {
+      background: var(--accent-2-soft);
+      border-color: var(--accent-2);
+    }
+
+    .cell.checked,
+    .node-pill.visited {
+      background: var(--accent-3-soft);
+      border-color: var(--accent-3);
+    }
+
+    .cell.fixed,
+    .node-pill.settled,
+    .interval-pill.selected {
+      background: var(--good);
+      border-color: #8bbfa8;
+    }
+
+    .cell.found,
+    .node-pill.found {
+      background: var(--accent-soft);
+      border-color: #8fcabd;
+    }
+
+    .cell.rejected,
+    .interval-pill.rejected {
+      background: var(--alert);
+      border-color: #d99ba8;
+    }
+
+    .tree-wrap,
+    .graph-wrap {
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 620px;
+      height: auto;
+      display: block;
+    }
+
+    .edge {
+      stroke: #c6b8a3;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .edge.active {
+      stroke: rgba(212, 124, 46, 0.95);
+      stroke-width: 8;
+    }
+
+    .edge.tree {
+      stroke: rgba(15, 124, 110, 0.92);
+      stroke-width: 8;
+    }
+
+    .edge.path {
+      stroke: rgba(47, 104, 217, 0.92);
+      stroke-width: 10;
+    }
+
+    .weight-badge {
+      fill: #fffaf2;
+      stroke: #d8c7ad;
+      stroke-width: 1;
+    }
+
+    .weight-text {
+      fill: #5f6d74;
+      font-size: 14px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .circle {
+      fill: #fff;
+      stroke: #c8b59b;
+      stroke-width: 3;
+    }
+
+    .node-current .circle {
+      fill: var(--accent-2-soft);
+      stroke: var(--accent-2);
+    }
+
+    .node-visited .circle {
+      fill: var(--accent-3-soft);
+      stroke: var(--accent-3);
+    }
+
+    .node-settled .circle {
+      fill: var(--good);
+      stroke: #8bbfa8;
+    }
+
+    .node-found .circle,
+    .node-start .circle {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 4;
+    }
+
+    .circle-label {
+      fill: #17313a;
+      font-size: 17px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .distance-label {
+      fill: #5f6d74;
+      font-size: 12px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .tree-label {
+      fill: #17313a;
+      font-size: 16px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .tree-node {
+      fill: #fff;
+      stroke: #c8b59b;
+      stroke-width: 3;
+    }
+
+    .tree-node.inserted {
+      fill: var(--good);
+      stroke: #8bbfa8;
+    }
+
+    .tree-node.current {
+      fill: var(--accent-2-soft);
+      stroke: var(--accent-2);
+    }
+
+    .tree-node.path {
+      fill: var(--accent-3-soft);
+      stroke: var(--accent-3);
+    }
+
+    .segment-board {
+      display: grid;
+      gap: 10px;
+    }
+
+    .segment-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .segment {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 9px 12px;
+      min-width: 70px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .segment.active {
+      background: var(--accent-2-soft);
+      border-color: var(--accent-2);
+    }
+
+    .segment.merged {
+      background: var(--good);
+      border-color: #8bbfa8;
+    }
+
+    .timeline-wrap {
+      overflow-x: auto;
+    }
+
+    .timeline {
+      min-width: 680px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-axis {
+      position: relative;
+      height: 28px;
+      border-bottom: 2px dashed #ccb897;
+    }
+
+    .tick {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .tick::before {
+      content: "";
+      width: 2px;
+      height: 8px;
+      background: #ccb897;
+    }
+
+    .interval-row {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .track {
+      position: relative;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--quiet);
+    }
+
+    .bar {
+      position: absolute;
+      top: 6px;
+      height: 24px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      border: 1px solid transparent;
+    }
+
+    .bar.future {
+      background: #fff;
+      border-color: var(--line);
+    }
+
+    .bar.current {
+      background: var(--accent-2-soft);
+      border-color: var(--accent-2);
+    }
+
+    .bar.selected {
+      background: var(--good);
+      border-color: #8bbfa8;
+    }
+
+    .bar.rejected {
+      background: var(--alert);
+      border-color: #d99ba8;
+    }
+
+    .meter {
+      height: 18px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--quiet);
+      border: 1px solid var(--line);
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent) 0%, #25ad95 100%);
+    }
+
+    .bag {
+      min-height: 84px;
+      border: 1px dashed #c7b28f;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fffefb 0%, #fff7ed 100%);
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .bag-piece {
+      min-width: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #173640;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .piece-0 {
+      background: #d8f1e4;
+    }
+
+    .piece-1 {
+      background: #ffe3c8;
+    }
+
+    .piece-2 {
+      background: #dce7ff;
+    }
+
+    .compare-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .flash-grid,
+    .quiz-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .scenario-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .flash-card {
+      min-height: 180px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flash-card.is-open {
+      background: linear-gradient(180deg, #fffefb 0%, #eefaf6 100%);
+    }
+
+    .flash-week {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .flash-card strong {
+      font-size: 1rem;
+    }
+
+    .answer-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .answer-button {
+      padding: 10px 12px;
+      border-radius: 12px;
+      text-align: left;
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .answer-button.correct {
+      background: var(--good);
+      border-color: #8bbfa8;
+    }
+
+    .answer-button.wrong {
+      background: var(--alert);
+      border-color: #d99ba8;
+    }
+
+    .question-meta {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .footnote {
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.52;
+    }
+
+    @media (max-width: 1180px) {
+      .dashboard,
+      .scenario-grid,
+      .flash-grid,
+      .quiz-grid,
+      .compare-grid,
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .dashboard,
+      .structure-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px 10px 28px;
+      }
+
+      .stats-row,
+      .flash-grid,
+      .quiz-grid,
+      .scenario-grid,
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .interval-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>8 Week Recap Lab</h1>
+      <p>
+        This single page is a compact review of the full course so far. Move week by week, run the mini demos,
+        answer the quick checks, and use the mixed review cards to reconnect algorithms with the right problem type.
+      </p>
+      <div class="chips">
+        <span class="chip">8 weeks</span>
+        <span class="chip">Mini demos</span>
+        <span class="chip">Quick questions</span>
+        <span class="chip">Flashcards</span>
+        <span class="chip">Scenario matching</span>
+      </div>
+      <div class="stats-row" id="heroStats"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Week Explorer</h2>
+        <p>Select a week, replay a focused demo, and answer its quick review question.</p>
+      </div>
+      <div class="card-body">
+        <div class="week-tabs" id="weekTabs"></div>
+        <div class="dashboard">
+          <div class="stack">
+            <section class="panel" id="weekSummary"></section>
+            <section class="panel" id="weekQuestion"></section>
+          </div>
+          <div class="stack">
+            <section class="panel">
+              <div id="demoHeader"></div>
+              <div class="mode-tabs" id="modeTabs"></div>
+              <div class="demo-controls">
+                <div class="demo-step" id="demoStepText"></div>
+                <div class="pill-row">
+                  <button class="mini-button" data-action="demo-prev" id="demoPrev">Previous</button>
+                  <button class="mini-button accent" data-action="demo-next" id="demoNext">Next</button>
+                  <button class="mini-button primary" data-action="demo-reset">Reset</button>
+                </div>
+              </div>
+              <div id="demoArea"></div>
+            </section>
+            <section class="panel">
+              <h3>Demo Notes</h3>
+              <div id="demoNotes"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Flip Flashcards</h2>
+        <p>Use these as fast reminders before exams or practice sessions.</p>
+      </div>
+      <div class="card-body">
+        <div class="flash-grid" id="flashcards"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>8 Quick Questions</h2>
+        <p>One question per week. The score updates immediately as you answer.</p>
+      </div>
+      <div class="card-body">
+        <div class="quiz-grid" id="quizGrid"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Pick the Right Tool</h2>
+        <p>These scenario cards force a practical decision: which idea from the course actually fits the problem?</p>
+      </div>
+      <div class="card-body">
+        <div class="scenario-grid" id="scenarioGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const weekData = [
+      {
+        id: 1,
+        title: "Week 01",
+        subtitle: "Stack, Queue, Singly Linked List",
+        summary: "The first week was about order of access. The same data can behave very differently depending on whether you remove from the top, the front, or by following pointers.",
+        remember: "Stack = LIFO, Queue = FIFO, Linked List = nodes connected by next pointers.",
+        mistake: "Do not mix up push/pop with enqueue/dequeue. The direction of removal is the whole point.",
+        concepts: [
+          "Stack: last in, first out",
+          "Queue: first in, first out",
+          "Linked list: dynamic chain of nodes"
+        ],
+        flash: "If the order of removal matters, the data structure matters too.",
+        question: {
+          prompt: "Which structure is the best match for an undo feature?",
+          options: ["Queue", "Stack", "Linked List"],
+          correct: 1,
+          explanation: "Undo should remove the most recent action first, so LIFO behavior is the right fit."
+        },
+        demo: {
+          type: "structures",
+          modes: {
+            core: {
+              label: "Operations Replay",
+              steps: [
+                {
+                  label: "Start",
+                  message: "All three structures begin with the same stored values, but they will respond differently to the same operations.",
+                  stack: ["20", "10"],
+                  queue: ["10", "20"],
+                  list: ["10", "20"],
+                  focus: {}
+                },
+                {
+                  label: "Add 30",
+                  message: "Push 30 on the stack, enqueue 30 in the queue, and append 30 in the linked list.",
+                  stack: ["30", "20", "10"],
+                  queue: ["10", "20", "30"],
+                  list: ["10", "20", "30"],
+                  focus: { stack: "30", queue: "30", list: "30" }
+                },
+                {
+                  label: "Remove Once",
+                  message: "The stack pops 30, the queue dequeues 10, and the linked list removes the head 10.",
+                  stack: ["20", "10"],
+                  queue: ["20", "30"],
+                  list: ["20", "30"],
+                  focus: { stack: "20", queue: "20", list: "20" }
+                },
+                {
+                  label: "Add 5",
+                  message: "A second insertion makes the structural rule even clearer: top vs back vs pointer chain.",
+                  stack: ["5", "20", "10"],
+                  queue: ["20", "30", "5"],
+                  list: ["20", "30", "5"],
+                  focus: { stack: "5", queue: "5", list: "5" }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        id: 2,
+        title: "Week 02",
+        subtitle: "Trees and Binary Search Trees",
+        summary: "This week introduced hierarchical structure. Trees organize data by parent-child relationships, and BSTs add an ordering rule that makes search more efficient.",
+        remember: "In a BST, smaller values go left and larger values go right.",
+        mistake: "A binary tree is not automatically a binary search tree. The left-right ordering rule must hold everywhere.",
+        concepts: [
+          "Root, child, leaf, depth",
+          "BST search follows comparisons",
+          "Insertion preserves left-right ordering"
+        ],
+        flash: "BST search is just repeated left/right decisions from the root.",
+        question: {
+          prompt: "In a BST, where should the value 4 go relative to 6?",
+          options: ["To the right of 6", "To the left of 6", "Anywhere with no children"],
+          correct: 1,
+          explanation: "Since 4 is smaller than 6, the BST rule sends it to the left side of 6."
+        },
+        demo: {
+          type: "bst",
+          modes: {
+            core: {
+              label: "Insert and Search",
+              steps: [
+                {
+                  label: "Insert 8",
+                  message: "The root starts the tree.",
+                  inserted: ["8"],
+                  current: "8",
+                  path: []
+                },
+                {
+                  label: "Insert 3 and 10",
+                  message: "Smaller values go left. Larger values go right.",
+                  inserted: ["8", "3", "10"],
+                  current: "3",
+                  path: []
+                },
+                {
+                  label: "Insert 1 and 6",
+                  message: "The rule repeats recursively inside each subtree.",
+                  inserted: ["8", "3", "10", "1", "6"],
+                  current: "6",
+                  path: []
+                },
+                {
+                  label: "Insert 14, 4, 7",
+                  message: "More values grow the search structure while preserving the BST rule.",
+                  inserted: ["8", "3", "10", "1", "6", "14", "4", "7"],
+                  current: "7",
+                  path: []
+                },
+                {
+                  label: "Search for 7",
+                  message: "To find 7, compare at 8, then 3, then 6, then move right to 7.",
+                  inserted: ["8", "3", "10", "1", "6", "14", "4", "7"],
+                  current: "7",
+                  path: ["8", "3", "6", "7"]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        id: 3,
+        title: "Week 03",
+        subtitle: "Linear Search, Binary Search, Jump Search",
+        summary: "The main lesson was that search strategy depends on input structure. A sorted array gives you much stronger options than an unsorted one.",
+        remember: "Binary and jump search rely on sorted data. Linear search does not.",
+        mistake: "Do not use binary search on unsorted data. The midpoint comparison would mean nothing.",
+        concepts: [
+          "Linear search checks item by item",
+          "Binary search halves the search range",
+          "Jump search skips blocks, then scans inside a block"
+        ],
+        flash: "If the array is sorted, stop thinking only linearly.",
+        question: {
+          prompt: "Which search algorithm requires the list to be sorted?",
+          options: ["Linear Search", "Binary Search", "Both of them"],
+          correct: 1,
+          explanation: "Binary search depends on sorted order to decide whether to go left or right."
+        },
+        demo: {
+          type: "search",
+          modes: {
+            linear: {
+              label: "Linear Search",
+              steps: [
+                { label: "Check index 0", message: "Start from the first element.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [0], current: 0, found: null },
+                { label: "Check index 1", message: "21 is not here yet, so continue.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [0, 1], current: 1, found: null },
+                { label: "Check index 2", message: "Still not found.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [0, 1, 2], current: 2, found: null },
+                { label: "Check index 3", message: "Still not found.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [0, 1, 2, 3], current: 3, found: null },
+                { label: "Check index 4", message: "Still not found.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [0, 1, 2, 3, 4], current: 4, found: null },
+                { label: "Check index 5", message: "18 is close, but not the target.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [0, 1, 2, 3, 4, 5], current: 5, found: null },
+                { label: "Found 21", message: "The target appears at index 6.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [0, 1, 2, 3, 4, 5, 6], current: 6, found: 6 }
+              ]
+            },
+            binary: {
+              label: "Binary Search",
+              steps: [
+                { label: "Middle at index 4", message: "Compare 21 with the midpoint value 12.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [4], current: 4, found: null, range: [5, 8] },
+                { label: "Move right", message: "21 is larger than 12, so the left half is discarded.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [4, 6], current: 6, found: null, range: [5, 8] },
+                { label: "Found 21", message: "The midpoint of the remaining range is exactly the target.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [4, 6], current: 6, found: 6, range: [5, 8] }
+              ]
+            },
+            jump: {
+              label: "Jump Search",
+              steps: [
+                { label: "Jump to index 2", message: "Check the end of the first block.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [2], current: 2, found: null, block: [0, 2] },
+                { label: "Jump to index 5", message: "21 is larger than 18, so jump again.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [2, 5], current: 5, found: null, block: [3, 5] },
+                { label: "Search inside block", message: "21 must be in the next block, so scan linearly there.", array: [2, 5, 7, 9, 12, 18, 21, 24, 30], checked: [2, 5, 6], current: 6, found: 6, block: [6, 8] }
+              ]
+            }
+          }
+        }
+      },
+      {
+        id: 4,
+        title: "Week 04",
+        subtitle: "Graph Basics, BFS, DFS, Components",
+        summary: "Graphs extended the idea of structure beyond arrays and trees. The major shift was learning to think with nodes, edges, reachability, and traversal order.",
+        remember: "BFS explores level by level. DFS explores depth first.",
+        mistake: "Do not forget a visited set. Without it, graph traversal can repeat forever on cycles.",
+        concepts: [
+          "Node, edge, path, cycle, component",
+          "BFS uses a queue",
+          "DFS uses a stack or recursion"
+        ],
+        flash: "Traversal is not only movement. It is a strategy for discovery.",
+        question: {
+          prompt: "Which traversal is a better fit for shortest path in an unweighted graph?",
+          options: ["DFS", "BFS", "Either one always works the same"],
+          correct: 1,
+          explanation: "BFS discovers nodes by level, so it reaches them using the fewest edges first."
+        },
+        demo: {
+          type: "traversal",
+          modes: {
+            bfs: {
+              label: "BFS",
+              steps: [
+                { label: "Start at A", message: "Visit A and enqueue its neighbors.", visited: ["A"], current: "A", frontier: ["B", "C"], order: ["A"] },
+                { label: "Process B", message: "B leaves the queue first, so BFS expands the graph by levels.", visited: ["A", "B"], current: "B", frontier: ["C", "D", "E"], order: ["A", "B"] },
+                { label: "Process C", message: "C is the other node on the same level.", visited: ["A", "B", "C"], current: "C", frontier: ["D", "E", "F"], order: ["A", "B", "C"] },
+                { label: "Continue outward", message: "Now the next layer begins: D, E, and F.", visited: ["A", "B", "C", "D", "E", "F"], current: "D", frontier: ["E", "F", "G", "H"], order: ["A", "B", "C", "D"] }
+              ]
+            },
+            dfs: {
+              label: "DFS",
+              steps: [
+                { label: "Start at A", message: "Visit A, then choose one branch to follow deeply.", visited: ["A"], current: "A", frontier: ["C", "B"], order: ["A"] },
+                { label: "Go to B", message: "DFS pushes other choices aside while it keeps going deeper.", visited: ["A", "B"], current: "B", frontier: ["C", "E", "D"], order: ["A", "B"] },
+                { label: "Go to D", message: "The path keeps extending before backtracking happens.", visited: ["A", "B", "D"], current: "D", frontier: ["C", "E"], order: ["A", "B", "D"] },
+                { label: "Backtrack and continue", message: "After finishing a branch, DFS returns and explores the next stored option.", visited: ["A", "B", "D", "E", "G"], current: "G", frontier: ["C"], order: ["A", "B", "D", "E", "G"] }
+              ]
+            }
+          }
+        }
+      },
+      {
+        id: 5,
+        title: "Week 05",
+        subtitle: "Bubble, Selection, Insertion Sort",
+        summary: "These were the first sorting algorithms: simple to trace, easy to compare, and intentionally small enough to understand by hand.",
+        remember: "All three are usually O(n^2), but their mechanics are different.",
+        mistake: "Do not describe all simple sorts as just 'swapping until sorted'. Selection and insertion behave differently.",
+        concepts: [
+          "Bubble sort swaps adjacent out-of-order elements",
+          "Selection sort chooses the next minimum",
+          "Insertion sort grows a sorted prefix"
+        ],
+        flash: "Simple sorts are slow on large input, but excellent for learning algorithm mechanics.",
+        question: {
+          prompt: "Which simple sorting method grows a sorted prefix by inserting one value at a time?",
+          options: ["Bubble Sort", "Selection Sort", "Insertion Sort"],
+          correct: 2,
+          explanation: "Insertion sort takes the next value and places it into the correct position inside the sorted prefix."
+        },
+        demo: {
+          type: "simpleSort",
+          modes: {
+            bubble: {
+              label: "Bubble Sort",
+              steps: [
+                { label: "Compare 5 and 2", message: "Bubble sort compares adjacent values.", array: [5, 2, 4, 1], current: [0, 1], fixed: [] },
+                { label: "Swap", message: "Because 5 > 2, swap them.", array: [2, 5, 4, 1], current: [0, 1], fixed: [] },
+                { label: "Compare 5 and 4", message: "The larger value keeps drifting right.", array: [2, 5, 4, 1], current: [1, 2], fixed: [] },
+                { label: "Swap again", message: "5 still needs to move further right.", array: [2, 4, 5, 1], current: [1, 2], fixed: [] },
+                { label: "End of pass", message: "After the first full pass, the largest value has bubbled to the end.", array: [2, 4, 1, 5], current: [2, 3], fixed: [3] },
+                { label: "Finish", message: "Repeating the process eventually sorts the array.", array: [1, 2, 4, 5], current: [], fixed: [0, 1, 2, 3] }
+              ]
+            },
+            selection: {
+              label: "Selection Sort",
+              steps: [
+                { label: "Find minimum", message: "Scan the array to find the smallest value.", array: [5, 2, 4, 1], current: [0], fixed: [], marker: 3 },
+                { label: "Swap into place", message: "Move the minimum to the front.", array: [1, 2, 4, 5], current: [0, 3], fixed: [0], marker: 0 },
+                { label: "Scan remaining suffix", message: "Now search for the next minimum in the unsorted part.", array: [1, 2, 4, 5], current: [1], fixed: [0], marker: 1 },
+                { label: "Second position fixed", message: "2 is already the correct minimum, so it stays.", array: [1, 2, 4, 5], current: [1], fixed: [0, 1], marker: 1 },
+                { label: "Array sorted", message: "Each pass fixes one more position from left to right.", array: [1, 2, 4, 5], current: [], fixed: [0, 1, 2, 3], marker: null }
+              ]
+            },
+            insertion: {
+              label: "Insertion Sort",
+              steps: [
+                { label: "Sorted prefix starts", message: "The first item is treated as already sorted.", array: [5, 2, 4, 1], current: [0], fixed: [0] },
+                { label: "Insert 2", message: "Shift 5 right and insert 2 before it.", array: [2, 5, 4, 1], current: [0, 1], fixed: [0, 1] },
+                { label: "Insert 4", message: "4 slides into the middle of the sorted prefix.", array: [2, 4, 5, 1], current: [1, 2], fixed: [0, 1, 2] },
+                { label: "Insert 1", message: "1 moves to the front after shifting larger values.", array: [1, 2, 4, 5], current: [0, 1, 2, 3], fixed: [0, 1, 2, 3] }
+              ]
+            }
+          }
+        }
+      },
+      {
+        id: 6,
+        title: "Week 06",
+        subtitle: "Divide and Conquer, Merge Sort, Quick Sort",
+        summary: "This week moved from simple O(n^2) sorts to faster recursive ideas. The key difference was not only speed, but the strategy of splitting a problem into subproblems.",
+        remember: "Merge sort splits and merges. Quick sort chooses a pivot and partitions.",
+        mistake: "Do not confuse partitioning with merging. They solve very different subproblems.",
+        concepts: [
+          "Divide the problem into smaller pieces",
+          "Merge sort combines sorted halves",
+          "Quick sort organizes around a pivot"
+        ],
+        flash: "Divide and conquer is a strategy, not just a specific algorithm.",
+        question: {
+          prompt: "Which algorithm repeatedly merges sorted halves together?",
+          options: ["Merge Sort", "Quick Sort", "Selection Sort"],
+          correct: 0,
+          explanation: "Merge sort explicitly builds the final answer by merging smaller sorted pieces."
+        },
+        demo: {
+          type: "divideConquer",
+          modes: {
+            merge: {
+              label: "Merge Sort",
+              steps: [
+                { label: "Start", message: "Begin with the whole array.", rows: [[["8, 3, 6, 2"]]], activeRow: 0, activeSegment: 0 },
+                { label: "Split once", message: "Break the array into two halves.", rows: [[["8, 3, 6, 2"]], [["8, 3"], ["6, 2"]]], activeRow: 1, activeSegment: 0 },
+                { label: "Split again", message: "Keep dividing until the pieces are length 1.", rows: [[["8, 3, 6, 2"]], [["8, 3"], ["6, 2"]], [["8"], ["3"], ["6"], ["2"]]], activeRow: 2, activeSegment: 0 },
+                { label: "Merge small pieces", message: "Merge [8] and [3], then [6] and [2].", rows: [[["8, 3, 6, 2"]], [["8, 3"], ["6, 2"]], [["8"], ["3"], ["6"], ["2"]], [["3, 8"], ["2, 6"]]], activeRow: 3, activeSegment: 0 },
+                { label: "Final merge", message: "The two sorted halves combine into the final sorted array.", rows: [[["8, 3, 6, 2"]], [["8, 3"], ["6, 2"]], [["8"], ["3"], ["6"], ["2"]], [["3, 8"], ["2, 6"]], [["2, 3, 6, 8"]]], activeRow: 4, activeSegment: 0 }
+              ]
+            },
+            quick: {
+              label: "Quick Sort",
+              steps: [
+                { label: "Choose pivot 2", message: "Use the last value as the first pivot.", rows: [[["8, 3, 6, 2"]]], activeRow: 0, activeSegment: 0, partitions: ["< pivot: []", "pivot: [2]", "> pivot: [8, 3, 6]"] },
+                { label: "Partition around 2", message: "Everything larger goes to the right side.", rows: [[["8, 3, 6, 2"]], [["2"], ["8, 3, 6"]]], activeRow: 1, activeSegment: 1, partitions: ["left sorted: []", "pivot fixed: [2]", "right work: [8, 3, 6]"] },
+                { label: "Choose pivot 6", message: "Now partition the right side.", rows: [[["8, 3, 6, 2"]], [["2"], ["8, 3, 6"]], [["2"], ["3"], ["6"], ["8"]]], activeRow: 2, activeSegment: 2, partitions: ["< 6: [3]", "pivot: [6]", "> 6: [8]"] },
+                { label: "Combine final order", message: "After recursive partitions finish, the array is sorted.", rows: [[["2, 3, 6, 8"]]], activeRow: 0, activeSegment: 0, partitions: ["done", "done", "done"] }
+              ]
+            }
+          }
+        }
+      },
+      {
+        id: 7,
+        title: "Week 07",
+        subtitle: "Greedy Algorithms",
+        summary: "Greedy methods make the best-looking local choice at each step. The important lesson was not only how they work, but also when that rule can fail.",
+        remember: "A greedy algorithm needs a correct selection rule, not just a fast-looking step.",
+        mistake: "Do not assume greedy is always optimal. Counterexamples matter.",
+        concepts: [
+          "Local choice vs global result",
+          "Activity selection",
+          "Coin change and fractional knapsack"
+        ],
+        flash: "Fast local decisions are only useful when the rule matches the structure of the problem.",
+        question: {
+          prompt: "Which greedy example from class also showed that greedy can fail in the wrong system?",
+          options: ["Coin Change", "Activity Selection", "BST Search"],
+          correct: 0,
+          explanation: "Coin change is the classic counterexample topic because some coin systems break the largest-coin-first rule."
+        },
+        demo: {
+          type: "greedy",
+          modes: {
+            activity: {
+              label: "Activity Selection",
+              steps: [
+                {
+                  label: "Sort by finish time",
+                  message: "The greedy rule is: choose the earliest-finishing compatible activity.",
+                  activities: [
+                    { id: "A", start: 1, end: 4, state: "future" },
+                    { id: "B", start: 3, end: 5, state: "future" },
+                    { id: "C", start: 0, end: 6, state: "future" },
+                    { id: "D", start: 5, end: 7, state: "future" },
+                    { id: "E", start: 8, end: 9, state: "future" },
+                    { id: "F", start: 5, end: 9, state: "future" }
+                  ],
+                  selected: []
+                },
+                {
+                  label: "Choose A",
+                  message: "A finishes earliest, so it leaves the most room for later choices.",
+                  activities: [
+                    { id: "A", start: 1, end: 4, state: "selected" },
+                    { id: "B", start: 3, end: 5, state: "future" },
+                    { id: "C", start: 0, end: 6, state: "future" },
+                    { id: "D", start: 5, end: 7, state: "future" },
+                    { id: "E", start: 8, end: 9, state: "future" },
+                    { id: "F", start: 5, end: 9, state: "future" }
+                  ],
+                  selected: ["A"]
+                },
+                {
+                  label: "Skip overlaps, choose D",
+                  message: "B and C overlap with A, but D starts after A ends.",
+                  activities: [
+                    { id: "A", start: 1, end: 4, state: "selected" },
+                    { id: "B", start: 3, end: 5, state: "rejected" },
+                    { id: "C", start: 0, end: 6, state: "rejected" },
+                    { id: "D", start: 5, end: 7, state: "selected" },
+                    { id: "E", start: 8, end: 9, state: "future" },
+                    { id: "F", start: 5, end: 9, state: "future" }
+                  ],
+                  selected: ["A", "D"]
+                },
+                {
+                  label: "Choose E",
+                  message: "E begins after D finishes, so it is compatible too.",
+                  activities: [
+                    { id: "A", start: 1, end: 4, state: "selected" },
+                    { id: "B", start: 3, end: 5, state: "rejected" },
+                    { id: "C", start: 0, end: 6, state: "rejected" },
+                    { id: "D", start: 5, end: 7, state: "selected" },
+                    { id: "E", start: 8, end: 9, state: "selected" },
+                    { id: "F", start: 5, end: 9, state: "rejected" }
+                  ],
+                  selected: ["A", "D", "E"]
+                }
+              ]
+            },
+            coin: {
+              label: "Coin Change Counterexample",
+              steps: [
+                { label: "Amount 6", message: "Greedy starts with the largest valid coin.", coins: [4, 3, 1], chosen: [], remaining: 6, better: null },
+                { label: "Pick 4", message: "4 is the largest coin not exceeding 6.", coins: [4, 3, 1], chosen: [4], remaining: 2, better: null },
+                { label: "Pick 1", message: "Now only 1 fits the remaining amount.", coins: [4, 3, 1], chosen: [4, 1], remaining: 1, better: null },
+                { label: "Pick last 1", message: "Greedy finishes with [4, 1, 1].", coins: [4, 3, 1], chosen: [4, 1, 1], remaining: 0, better: [3, 3] }
+              ]
+            },
+            knapsack: {
+              label: "Fractional Knapsack",
+              steps: [
+                { label: "Start capacity 50", message: "Items are sorted by value/weight ratio.", capacity: 50, used: 0, items: [{ id: "Gold", ratio: 6 }, { id: "Silver", ratio: 5 }, { id: "Bronze", ratio: 4 }], taken: [] },
+                { label: "Take Gold", message: "Gold has the highest ratio, so take it first.", capacity: 50, used: 10, items: [{ id: "Gold", ratio: 6 }, { id: "Silver", ratio: 5 }, { id: "Bronze", ratio: 4 }], taken: [{ id: "Gold", fraction: 1, width: 20 }] },
+                { label: "Take Silver", message: "Silver is next by ratio.", capacity: 50, used: 30, items: [{ id: "Gold", ratio: 6 }, { id: "Silver", ratio: 5 }, { id: "Bronze", ratio: 4 }], taken: [{ id: "Gold", fraction: 1, width: 20 }, { id: "Silver", fraction: 1, width: 40 }] },
+                { label: "Take 2/3 of Bronze", message: "The remaining space fits only a fraction of Bronze.", capacity: 50, used: 50, items: [{ id: "Gold", ratio: 6 }, { id: "Silver", ratio: 5 }, { id: "Bronze", ratio: 4 }], taken: [{ id: "Gold", fraction: 1, width: 20 }, { id: "Silver", fraction: 1, width: 40 }, { id: "Bronze", fraction: 0.67, width: 40 }] }
+              ]
+            }
+          }
+        }
+      },
+      {
+        id: 8,
+        title: "Week 08",
+        subtitle: "Weighted Graphs and Dijkstra",
+        summary: "The last studied week moved shortest paths beyond simple edge counting. Weighted graphs require cost-aware reasoning, and Dijkstra builds cheapest-known distances step by step.",
+        remember: "BFS minimizes edge count. Dijkstra minimizes total cost when weights are non-negative.",
+        mistake: "Do not use Dijkstra if negative edges exist. The settled-distance logic would break.",
+        concepts: [
+          "Weighted edge and path cost",
+          "Relaxation updates tentative distances",
+          "Parent pointers reconstruct the path"
+        ],
+        flash: "The cheapest path is not always the path with the fewest edges.",
+        question: {
+          prompt: "Why is BFS not enough on a weighted graph?",
+          options: ["Because BFS cannot use adjacency lists", "Because BFS minimizes edge count, not total cost", "Because BFS only works on trees"],
+          correct: 1,
+          explanation: "Weighted shortest path depends on total cost, so simply counting edges can choose the wrong route."
+        },
+        demo: {
+          type: "dijkstra",
+          modes: {
+            core: {
+              label: "Dijkstra Steps",
+              steps: [
+                {
+                  label: "Initialize",
+                  message: "Start at A with distance 0. All other nodes begin at infinity.",
+                  distances: { A: 0, B: Infinity, C: Infinity, D: Infinity, E: Infinity, F: Infinity },
+                  settled: [],
+                  current: null,
+                  frontier: ["A"],
+                  parents: { A: null, B: null, C: null, D: null, E: null, F: null },
+                  edge: null
+                },
+                {
+                  label: "Settle A",
+                  message: "A is the cheapest unsettled node, so settle it and relax edges to B and C.",
+                  distances: { A: 0, B: 4, C: 2, D: Infinity, E: Infinity, F: Infinity },
+                  settled: ["A"],
+                  current: "A",
+                  frontier: ["C", "B"],
+                  parents: { A: null, B: "A", C: "A", D: null, E: null, F: null },
+                  edge: ["A", "C"]
+                },
+                {
+                  label: "Settle C",
+                  message: "C has the next smallest tentative distance. It improves B and gives first paths to D and E.",
+                  distances: { A: 0, B: 3, C: 2, D: 10, E: 12, F: Infinity },
+                  settled: ["A", "C"],
+                  current: "C",
+                  frontier: ["B", "D", "E"],
+                  parents: { A: null, B: "C", C: "A", D: "C", E: "C", F: null },
+                  edge: ["C", "B"]
+                },
+                {
+                  label: "Settle B",
+                  message: "B now improves D through a cheaper route.",
+                  distances: { A: 0, B: 3, C: 2, D: 8, E: 12, F: Infinity },
+                  settled: ["A", "C", "B"],
+                  current: "B",
+                  frontier: ["D", "E"],
+                  parents: { A: null, B: "C", C: "A", D: "B", E: "C", F: null },
+                  edge: ["B", "D"]
+                },
+                {
+                  label: "Settle D",
+                  message: "D improves E and discovers F.",
+                  distances: { A: 0, B: 3, C: 2, D: 8, E: 10, F: 14 },
+                  settled: ["A", "C", "B", "D"],
+                  current: "D",
+                  frontier: ["E", "F"],
+                  parents: { A: null, B: "C", C: "A", D: "B", E: "D", F: "D" },
+                  edge: ["D", "E"]
+                },
+                {
+                  label: "Settle E",
+                  message: "E gives one final improvement to F.",
+                  distances: { A: 0, B: 3, C: 2, D: 8, E: 10, F: 13 },
+                  settled: ["A", "C", "B", "D", "E"],
+                  current: "E",
+                  frontier: ["F"],
+                  parents: { A: null, B: "C", C: "A", D: "B", E: "D", F: "E" },
+                  edge: ["E", "F"]
+                },
+                {
+                  label: "Done",
+                  message: "The shortest path to F is A → C → B → D → E → F with total cost 13.",
+                  distances: { A: 0, B: 3, C: 2, D: 8, E: 10, F: 13 },
+                  settled: ["A", "C", "B", "D", "E", "F"],
+                  current: "F",
+                  frontier: [],
+                  parents: { A: null, B: "C", C: "A", D: "B", E: "D", F: "E" },
+                  edge: ["E", "F"]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ];
+
+    const scenarioData = [
+      {
+        id: "undo",
+        prompt: "A text editor needs undo to reverse the most recent change first.",
+        options: ["Queue", "Stack", "Binary Search Tree"],
+        correct: 1,
+        explanation: "Undo needs last-in, first-out behavior."
+      },
+      {
+        id: "sorted-search",
+        prompt: "You have a sorted array and want a faster-than-linear search strategy.",
+        options: ["Binary Search", "BFS", "Selection Sort"],
+        correct: 0,
+        explanation: "Binary search uses sorted order to discard half the range each step."
+      },
+      {
+        id: "fewest-edges",
+        prompt: "You need the shortest path by number of edges in an unweighted graph.",
+        options: ["DFS", "BFS", "Dijkstra"],
+        correct: 1,
+        explanation: "BFS discovers nodes by increasing edge distance."
+      },
+      {
+        id: "predictable-sort",
+        prompt: "You want a reliable O(n log n) sort with clear split and merge structure.",
+        options: ["Merge Sort", "Bubble Sort", "Queue"],
+        correct: 0,
+        explanation: "Merge sort is the predictable divide-and-conquer sorter here."
+      },
+      {
+        id: "activities",
+        prompt: "You want the maximum number of non-overlapping activities.",
+        options: ["Greedy activity selection", "Linear Search", "Linked List"],
+        correct: 0,
+        explanation: "This is the classic greedy earliest-finish-time example."
+      },
+      {
+        id: "weighted-route",
+        prompt: "Roads have different travel times and all costs are non-negative.",
+        options: ["BFS", "Dijkstra", "Jump Search"],
+        correct: 1,
+        explanation: "Dijkstra is the correct fit for cheapest weighted routes with non-negative edges."
+      }
+    ];
+
+    const bstLayout = {
+      "8": { x: 320, y: 70 },
+      "3": { x: 200, y: 150 },
+      "10": { x: 440, y: 150 },
+      "1": { x: 120, y: 230 },
+      "6": { x: 280, y: 230 },
+      "14": { x: 520, y: 230 },
+      "4": { x: 230, y: 310 },
+      "7": { x: 330, y: 310 }
+    };
+
+    const bstEdges = [
+      ["8", "3"], ["8", "10"], ["3", "1"], ["3", "6"], ["10", "14"], ["6", "4"], ["6", "7"]
+    ];
+
+    const traversalLayout = {
+      A: { x: 100, y: 160 },
+      B: { x: 220, y: 80 },
+      C: { x: 220, y: 240 },
+      D: { x: 360, y: 60 },
+      E: { x: 360, y: 160 },
+      F: { x: 360, y: 280 },
+      G: { x: 500, y: 130 },
+      H: { x: 500, y: 250 }
+    };
+
+    const traversalEdges = [
+      ["A", "B"], ["A", "C"], ["B", "D"], ["B", "E"], ["C", "F"], ["E", "G"], ["F", "H"]
+    ];
+
+    const dijkstraLayout = {
+      A: { x: 90, y: 180 },
+      B: { x: 220, y: 80 },
+      C: { x: 220, y: 280 },
+      D: { x: 380, y: 120 },
+      E: { x: 380, y: 260 },
+      F: { x: 540, y: 190 }
+    };
+
+    const dijkstraEdges = [
+      ["A", "B", 4],
+      ["A", "C", 2],
+      ["B", "C", 1],
+      ["B", "D", 5],
+      ["C", "D", 8],
+      ["C", "E", 10],
+      ["D", "E", 2],
+      ["D", "F", 6],
+      ["E", "F", 3]
+    ];
+
+    const state = {
+      currentWeek: 1,
+      currentMode: "core",
+      demoIndex: 0,
+      visitedWeeks: new Set([1]),
+      quizAnswers: {},
+      flashOpen: {},
+      scenarioAnswers: {}
+    };
+
+    function currentWeekData() {
+      return weekData.find((week) => week.id === state.currentWeek);
+    }
+
+    function currentModeData() {
+      const week = currentWeekData();
+      return week.demo.modes[state.currentMode];
+    }
+
+    function currentStep() {
+      return currentModeData().steps[state.demoIndex];
+    }
+
+    function scoreQuiz() {
+      return weekData.reduce((total, week) => {
+        return total + (state.quizAnswers[week.id] === week.question.correct ? 1 : 0);
+      }, 0);
+    }
+
+    function scoreScenarios() {
+      return scenarioData.reduce((total, card) => {
+        return total + (state.scenarioAnswers[card.id] === card.correct ? 1 : 0);
+      }, 0);
+    }
+
+    function renderStats() {
+      const stats = [
+        { label: "Visited Weeks", value: state.visitedWeeks.size + " / 8" },
+        { label: "Quick Questions", value: scoreQuiz() + " / 8" },
+        { label: "Scenario Match", value: scoreScenarios() + " / " + scenarioData.length },
+        { label: "Current Focus", value: currentWeekData().title.replace("Week ", "W") }
+      ];
+
+      document.getElementById("heroStats").innerHTML = stats.map((item) => {
+        return [
+          "<div class=\"stat-card\">",
+          "<div class=\"stat-label\">" + item.label + "</div>",
+          "<div class=\"stat-value\">" + item.value + "</div>",
+          "</div>"
+        ].join("");
+      }).join("");
+    }
+
+    function renderWeekTabs() {
+      document.getElementById("weekTabs").innerHTML = weekData.map((week) => {
+        const classes = ["week-tab"];
+        if (week.id === state.currentWeek) {
+          classes.push("is-active");
+        }
+        if (state.visitedWeeks.has(week.id)) {
+          classes.push("was-visited");
+        }
+
+        return "<button class=\"" + classes.join(" ") + "\" data-action=\"select-week\" data-week=\"" + week.id + "\">" +
+          week.title + "</button>";
+      }).join("");
+    }
+
+    function renderWeekSummary() {
+      const week = currentWeekData();
+      document.getElementById("weekSummary").innerHTML = [
+        "<h3>" + week.title + " - " + week.subtitle + "</h3>",
+        "<p>" + week.summary + "</p>",
+        "<div class=\"summary-grid\">",
+        "<div class=\"summary-line\"><strong>Remember</strong>" + week.remember + "</div>",
+        "<div class=\"summary-line\"><strong>Common Mistake</strong>" + week.mistake + "</div>",
+        "</div>",
+        "<div class=\"concept-list\">",
+        week.concepts.map((concept) => "<div class=\"concept-item\">" + concept + "</div>").join(""),
+        "</div>"
+      ].join("");
+    }
+
+    function renderWeekQuestion() {
+      const week = currentWeekData();
+      const selected = state.quizAnswers[week.id];
+
+      document.getElementById("weekQuestion").innerHTML = [
+        "<h3>Quick Check</h3>",
+        "<p>" + week.question.prompt + "</p>",
+        "<div class=\"answer-list\">",
+        week.question.options.map((option, index) => {
+          const classes = ["answer-button"];
+          if (selected !== undefined) {
+            if (index === week.question.correct) {
+              classes.push("correct");
+            } else if (selected === index) {
+              classes.push("wrong");
+            }
+          }
+          return "<button class=\"" + classes.join(" ") + "\" data-action=\"answer-question\" data-week=\"" + week.id + "\" data-option=\"" + index + "\">" +
+            option + "</button>";
+        }).join(""),
+        "</div>",
+        selected !== undefined
+          ? "<div class=\"note " + (selected === week.question.correct ? "info" : "alert") + "\">" + week.question.explanation + "</div>"
+          : "<div class=\"question-meta\">Choose one answer. The result also updates the global question score below.</div>"
+      ].join("");
+    }
+
+    function renderModeTabs() {
+      const modes = currentWeekData().demo.modes;
+      const entries = Object.keys(modes);
+      document.getElementById("modeTabs").innerHTML = entries.map((modeKey) => {
+        const classes = ["mode-tab"];
+        if (modeKey === state.currentMode) {
+          classes.push("is-active");
+        }
+        return "<button class=\"" + classes.join(" ") + "\" data-action=\"select-mode\" data-mode=\"" + modeKey + "\">" +
+          modes[modeKey].label + "</button>";
+      }).join("");
+    }
+
+    function renderDemoHeader() {
+      const week = currentWeekData();
+      const mode = currentModeData();
+      document.getElementById("demoHeader").innerHTML = [
+        "<h3>" + mode.label + "</h3>",
+        "<p>" + week.subtitle + " recap demo</p>"
+      ].join("");
+    }
+
+    function renderDemoControls() {
+      const stepCount = currentModeData().steps.length;
+      document.getElementById("demoStepText").textContent =
+        "Step " + (state.demoIndex + 1) + " / " + stepCount + " - " + currentStep().label;
+      document.getElementById("demoPrev").disabled = state.demoIndex === 0;
+      document.getElementById("demoNext").disabled = state.demoIndex === stepCount - 1;
+    }
+
+    function renderDemoNotes() {
+      const step = currentStep();
+      const week = currentWeekData();
+      const notes = [
+        "<div class=\"note info\">" + step.message + "</div>",
+        "<div class=\"note warn\">" + week.remember + "</div>"
+      ];
+
+      if (week.id === 7 && state.currentMode === "coin" && step.better) {
+        notes.push("<div class=\"note alert\">Greedy used " + step.chosen.join(" + ") + ", but " + step.better.join(" + ") + " uses fewer coins.</div>");
+      }
+      if (week.id === 8 && step.distances.F === 13) {
+        notes.push("<div class=\"note info\">The final parent chain for F is A ← C ← B ← D ← E ← F.</div>");
+      }
+
+      document.getElementById("demoNotes").innerHTML = notes.join("");
+    }
+
+    function renderDemoArea() {
+      const week = currentWeekData();
+      const step = currentStep();
+      let html = "";
+
+      if (week.demo.type === "structures") {
+        html = renderStructureDemo(step);
+      } else if (week.demo.type === "bst") {
+        html = renderBstDemo(step);
+      } else if (week.demo.type === "search") {
+        html = renderSearchDemo(step);
+      } else if (week.demo.type === "traversal") {
+        html = renderTraversalDemo(step);
+      } else if (week.demo.type === "simpleSort") {
+        html = renderSimpleSortDemo(step);
+      } else if (week.demo.type === "divideConquer") {
+        html = renderDivideConquerDemo(step);
+      } else if (week.demo.type === "greedy") {
+        html = renderGreedyDemo(step);
+      } else if (week.demo.type === "dijkstra") {
+        html = renderDijkstraDemo(step);
+      }
+
+      document.getElementById("demoArea").innerHTML = html;
+    }
+
+    function renderStructureColumn(title, items, focusValue, cssClass) {
+      return [
+        "<div class=\"structure-card\">",
+        "<div class=\"structure-title\">" + title + "</div>",
+        "<div class=\"" + cssClass + "\">",
+        items.map((value) => {
+          const classes = ["cell"];
+          if (value === focusValue) {
+            classes.push("current");
+          }
+          return "<div class=\"" + classes.join(" ") + "\">" + value + "</div>";
+        }).join(""),
+        "</div>",
+        "</div>"
+      ].join("");
+    }
+
+    function renderStructureDemo(step) {
+      return [
+        "<div class=\"structure-grid\">",
+        renderStructureColumn("Stack (top first)", step.stack, step.focus.stack, "stack-view"),
+        renderStructureColumn("Queue (front first)", step.queue, step.focus.queue, "queue-view"),
+        renderStructureColumn("Linked List", step.list, step.focus.list, "list-view"),
+        "</div>",
+        "<p class=\"footnote\">The stored values may look similar, but the removal rule changes the behavior completely.</p>"
+      ].join("");
+    }
+
+    function renderBstDemo(step) {
+      const edges = bstEdges.map((edge) => {
+        if (!step.inserted.includes(edge[0]) || !step.inserted.includes(edge[1])) {
+          return "";
+        }
+        const from = bstLayout[edge[0]];
+        const to = bstLayout[edge[1]];
+        return "<line class=\"edge\" x1=\"" + from.x + "\" y1=\"" + from.y + "\" x2=\"" + to.x + "\" y2=\"" + to.y + "\"></line>";
+      }).join("");
+
+      const nodes = Object.keys(bstLayout).map((value) => {
+        if (!step.inserted.includes(value)) {
+          return "";
+        }
+        const point = bstLayout[value];
+        const classes = ["tree-node"];
+        if (value === step.current) {
+          classes.push("current");
+        } else if (step.path.includes(value)) {
+          classes.push("path");
+        } else {
+          classes.push("inserted");
+        }
+        return [
+          "<g>",
+          "<circle class=\"" + classes.join(" ") + "\" cx=\"" + point.x + "\" cy=\"" + point.y + "\" r=\"23\"></circle>",
+          "<text class=\"tree-label\" x=\"" + point.x + "\" y=\"" + point.y + "\">" + value + "</text>",
+          "</g>"
+        ].join("");
+      }).join("");
+
+      const pathRow = step.path.length
+        ? "<div class=\"pill-row\">" + step.path.map((value) => "<span class=\"pill\">" + value + "</span>").join("") + "</div>"
+        : "<div class=\"question-meta\">No search path highlighted on this step.</div>";
+
+      return [
+        "<div class=\"tree-wrap\">",
+        "<svg viewBox=\"0 0 640 360\" role=\"img\" aria-label=\"Binary search tree\">",
+        edges,
+        nodes,
+        "</svg>",
+        "</div>",
+        "<div class=\"panel\">",
+        "<h4>Current Search Path</h4>",
+        pathRow,
+        "</div>"
+      ].join("");
+    }
+
+    function renderArrayRow(array, checked, current, found, fixed, extraHighlight) {
+      return "<div class=\"array-row\">" + array.map((value, index) => {
+        const classes = ["cell"];
+        if ((checked || []).includes(index)) {
+          classes.push("checked");
+        }
+        if ((fixed || []).includes(index)) {
+          classes.push("fixed");
+        }
+        if (found === index) {
+          classes.push("found");
+        }
+        if ((current || []).includes(index) || current === index) {
+          classes.push("current");
+        }
+        if (extraHighlight && extraHighlight.includes(index)) {
+          classes.push("current");
+        }
+        return "<div class=\"" + classes.join(" ") + "\">" + value + "</div>";
+      }).join("") + "</div>";
+    }
+
+    function renderSearchDemo(step) {
+      const extra = step.range ? arrayFromRange(step.range[0], step.range[1]) : step.block ? arrayFromRange(step.block[0], step.block[1]) : [];
+      return [
+        renderArrayRow(step.array, step.checked, step.current, step.found, [], extra),
+        step.range
+          ? "<p class=\"footnote\">Active binary-search range: indices " + step.range[0] + " to " + step.range[1] + ".</p>"
+          : "",
+        step.block
+          ? "<p class=\"footnote\">Current jump-search block: indices " + step.block[0] + " to " + step.block[1] + ".</p>"
+          : ""
+      ].join("");
+    }
+
+    function renderTraversalDemo(step) {
+      const visited = new Set(step.visited);
+      const frontier = new Set(step.frontier);
+
+      const edges = traversalEdges.map((edge) => {
+        const from = traversalLayout[edge[0]];
+        const to = traversalLayout[edge[1]];
+        return "<line class=\"edge\" x1=\"" + from.x + "\" y1=\"" + from.y + "\" x2=\"" + to.x + "\" y2=\"" + to.y + "\"></line>";
+      }).join("");
+
+      const nodes = Object.keys(traversalLayout).map((node) => {
+        const point = traversalLayout[node];
+        const classes = [];
+        if (node === step.current) {
+          classes.push("node-current");
+        } else if (visited.has(node)) {
+          classes.push("node-visited");
+        } else if (frontier.has(node)) {
+          classes.push("node-found");
+        }
+
+        return [
+          "<g class=\"" + classes.join(" ") + "\">",
+          "<circle class=\"circle\" cx=\"" + point.x + "\" cy=\"" + point.y + "\" r=\"24\"></circle>",
+          "<text class=\"circle-label\" x=\"" + point.x + "\" y=\"" + point.y + "\">" + node + "</text>",
+          "</g>"
+        ].join("");
+      }).join("");
+
+      return [
+        "<div class=\"graph-wrap\">",
+        "<svg viewBox=\"0 0 620 340\" role=\"img\" aria-label=\"Traversal graph\">",
+        edges,
+        nodes,
+        "</svg>",
+        "</div>",
+        "<div class=\"compare-grid\">",
+        "<div class=\"compare-card\"><strong>Visited Order</strong><div class=\"pill-row\">" + step.order.map((node) => "<span class=\"pill\">" + node + "</span>").join("") + "</div></div>",
+        "<div class=\"compare-card\"><strong>Frontier</strong><div class=\"pill-row\">" + (step.frontier.length ? step.frontier.map((node) => "<span class=\"pill\">" + node + "</span>").join("") : "<span class=\"pill\">Empty</span>") + "</div></div>",
+        "</div>"
+      ].join("");
+    }
+
+    function renderSimpleSortDemo(step) {
+      return [
+        renderArrayRow(step.array, [], step.current || [], null, step.fixed || [], step.marker !== null && step.marker !== undefined ? [step.marker] : []),
+        "<p class=\"footnote\">Green cells mark positions already fixed. Orange cells show the current comparison or insertion focus.</p>"
+      ].join("");
+    }
+
+    function renderDivideConquerDemo(step) {
+      const rows = step.rows.map((row, rowIndex) => {
+        return "<div class=\"segment-row\">" + row.map((segment, segmentIndex) => {
+          const classes = ["segment"];
+          if (rowIndex === step.activeRow && segmentIndex === step.activeSegment) {
+            classes.push("active");
+          }
+          if (rowIndex > step.activeRow) {
+            classes.push("merged");
+          }
+          return "<div class=\"" + classes.join(" ") + "\">" + segment[0] + "</div>";
+        }).join("") + "</div>";
+      }).join("");
+
+      const partitions = step.partitions
+        ? "<div class=\"compare-grid\">" + step.partitions.map((text) => "<div class=\"compare-card\"><strong>" + text + "</strong></div>").join("") + "</div>"
+        : "";
+
+      return [
+        "<div class=\"segment-board\">" + rows + "</div>",
+        partitions
+      ].join("");
+    }
+
+    function renderGreedyDemo(step) {
+      if (state.currentMode === "activity") {
+        const maxTime = 10;
+        const axis = Array.from({ length: maxTime + 1 }, (_, tick) => {
+          return "<div class=\"tick\" style=\"left:" + ((tick / maxTime) * 100) + "%\">" + tick + "</div>";
+        }).join("");
+
+        const rows = step.activities.map((activity) => {
+          const classes = ["bar", activity.state];
+          return [
+            "<div class=\"interval-row\">",
+            "<strong>" + activity.id + "</strong>",
+            "<div class=\"track\">",
+            "<div class=\"" + classes.join(" ") + "\" style=\"left:" + ((activity.start / maxTime) * 100) + "%; width:" + (((activity.end - activity.start) / maxTime) * 100) + "%;\">",
+            activity.start + "-" + activity.end,
+            "</div>",
+            "</div>",
+            "</div>"
+          ].join("");
+        }).join("");
+
+        return [
+          "<div class=\"timeline-wrap\">",
+          "<div class=\"timeline\">",
+          "<div class=\"timeline-axis\">" + axis + "</div>",
+          rows,
+          "</div>",
+          "</div>",
+          "<div class=\"pill-row\">" + (step.selected.length ? step.selected.map((id) => "<span class=\"pill\">" + id + "</span>").join("") : "<span class=\"pill\">No selections yet</span>") + "</div>"
+        ].join("");
+      }
+
+      if (state.currentMode === "coin") {
+        const built = 6 - step.remaining;
+        const progress = (built / 6) * 100;
+
+        return [
+          "<div class=\"panel\">",
+          "<h4>Remaining Amount</h4>",
+          "<div class=\"meter\"><div class=\"meter-fill\" style=\"width:" + progress + "%\"></div></div>",
+          "<p>Built amount: " + built + " / 6 | Remaining: " + step.remaining + "</p>",
+          "</div>",
+          "<div class=\"pill-row\">" + (step.chosen.length ? step.chosen.map((coin) => "<span class=\"pill\">" + coin + "</span>").join("") : "<span class=\"pill\">No coins chosen yet</span>") + "</div>",
+          step.better ? "<div class=\"compare-card\"><strong>Better Answer</strong><span>" + step.better.join(" + ") + "</span></div>" : ""
+        ].join("");
+      }
+
+      return [
+        "<div class=\"panel\">",
+        "<h4>Capacity Meter</h4>",
+        "<div class=\"meter\"><div class=\"meter-fill\" style=\"width:" + ((step.used / step.capacity) * 100) + "%\"></div></div>",
+        "<p>Used: " + step.used + " / " + step.capacity + "</p>",
+        "</div>",
+        "<div class=\"bag\">" + (step.taken.length
+          ? step.taken.map((piece, index) => "<div class=\"bag-piece piece-" + (index % 3) + "\" style=\"width:" + piece.width + "%\">" + piece.id + " " + Math.round(piece.fraction * 100) + "%</div>").join("")
+          : "<span class=\"footnote\">Bag is empty.</span>") + "</div>",
+        "<div class=\"pill-row\">" + step.items.map((item) => "<span class=\"pill\">" + item.id + " ratio=" + item.ratio + "</span>").join("") + "</div>"
+      ].join("");
+    }
+
+    function renderDijkstraDemo(step) {
+      const settled = new Set(step.settled);
+      const frontier = new Set(step.frontier);
+      const pathEdges = new Set();
+      const currentPath = reconstructPathFromParents(step.parents, "A", "F");
+
+      if (currentPath) {
+        for (let index = 0; index < currentPath.length - 1; index += 1) {
+          pathEdges.add([currentPath[index], currentPath[index + 1]].sort().join("|"));
+        }
+      }
+
+      const edgeHtml = dijkstraEdges.map((edge) => {
+        const from = dijkstraLayout[edge[0]];
+        const to = dijkstraLayout[edge[1]];
+        const key = [edge[0], edge[1]].sort().join("|");
+        const midX = (from.x + to.x) / 2;
+        const midY = (from.y + to.y) / 2;
+        const overlays = [];
+
+        if (step.edge && key === step.edge.slice().sort().join("|")) {
+          overlays.push("<line class=\"edge active\" x1=\"" + from.x + "\" y1=\"" + from.y + "\" x2=\"" + to.x + "\" y2=\"" + to.y + "\"></line>");
+        }
+        if (pathEdges.has(key) && step.distances.F === 13) {
+          overlays.push("<line class=\"edge path\" x1=\"" + from.x + "\" y1=\"" + from.y + "\" x2=\"" + to.x + "\" y2=\"" + to.y + "\"></line>");
+        }
+
+        return [
+          "<g>",
+          "<line class=\"edge\" x1=\"" + from.x + "\" y1=\"" + from.y + "\" x2=\"" + to.x + "\" y2=\"" + to.y + "\"></line>",
+          overlays.join(""),
+          "<rect class=\"weight-badge\" x=\"" + (midX - 15) + "\" y=\"" + (midY - 14) + "\" width=\"30\" height=\"24\" rx=\"12\"></rect>",
+          "<text class=\"weight-text\" x=\"" + midX + "\" y=\"" + (midY + 5) + "\">" + edge[2] + "</text>",
+          "</g>"
+        ].join("");
+      }).join("");
+
+      const nodeHtml = Object.keys(dijkstraLayout).map((node) => {
+        const point = dijkstraLayout[node];
+        const classes = [];
+
+        if (node === "A") {
+          classes.push("node-start");
+        }
+        if (node === step.current) {
+          classes.push("node-current");
+        } else if (settled.has(node)) {
+          classes.push("node-settled");
+        } else if (frontier.has(node)) {
+          classes.push("node-found");
+        }
+
+        return [
+          "<g class=\"" + classes.join(" ") + "\">",
+          "<text class=\"distance-label\" x=\"" + point.x + "\" y=\"" + (point.y - 33) + "\">" + formatDistance(step.distances[node]) + "</text>",
+          "<circle class=\"circle\" cx=\"" + point.x + "\" cy=\"" + point.y + "\" r=\"24\"></circle>",
+          "<text class=\"circle-label\" x=\"" + point.x + "\" y=\"" + point.y + "\">" + node + "</text>",
+          "</g>"
+        ].join("");
+      }).join("");
+
+      const parentRow = Object.keys(step.parents).map((node) => {
+        return "<span class=\"pill\">" + node + " ← " + (step.parents[node] === null ? "None" : step.parents[node]) + "</span>";
+      }).join("");
+
+      return [
+        "<div class=\"graph-wrap\">",
+        "<svg viewBox=\"0 0 640 360\" role=\"img\" aria-label=\"Dijkstra weighted graph\">",
+        edgeHtml,
+        nodeHtml,
+        "</svg>",
+        "</div>",
+        "<div class=\"compare-grid\">",
+        "<div class=\"compare-card\"><strong>Frontier</strong><div class=\"pill-row\">" + (step.frontier.length ? step.frontier.map((node) => "<span class=\"pill\">" + node + "</span>").join("") : "<span class=\"pill\">Empty</span>") + "</div></div>",
+        "<div class=\"compare-card\"><strong>Parents</strong><div class=\"pill-row\">" + parentRow + "</div></div>",
+        "</div>"
+      ].join("");
+    }
+
+    function reconstructPathFromParents(parents, start, target) {
+      if (!parents[target] && start !== target) {
+        return null;
+      }
+
+      const path = [];
+      const seen = new Set();
+      let current = target;
+
+      while (current !== null && current !== undefined) {
+        if (seen.has(current)) {
+          return null;
+        }
+        seen.add(current);
+        path.push(current);
+        if (current === start) {
+          path.reverse();
+          return path;
+        }
+        current = parents[current];
+      }
+
+      return null;
+    }
+
+    function formatDistance(value) {
+      return value === Infinity ? "∞" : String(value);
+    }
+
+    function arrayFromRange(start, end) {
+      const values = [];
+      for (let index = start; index <= end; index += 1) {
+        values.push(index);
+      }
+      return values;
+    }
+
+    function renderFlashcards() {
+      document.getElementById("flashcards").innerHTML = weekData.map((week) => {
+        const isOpen = !!state.flashOpen[week.id];
+        return [
+          "<button class=\"flash-card" + (isOpen ? " is-open" : "") + "\" data-action=\"flip-card\" data-week=\"" + week.id + "\">",
+          "<div class=\"flash-week\">" + week.title + "</div>",
+          "<strong>" + week.subtitle + "</strong>",
+          "<p>" + (isOpen ? week.flash : "Click to reveal the one-line memory hook for this week.") + "</p>",
+          "</button>"
+        ].join("");
+      }).join("");
+    }
+
+    function renderQuizGrid() {
+      document.getElementById("quizGrid").innerHTML = weekData.map((week) => {
+        const selected = state.quizAnswers[week.id];
+
+        return [
+          "<article class=\"question-card\">",
+          "<div class=\"flash-week\">" + week.title + "</div>",
+          "<strong>" + week.question.prompt + "</strong>",
+          "<div class=\"answer-list\">",
+          week.question.options.map((option, index) => {
+            const classes = ["answer-button"];
+            if (selected !== undefined) {
+              if (index === week.question.correct) {
+                classes.push("correct");
+              } else if (selected === index) {
+                classes.push("wrong");
+              }
+            }
+            return "<button class=\"" + classes.join(" ") + "\" data-action=\"answer-question\" data-week=\"" + week.id + "\" data-option=\"" + index + "\">" +
+              option + "</button>";
+          }).join(""),
+          "</div>",
+          selected !== undefined
+            ? "<div class=\"question-meta\">" + week.question.explanation + "</div>"
+            : "<div class=\"question-meta\">No answer selected yet.</div>",
+          "</article>"
+        ].join("");
+      }).join("");
+    }
+
+    function renderScenarioGrid() {
+      document.getElementById("scenarioGrid").innerHTML = scenarioData.map((card) => {
+        const selected = state.scenarioAnswers[card.id];
+        return [
+          "<article class=\"scenario-card\">",
+          "<strong>" + card.prompt + "</strong>",
+          "<div class=\"answer-list\">",
+          card.options.map((option, index) => {
+            const classes = ["answer-button"];
+            if (selected !== undefined) {
+              if (index === card.correct) {
+                classes.push("correct");
+              } else if (selected === index) {
+                classes.push("wrong");
+              }
+            }
+            return "<button class=\"" + classes.join(" ") + "\" data-action=\"answer-scenario\" data-scenario=\"" + card.id + "\" data-option=\"" + index + "\">" +
+              option + "</button>";
+          }).join(""),
+          "</div>",
+          selected !== undefined
+            ? "<div class=\"question-meta\">" + card.explanation + "</div>"
+            : "<div class=\"question-meta\">Choose the best fit.</div>",
+          "</article>"
+        ].join("");
+      }).join("");
+    }
+
+    function renderAll() {
+      renderStats();
+      renderWeekTabs();
+      renderWeekSummary();
+      renderWeekQuestion();
+      renderModeTabs();
+      renderDemoHeader();
+      renderDemoControls();
+      renderDemoArea();
+      renderDemoNotes();
+      renderFlashcards();
+      renderQuizGrid();
+      renderScenarioGrid();
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-action]");
+      if (!button) {
+        return;
+      }
+
+      const action = button.dataset.action;
+
+      if (action === "select-week") {
+        const weekId = Number(button.dataset.week);
+        state.currentWeek = weekId;
+        state.currentMode = Object.keys(currentWeekData().demo.modes)[0];
+        state.demoIndex = 0;
+        state.visitedWeeks.add(weekId);
+      } else if (action === "select-mode") {
+        state.currentMode = button.dataset.mode;
+        state.demoIndex = 0;
+      } else if (action === "demo-prev") {
+        state.demoIndex = Math.max(0, state.demoIndex - 1);
+      } else if (action === "demo-next") {
+        state.demoIndex = Math.min(currentModeData().steps.length - 1, state.demoIndex + 1);
+      } else if (action === "demo-reset") {
+        state.demoIndex = 0;
+      } else if (action === "answer-question") {
+        state.quizAnswers[Number(button.dataset.week)] = Number(button.dataset.option);
+      } else if (action === "flip-card") {
+        const weekId = Number(button.dataset.week);
+        state.flashOpen[weekId] = !state.flashOpen[weekId];
+      } else if (action === "answer-scenario") {
+        state.scenarioAnswers[button.dataset.scenario] = Number(button.dataset.option);
+      }
+
+      renderAll();
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
